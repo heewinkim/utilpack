@@ -26,37 +26,37 @@
 - hian_flask : Flask로 구현된 웹 API 클래스인 HianFlask 를 제공합니다.  
 
 
-    >>> EXMAPLE
-    
-    # -*- coding: utf-8 -*-
-    """
-    본 코드는 API 작성에 대한 예시 입니다.
-    예시 API로는 본 코드에 작성된
-    ExampleApi 클래스를 사용합니다.
-    실제 API 사용시에는 API 클래스를 import 하여 사용합니다.
-    """
-    
-    
-    class ExampleApi(object):
-    
-        def run(self):
-            result = {'arg1':100,'arg2':200}
-            return result
-    
-    
-    from framework.hian_flask import HianFlask
-    
-    example_api = ExampleApi()
-    application = HianFlask('ex')
-    
-    
-    @application.route('/hian/v1/example',methods=['POST','GET'])
-    def request_api():
-    
-        application.output.set_default(['arg1','arg2'],-1)
-        result = example_api.run()
-        return application.output.return_output(result)
-    
-    if __name__ == '__main__':
-        application.run('0.0.0.0',port=5000)    
-    
+- EXAMPLE
+        
+        # -*- coding: utf-8 -*-
+        """
+        본 코드는 API 작성에 대한 예시 입니다.
+        예시 API로는 본 코드에 작성된
+        ExampleApi 클래스를 사용합니다.
+        실제 API 사용시에는 API 클래스를 import 하여 사용합니다.
+        """
+        
+        
+        class ExampleApi(object):
+        
+            def run(self):
+                result = {'arg1':100,'arg2':200}
+                return result
+        
+        
+        from framework.hian_flask import HianFlask
+        
+        example_api = ExampleApi()
+        application = HianFlask('ex')
+        
+        
+        @application.route('/hian/v1/example',methods=['POST','GET'])
+        def request_api():
+        
+            application.output.set_default(['arg1','arg2'],-1)
+            result = example_api.run()
+            return application.output.return_output(result)
+        
+        if __name__ == '__main__':
+            application.run('0.0.0.0',port=5000)    
+        
