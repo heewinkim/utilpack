@@ -26,10 +26,8 @@ setuptools.setup(
     url="https://github.com/heewinkim/hian.git",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: Apache 2.0",
         "Operating System :: OS Independent",
-        'Programming Language :: Python :: 3.6.1'
+        'Programming Language :: Python :: 3.6'
     ],
     install_requires=get_requirements(),
     python_requires='>=3.6.1',
