@@ -9,21 +9,20 @@ error module
  Module     error module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
     * 상위모듈에 전달하여 Main 또는 공통적으로 처리하는 방식을 지향합니다.
-    * raise HianError(err_type,err_message) 형식으로 에러를 발생시킵니다.
-    * 로깅시 HianError()로 에러인스턴스를 생성하여 전달합니다 eg. logger.error(HianError(err_type,err_message))
+    * raise PyError(err_type,err_message) 형식으로 에러를 발생시킵니다.
+    * 로깅시 PyError()로 에러인스턴스를 생성하여 전달합니다 eg. logger.error(PyError(err_type,err_message))
     * output.py 모듈의 set_error 사용시 인수로 발생한 에러를 그대로 전달합니다
 
         >>> EXAMPLE
 
         def do_something():
-            raise HianError(ERROR_TYPES.RUPNTIME_ERROR,'test error')
+            raise PyError(ERROR_TYPES.RUPNTIME_ERROR,'test error')
 
-        output = HianOutput()
+        output = PyOutput()
 
         try:
             do something()
@@ -57,14 +56,14 @@ class ERROR_TYPES(enum.Enum):
     # 500 ERROR
     UNEXPECTED_ERROR = 0x50000
 
-    # 600 Hian CUSTOM ERROR
+    # 600 PY CUSTOM ERROR
     IMAGE_READ_ERROR = 0x60000
     IMAGE_SIZE_ERROR = 0x60001
     IMAGE_FORMAT_ERROR = 0x60002
     INPUT_KEY_ERROR = 0x60003
     INPUT_VALUE_ERROR = 0x60004
 
-    # 700 Hian PRIVATE ERROR
+    # 700 PY PRIVATE ERROR
     INITIATE_ERROR=0x70000
     PREPROCESSING_ERROR = 0x70001
     IMAGE_PROCESS_ERROR = 0x70002
@@ -73,11 +72,11 @@ class ERROR_TYPES(enum.Enum):
     POSTPROCESSING_ERROR = 0x70005
 
 
-class HianError(Exception):
+class PyError(Exception):
 
     def __init__(self,err_type,message=''):
         """
-        example : HianError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to download the image')
+        example : PyError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to download the image')
 
         Autor : hian
 

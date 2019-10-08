@@ -9,7 +9,6 @@ maths module
  Module     maths module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
@@ -20,7 +19,7 @@ maths module
 import numpy as np
 
 
-class HianMaths(object):
+class PyMaths(object):
 
     @staticmethod
     def get_degree(pt1,pt2,degree90=True):
@@ -30,4 +29,5 @@ class HianMaths(object):
         angle = np.abs(np.degrees(np.arctan2(dY, dX)))
         if degree90:
             angle = 180-angle if angle>90 else angle
+
         return angle

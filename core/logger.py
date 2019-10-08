@@ -9,19 +9,18 @@ logger module
  Module     logger module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
     * 설정값을 로드하여 제공하는 모듈입니다.
     * 로그 설정에 대한 처리(자체 로커 로테이션 사용 or 리눅스 logrotate 사용)
-    * 외부에서 사용시 인스턴스화 된 Hian_logger 를 import 하여 사용합니다.
+    * 외부에서 사용시 인스턴스화 된 py_logger 를 import 하여 사용합니다.
     * set_input2log 를 통해 요청마다 클라이언트 정보를 입력해주어야 합니다.
 
     >>> EXAMPLE
     import traceback
 
-    logger = HianLogger()
+    logger = PyLogger()
 
 
     def do_something():
@@ -44,17 +43,17 @@ import requests
 import json
 from datetime import datetime
 from shutil import copyfile
-from .config import HianConfig
+from .config import PyConfig
 from .singleton import Singleton
 monthes = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12',
            }
 
-Hian_config = HianConfig()
+py_config = PyConfig()
 
 
-class HianLogger(logging.Filter,metaclass=Singleton):
+class PyLogger(logging.Filter,metaclass=Singleton):
 
     def __init__(self, log_name,td_log=False):
 
@@ -67,15 +66,15 @@ class HianLogger(logging.Filter,metaclass=Singleton):
 
         # fluentd-log parameters
         self.td_log=td_log
-        self.td_ip = Hian_config.td_ip
-        self.td_port = Hian_config.td_port
-        self.td_tag = Hian_config.td_tag
+        self.td_ip = py_config.td_ip
+        self.td_port = py_config.td_port
+        self.td_tag = py_config.td_tag
 
         # 오늘날짜 시간 저장
         self.saveDate = self._get_today()
 
         # 로그 저장 경로
-        self.log_dir = Hian_config.log_path +'/' + log_name
+        self.log_dir = py_config.log_path +'/' + log_name
         self.log_name = log_name
 
         if self.td_log:
@@ -99,13 +98,13 @@ class HianLogger(logging.Filter,metaclass=Singleton):
         self.set_request_info()
         self._set_all_logger()
 
-        if Hian_config.log_rotate:
+        if py_config.log_rotate:
             self._check_init_copiedlog()
 
     def info(self,message,**kwargs):
         """
         info log를 남깁니다.
-        HianLogger 초기화시 td_log 가 True이면
+        PyLogger 초기화시 td_log 가 True이면
         kwargs를 추가하여 td-log를 전송합니다.
 
         :param message: 메세지
@@ -338,7 +337,7 @@ class HianLogger(logging.Filter,metaclass=Singleton):
         현재 날짜와 저장된 날짜 다른지 확인
         """
 
-        if bool(Hian_config.log_rotate) is True:
+        if bool(py_config.log_rotate) is True:
 
             nowdate = self._get_today()
 

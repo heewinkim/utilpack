@@ -3,21 +3,22 @@ import time
 import numpy as np
 import os
 from tqdm import tqdm
-
+import pickle
+import urllib.request
 
 
 def get_iou(boxA, boxB):
     """
-	Calculate the Intersection over Union (IoU) of two bounding boxes.
-	Parameters
-	----------
-	boxA = np.array( [ xmin,ymin,xmax,ymax ] )
-	boxB = np.array( [ xmin,ymin,xmax,ymax ] )
-	Returns
-	-------
-	float
-		in [0, 1]
-	"""
+    Calculate the Intersection over Union (IoU) of two bounding boxes.
+    Parameters
+    ----------
+    boxA = np.array( [ xmin,ymin,xmax,ymax ] )
+    boxB = np.array( [ xmin,ymin,xmax,ymax ] )
+    Returns
+    -------
+    float
+        in [0, 1]
+    """
 
     bb1 = dict()
     bb1['x1'] = boxA[0]
@@ -59,7 +60,7 @@ def get_iou(boxA, boxB):
     return iou
 
 
-def preprocessing_wider_dataset(root_dir,splits=['train','val'],min_w=15,min_h=15):
+def preprocessing_wider_dataset(root_dir, splits=['train', 'val'], min_w=15, min_h=15):
     """
     wider dataset preprocessing
     data structure rule : {root_dir}/wider_face_split
@@ -78,13 +79,13 @@ def preprocessing_wider_dataset(root_dir,splits=['train','val'],min_w=15,min_h=1
     dataset = dict()
 
     for split in splits:
-        with open('{}/wider_face_split/wider_face_{}_bbx_gt.txt'.format(root_dir,split), 'r') as f:
+        with open('{}/wider_face_split/wider_face_{}_bbx_gt.txt'.format(root_dir, split), 'r') as f:
             lines = f.readlines()
 
         for line in lines:
             line = line.split('\n')[0]
             if line.endswith('.jpg'):
-                image_path = os.path.join(root_dir,'WIDER_%s' % (split),'images', line)
+                image_path = os.path.join(root_dir, 'WIDER_%s' % (split), 'images', line)
                 dataset[image_path] = []
             line_components = line.split(' ')
             if len(line_components) > 1:
@@ -105,13 +106,9 @@ def preprocessing_wider_dataset(root_dir,splits=['train','val'],min_w=15,min_h=1
     return dataset
 
 
-def evaluate(detect_func, root_dir,splits=['train','val'],min_w=15,min_h=15,use_batch=None):
+def evaluate(detect_func, dataset=None, use_batch=None):
     """
-    evaluate detection model on wider dataset
-    data structure rule : {root_dir}/wider_face_split
-                          {root_dir}/WIDER_train
-                          {root_dir}/WIDER_val
-
+    evaluate detection model on wider dataset's validation data
 
     :param detect_func: face detection function , rule : function(cv_image) -> x1,y1,x2,y2
     :param root_dir: root directory
@@ -121,12 +118,12 @@ def evaluate(detect_func, root_dir,splits=['train','val'],min_w=15,min_h=15,use_
     :param use_batch: if None, use all of dataset(wider) otherwise use ratio of use_batch(float)
     :return: dict,test result
     """
-
-
-    dataset = preprocessing_wider_dataset(root_dir,splits,min_w,min_h)
+    if dataset is None:
+        file = urllib.request.urlopen('https://kr-py-prd-data.s3.ap-northeast-2.amazonaws.com/common/val_wider_dataset.pkl')
+        dataset = pickle.load(file)
     if use_batch:
-        n_use = int(len(dataset)*use_batch)
-        dataset = {k:v for k,v in zip(list(dataset.keys())[:n_use],list(dataset.values())[:n_use])}
+        n_use = int(len(dataset) * use_batch)
+        dataset = {k: v for k, v in zip(list(dataset.keys())[:n_use], list(dataset.values())[:n_use])}
     n_data = len(dataset.keys())
     data_total_iou = 0
     data_total_precision = 0
@@ -140,7 +137,7 @@ def evaluate(detect_func, root_dir,splits=['train','val'],min_w=15,min_h=15,use_
         image_data = cv2.imread(key)
         face_bbs_gt = np.array(dataset[key])
         total_gt_face = len(face_bbs_gt)
-        total_face+=total_gt_face
+        total_face += total_gt_face
 
         start_time = time.time()
         face_pred = detect_func(image_data)
@@ -150,10 +147,10 @@ def evaluate(detect_func, root_dir,splits=['train','val'],min_w=15,min_h=15,use_
         total_iou = 0
         tp = 0
         pred_dict = dict()
-        if len(face_pred)<len(face_bbs_gt):
-            positive_false += (len(face_bbs_gt)-len(face_pred))
-        elif len(face_pred)>len(face_bbs_gt):
-            negative_true += (len(face_pred)-len(face_bbs_gt))
+        if len(face_pred) < len(face_bbs_gt):
+            positive_false += (len(face_bbs_gt) - len(face_pred))
+        elif len(face_pred) > len(face_bbs_gt):
+            negative_true += (len(face_pred) - len(face_bbs_gt))
 
         for gt in face_bbs_gt:
             max_iou_per_gt = 0

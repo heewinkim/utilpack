@@ -9,7 +9,6 @@ time_util module
  Module     time_util module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
@@ -22,7 +21,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-class HianTimeUtil(object):
+class PyTimeUtil(object):
 
     @staticmethod
     def draw_timeline(date_list, figsize=(20, 3), hour_interval=None):

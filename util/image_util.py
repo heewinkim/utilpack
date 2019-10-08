@@ -9,7 +9,6 @@ image module
  Module     image module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
@@ -20,27 +19,29 @@ image module
 
 import os
 import sys
-current_dir = os.path.dirname(__file__) # common.util
+current_dir = os.path.dirname(os.path.abspath(__file__)) # common.util
 parent_dir = os.path.dirname(current_dir) # common
 sys.path.insert(0,parent_dir)
 
-from core.time import HianTime
+from core.time import PyTime
 from core.error import *
 
 import cv2
+import glob
+import datetime
+import numpy as np
 import urllib.request
 from math import ceil
-import datetime
-from io import BytesIO
-import glob
-import numpy as np
 from PIL import Image
-from imutils import build_montages
+from io import BytesIO
 import matplotlib.pyplot as plt
 from PIL.ExifTags import TAGS, GPSTAGS
 
 
-class HianImageUtil(object):
+class PyImageUtil(object):
+
+    cv2 = cv2
+    plt = plt
 
     @staticmethod
     def read_fileinfo(path: str):
@@ -80,6 +81,8 @@ class HianImageUtil(object):
             if img_type == 'bytes':
                 bytes_data = data.read()
             elif img_type == 'url':
+                if data.startswith('/Upload'):
+                    data = 'https://www.py.com' + data
                 response = urllib.request.urlopen(data)
                 if response.getcode() == 200:
                     bytes_data = response.read()
@@ -90,7 +93,7 @@ class HianImageUtil(object):
             return bytes_data
 
         except Exception:
-            raise HianError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to read image - read_bytedata in HianImage')
+            raise PyError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to read image - read_bytedata in PyImage')
 
     @staticmethod
     def calculate_sizerate(ot, w, h):
@@ -134,7 +137,7 @@ class HianImageUtil(object):
             return differential_times
 
         if all([image.get('exifDate') for image in images]) is False:
-            raise HianError(ERROR_TYPES.PREPROCESSING_ERROR,'no exifDate key - _get_differential_times in HianTime')
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'no exifDate key - _get_differential_times in PyTime')
 
         previous_tail_time = images[0]['exifDate']
 
@@ -142,7 +145,7 @@ class HianImageUtil(object):
             head_time = image['exifDate']
 
             # 초단위로 미분값을 저장합니다.
-            diff_time = abs(HianTime.get_difftime(previous_tail_time, head_time))
+            diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
 
             differential_times.append(diff_time)
             previous_tail_time = head_time
@@ -157,7 +160,7 @@ class HianImageUtil(object):
 
         :param path_list: 이미지경로 리스트
         :param img_list: 이미지 리스트
-        :param title_list: 위의 리스트와 길이가 같은 리스트, 사진 위의 제목으로 출력됩니다
+        :param title_list: 위의 리스트와 길이가 같은 리스트, 사진 위의 제목으로 출력됩니다 맨앞의 글자가 @인 경우 강조됩니다.
         :param cols: 열의 개수
         :param figsize: 출력 전체 크기 (25,25) 추천
         :param img_resize: 각 이미지의 사이즈를 조정합니다.
@@ -176,6 +179,8 @@ class HianImageUtil(object):
         elif url_list is not None:
             temp_list=[]
             for url in url_list:
+                if url.startswith('/Upload'):
+                    url = 'https://www.py.com' + url
                 response = urllib.request.urlopen(url)
                 if response.getcode() == 200:
                     bytes_data = response.read()
@@ -203,7 +208,10 @@ class HianImageUtil(object):
                     break
                 frame = fig.add_subplot(1, cols, i + 1)
                 if title_list is not None:
-                    frame.set_title('{}'.format(title_list[idx].replace(' ', '\n')), color='#808080')
+                    if title_list[idx][0]=='@':
+                        frame.set_title('{}'.format(title_list[idx][1:].replace(' ', '\n')), color='#FF00FF')
+                    else:
+                        frame.set_title('{}'.format(title_list[idx].replace(' ', '\n')), color='#808080')
                 frame.set_xticks([])
                 frame.set_yticks([])
                 frame.imshow(img_list[idx])
@@ -280,7 +288,7 @@ class HianImageUtil(object):
         if path is None:
             return
 
-        img_list, name_list = HianImageUtil.get_pathlist(path)
+        img_list, name_list = PyImageUtil.get_pathlist(path)
 
         if batch is None:
             batch = (0, len(img_list))
@@ -389,7 +397,7 @@ class HianImageUtil(object):
         if bytes_data:
             image = Image.open(BytesIO(bytes_data))
         elif data and types:
-            bytes_data = HianImageUtil.read_bytedata(data,types)
+            bytes_data = PyImageUtil.read_bytedata(data,types)
             image = Image.open(BytesIO(bytes_data))
 
         if image is None:
@@ -453,7 +461,7 @@ class HianImageUtil(object):
         :param bytes_data: bytes image data
         :return:
         """
-        exif = HianImageUtil.read_exif(data,types,image,bytes_data)
+        exif = PyImageUtil.read_exif(data,types,image,bytes_data)
 
         if exif is not None:
             return int(exif.get('Orientation',0))
@@ -488,7 +496,7 @@ class HianImageUtil(object):
             col = round(len(image_list) ** (1 / 2) - 0.1)
             row = ceil(len(image_list) / col)
 
-        mat = build_montages(image_list, img_size, (col, row))
+        mat = PyImageUtil._build_montages(image_list, img_size, (col, row))
         if len(mat) == 1:
             return mat[0]
         else:
@@ -530,7 +538,7 @@ class HianImageUtil(object):
         lat = None
         lng = None
         try:
-            exif_data = HianImageUtil.read_exif(data,types,image,bytes_data)
+            exif_data = PyImageUtil.read_exif(data,types,image,bytes_data)
 
             if "GPSInfo" in exif_data:
                 gps_info = exif_data["GPSInfo"]
@@ -565,10 +573,75 @@ class HianImageUtil(object):
         :return:
         """
 
-        ot = HianImageUtil.read_orientation(data,types,image,bytes_data)
+        ot = PyImageUtil.read_orientation(data,types,image,bytes_data)
 
         if ot in [2,3,4,5,6,7,8]:
             return 1
         else:
             return img_ot
 
+    @staticmethod
+    def _build_montages(image_list, image_shape, montage_shape):
+        """
+        ---------------------------------------------------------------------------------------------
+        author: Kyle Hounslow
+        ---------------------------------------------------------------------------------------------
+        Converts a list of single images into a list of 'montage' images of specified rows and columns.
+        A new montage image is started once rows and columns of montage image is filled.
+        Empty space of incomplete montage images are filled with black pixels
+        ---------------------------------------------------------------------------------------------
+        :param image_list: python list of input images
+        :param image_shape: tuple, size each image will be resized to for display (width, height)
+        :param montage_shape: tuple, shape of image montage (width, height)
+        :return: list of montage images in numpy array format
+        ---------------------------------------------------------------------------------------------
+
+        example usage:
+
+        # load single image
+        img = cv2.imread('lena.jpg')
+        # duplicate image 25 times
+        num_imgs = 25
+        img_list = []
+        for i in xrange(num_imgs):
+            img_list.append(img)
+        # convert image list into a montage of 256x256 images tiled in a 5x5 montage
+        montages = make_montages_of_images(img_list, (256, 256), (5, 5))
+        # iterate through montages and display
+        for montage in montages:
+            cv2.imshow('montage image', montage)
+            cv2.waitKey(0)
+
+        ----------------------------------------------------------------------------------------------
+        """
+        if len(image_shape) != 2:
+            raise Exception('image shape must be list or tuple of length 2 (rows, cols)')
+        if len(montage_shape) != 2:
+            raise Exception('montage shape must be list or tuple of length 2 (rows, cols)')
+        image_montages = []
+        # start with black canvas to draw images onto
+        montage_image = np.zeros(shape=(image_shape[1] * (montage_shape[1]), image_shape[0] * montage_shape[0], 3),
+                              dtype=np.uint8)
+        cursor_pos = [0, 0]
+        start_new_img = False
+        for img in image_list:
+            if type(img).__module__ != np.__name__:
+                raise Exception('input of type {} is not a valid numpy array'.format(type(img)))
+            start_new_img = False
+            img = cv2.resize(img, image_shape)
+            # draw image to black canvas
+            montage_image[cursor_pos[1]:cursor_pos[1] + image_shape[1], cursor_pos[0]:cursor_pos[0] + image_shape[0]] = img
+            cursor_pos[0] += image_shape[0]  # increment cursor x position
+            if cursor_pos[0] >= montage_shape[0] * image_shape[0]:
+                cursor_pos[1] += image_shape[1]  # increment cursor y position
+                cursor_pos[0] = 0
+                if cursor_pos[1] >= montage_shape[1] * image_shape[1]:
+                    cursor_pos = [0, 0]
+                    image_montages.append(montage_image)
+                    # reset black canvas
+                    montage_image = np.zeros(shape=(image_shape[1] * (montage_shape[1]), image_shape[0] * montage_shape[0], 3),
+                                          dtype=np.uint8)
+                    start_new_img = True
+        if start_new_img is False:
+            image_montages.append(montage_image)  # add unfinished montage
+        return image_montages

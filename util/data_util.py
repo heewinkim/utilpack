@@ -9,7 +9,6 @@ data module
  Module     data module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
@@ -19,27 +18,71 @@ data module
 """
 
 
-from .image_util import HianImageUtil
+from .image_util import PyImageUtil
 import os
 import sys
+import uuid
 import time
-import pickle
 import json
+import pickle
+import timeit
 import itertools
+import subprocess
+import traceback
 import numpy as np
 import urllib.request
+from PIL import Image
+from datetime import datetime
 import matplotlib.pyplot as plt
-import xml.etree.ElementTree as et
 from tqdm import tqdm_notebook,tqdm
-from sklearn.metrics import confusion_matrix
-import pymysql
-import subprocess
 
 
-class HianDataUtil(object):
+class PyDataUtil(object):
 
-    def __init__(self):
-        pass
+    @staticmethod
+    def save_json(data,path):
+        with open(path,'w') as f:
+            f.write(json.dumps(data))
+
+    @staticmethod
+    def load_json(path):
+        return json.loads(open(path).read())
+
+    @staticmethod
+    def download(url:str,save_path):
+
+        print('download {} ..'.format(url.split('/')[-1]))
+        with urllib.request.urlopen(url) as src, open(save_path, 'wb') as dst:
+            data = src.read(1024)
+            pbar = tqdm(total=int(np.ceil(src.length / 1024)))
+            while len(data) > 0:
+                pbar.update(1)
+                dst.write(data)
+                data = src.read(1024)
+            pbar.close()
+
+    @staticmethod
+    def func_test(f, number=1000, time_unit='ms', repeat=3, verbose=True, *args, **kwargs):
+        def wrapper(func, *args, **kwargs):
+            def wrapped():
+                return func(*args, **kwargs)
+
+            return wrapped
+
+        wrappered1 = wrapper(f, *args, **kwargs)
+        times = timeit.repeat(wrappered1, repeat=repeat, number=number)
+
+        times = sum(times) / len(times)
+
+        if time_unit == 'ms':
+            times = int(times * 1000)
+        elif time_unit == 'us':
+            times = int(times * 1000000)
+
+        if verbose:
+            print(times, time_unit)
+
+        return times
 
     @staticmethod
     def in_notebook():
@@ -60,7 +103,6 @@ class HianDataUtil(object):
 
         subprocess.call(['pip', 'install', name])
 
-
     @staticmethod
     def get_pathlist(path, recursive=False, format=['*'], include_secretfile=False):
         """
@@ -70,7 +112,7 @@ class HianDataUtil(object):
         :return: images full path list, image filename list
         """
 
-        return HianImageUtil.get_pathlist(path,recursive,format=format,include_secretfile=include_secretfile)
+        return PyImageUtil.get_pathlist(path,recursive,format=format,include_secretfile=include_secretfile)
 
     @staticmethod
     def get_dirlist(path, include_secretfile=False):
@@ -94,7 +136,7 @@ class HianDataUtil(object):
         return dir_list
 
     @staticmethod
-    def save_pickle(path,data):
+    def save_pickle(data,path):
         """
         데이터를 바이너리파일로 저장합니다.
 
@@ -162,6 +204,7 @@ class HianDataUtil(object):
         Normalization can be applied by setting `normalize=True`.
 
         """
+        from sklearn.metrics import confusion_matrix
 
         cm = confusion_matrix(label_list, pred_list)
 

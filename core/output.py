@@ -9,7 +9,6 @@ output module
  Module     output module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
@@ -19,7 +18,7 @@ output module
 
 
     >>> EXAMPLE
-    output = HianOutput()
+    output = PyOutput()
 
     output.set_output(a)
     output.set_success()
@@ -46,7 +45,7 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class HianOutput(object,metaclass=Singleton):
+class PyOutput(object,metaclass=Singleton):
 
     def __init__(self,top_keys=['statusCode','message']):
 
@@ -91,7 +90,7 @@ class HianOutput(object,metaclass=Singleton):
             self.default_obj = kwargs.get('dict_obj')
 
         else:
-            raise HianError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid parameter offered - set_default in HianOutput')
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid parameter offered - set_default in PyOutput')
 
         self.output = self.default_obj.copy()
 

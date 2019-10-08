@@ -9,7 +9,6 @@ keras_tool module
  Module     keras_tool module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
@@ -18,7 +17,7 @@ keras_tool module
 ===============================================
 """
 
-from .image_util import HianImageUtil
+from .image_util import PyImageUtil
 import os
 import cv2
 import glob
@@ -29,7 +28,7 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 
-class HianTrainUtil(object):
+class PyTrainUtil(object):
 
     @staticmethod
     def plot_testlist(path_list,pred_list,conf_list,label_list=None,cols=8,figsize=(10,10),img_resize=(600,600),miss_only=False):
@@ -104,7 +103,7 @@ class HianTrainUtil(object):
         :return: path_list,label_list
         """
 
-        dir_list = HianImageUtil.get_pathlist(path)
+        dir_list = PyImageUtil.get_pathlist(path)
         name_to_label=OrderedDict()
 
         path_list = []

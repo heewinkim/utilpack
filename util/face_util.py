@@ -9,57 +9,66 @@ face_util module
  Module     face_util module
  Date       2019-07-29
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
-    * FaceAligner 클래스 제공 - 메서드 (get_align_faces,vis_face_landmarks
+    * PyFaceUtil 클래스 제공 - 메서드 (get_align_faces,vis_face_landmarks
+    * shape_predictor 모델 다운로드 경로
+    * https://kr-py-prd-data.s3.ap-northeast-2.amazonaws.com/model/face/shape_predictor_68_face_landmarks.dat
 
 ===============================================
 """
 
-
-import cv2
-import numpy as np
+import os
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__)) # common.util
+parent_dir = os.path.dirname(current_dir) # common
+sys.path.insert(0,parent_dir)
 from dlib import shape_predictor,rectangle
 from collections import OrderedDict
-import matplotlib.pyplot as plt
-
-
-#For dlib’s 68-point facial landmark detector:
-FACIAL_LANDMARKS_68_IDXS = OrderedDict([
-    ("mouth", (48, 68)),
-    ("inner_mouth", (60, 68)),
-    ("right_eyebrow", (17, 22)),
-    ("left_eyebrow", (22, 27)),
-    ("right_eye", (36, 42)),
-    ("left_eye", (42, 48)),
-    ("nose", (27, 36)),
-    ("jaw", (0, 17))
-])
-
-#For dlib’s 5-point facial landmark detector:
-FACIAL_LANDMARKS_5_IDXS = OrderedDict([
-    ("right_eye", (2, 3)),
-    ("left_eye", (0, 1)),
-    ("nose", (4,5))
-])
+from core.maths import PyMaths
+from urllib.request import urlopen
+from tqdm import tqdm
+import numpy as np
+import math
+import cv2
+import os
 
 
 class FaceAligner:
 
-    def __init__(self, num_landmark_pts=68, desiredLeftEye=(0.3,0.3),desiredFaceWidth=160, desiredFaceHeight=160):
+    def __init__(self,desiredLeftEye=(0.3,0.3),desiredFaceWidth=150, desiredFaceHeight=150,predictor_type=5):
+        """
 
-        # store the facial landmark predictor, desired output left
-        # eye position, and desired output face width + height
-        if num_landmark_pts==5:
-            PREDICTOR_PATH = "shape_predictor_5_face_landmarks.dat"
-            self._predictor = shape_predictor(PREDICTOR_PATH)
-            self._facial_landmarks_idxs = FACIAL_LANDMARKS_5_IDXS
-        elif num_landmark_pts==68:
-            PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
-            self._predictor = shape_predictor(PREDICTOR_PATH)
-            self._facial_landmarks_idxs = FACIAL_LANDMARKS_68_IDXS
+        :param desiredLeftEye: eye margin
+        :param desiredFaceWidth: face width
+        :param desiredFaceHeight: face height
+        :param predictor_type: number of landmark, 5 or 68
+        """
+
+        self._predictor_type=int(predictor_type)
+
+        PREDICTOR_PATH = current_dir + '/landmark_{}.dat'.format(predictor_type)
+
+        if not os.path.exists(PREDICTOR_PATH):
+            self._download_landmark(PREDICTOR_PATH)
+
+        self._predictor = shape_predictor(PREDICTOR_PATH)
+        if predictor_type==68:
+            self._landmarks_idxes = OrderedDict([
+                ("right_lip", range(48, 49)),
+                ("left_lip", range(54, 55)),
+                ("right_eye", range(36, 42)),
+                ("left_eye", range(42, 48)),
+                ("nose", range(30, 31)),
+                ("jaw", range(8, 9))
+            ])
+        else:
+            self._landmarks_idxes = OrderedDict([
+                ("right_eye", range(2, 4)),
+                ("left_eye", range(0, 2)),
+                ("nose", range(4, 5))
+                ])
 
         self._desiredLeftEye = desiredLeftEye
         self._desiredFaceWidth = desiredFaceWidth
@@ -70,161 +79,182 @@ class FaceAligner:
         if self._desiredFaceHeight is None:
             self._desiredFaceHeight = self._desiredFaceWidth
 
-    def _shape_to_np(self,shape, dtype="int"):
+    def _download_landmark(self,dst_file):
 
-        # initialize the list of (x, y)-coordinates
-        coords = np.zeros((shape.num_parts, 2), dtype=dtype)
+        url = 'landmark_{}.dat'.format(self._predictor_type)
+        print('download landmark.dat..')
+        with urlopen(url) as src, open(dst_file, 'wb') as dst:
+            data = src.read(1024)
+            pbar = tqdm(total=int(np.ceil(src.length/1024)))
+            while len(data) > 0:
+                pbar.update(1)
+                dst.write(data)
+                data = src.read(1024)
+            pbar.close()
 
-        # loop over all facial landmarks and convert them
-        # to a 2-tuple of (x, y)-coordinates
-        for i in range(0, shape.num_parts):
-            coords[i] = (shape.part(i).x, shape.part(i).y)
+    def _get_face_orientation(self,image_shape, landmarks):
+        """
+        얼굴 시선에 대한 정보를 얻습니다.
 
-        # return the list of (x, y)-coordinates
-        return coords
+        :param image_shape: tuple,(height,width,channel)
+        :param landmarks: left_eye,right_eye,nose,left_lip,right_lip,jaw
+        :return: float(roll),float(pitch),float(yaw),list(coordinate_pts)
+        """
 
-    def get_alignFaces(self, image, faceRects,color_mode='bgr'):
+        image_size = image_shape[:2]
+
+        image_points = np.array([
+            landmarks['nose'],  # Nose tip
+            landmarks['jaw'],  # Chin
+            landmarks['left_eye'],  # Left eye left centroid
+            landmarks['right_eye'],  # Right eye right centroid
+            landmarks['left_lip'],  # Left Mouth corner
+            landmarks['right_lip']  # Right mouth corner
+        ], dtype="double")
+
+        model_points = np.array([
+            (0.0, 0.0, 0.0),  # Nose tip
+            (0.0, -330.0, -65.0),  # Chin
+            (-165.0, 170.0, -135.0),  # Left eye left centroid
+            (165.0, 170.0, -135.0),  # Right eye right centroid
+            (-150.0, -150.0, -125.0),  # Left Mouth corner
+            (150.0, -150.0, -125.0)  # Right mouth corner
+        ])
+
+        # Camera internals
+        center = (image_size[1] / 2, image_size[0] / 2)
+        focal_length = center[0] / np.tan(60 / 2 * np.pi / 180)
+        camera_matrix = np.array([[focal_length, 0, center[0]],[0, focal_length, center[1]],[0, 0, 1]], dtype="double")
+
+        dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
+        (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, image_points, camera_matrix,dist_coeffs, flags=cv2.cv2.SOLVEPNP_ITERATIVE)
+
+        axis = np.float32([[200, 0, 0], [0, 200, 0], [0, 0, 200]])
+
+        imgpts, jac = cv2.projectPoints(axis, rotation_vector, translation_vector, camera_matrix, dist_coeffs)
+
+        coordinate_pts = [landmarks['nose']]+[list(map(float,v[0])) for v in imgpts]
+
+        rvec_matrix = cv2.Rodrigues(rotation_vector)[0]
+
+        proj_matrix = np.hstack((rvec_matrix, translation_vector))
+        eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
+
+        pitch, yaw, roll = [math.radians(_) for _ in eulerAngles]
+
+        pitch = math.degrees(math.asin(math.sin(pitch)))
+        roll = -math.degrees(math.asin(math.sin(roll)))
+        yaw = math.degrees(math.asin(math.sin(yaw)))
+
+        return float(roll), float(pitch), float(yaw), coordinate_pts
+
+    def _extract_landmarkPts(self,shape,idxes,mean_pts=True):
+        """
+        dlib shape predictor결과에서 idxex리스트에 해당하는 각 특징들을 추출합니다.
+
+        :param shape: dlib's shape_predictor result
+        :param idxes: idx list
+        :param mean_pts: idx가 여러개인경우 그 특징 좌표들을 중심점인 하나의 좌표로 압축할지
+        :return: tuple(points)
+        """
+
+        points = [(shape.part(idx).x,shape.part(idx).y) for idx in idxes]
+        if mean_pts:
+            points = tuple([int(value) for value in np.mean(points,axis=0)])
+        return points
+
+    def _align(self,faceImage,leftEyePts,rightEyePts):
+        """
+        보정된 얼굴을 얻습니다.
+
+        :param faceImage: 크롭된 얼굴이미지
+        :param leftEyePts: 좌안
+        :param rightEyePts: 우안
+        :return: aligned_faceImage
+        """
+
+        dY = rightEyePts[1] - leftEyePts[1]
+        dX = rightEyePts[0] - leftEyePts[0]
+        angle = np.degrees(np.arctan2(dY, dX)) - 180
+        # compute the desired right eye x-coordinate based on the
+        # desired x-coordinate of the left eye
+        desiredRightEyeX = 1.0 - self._desiredLeftEye[0]
+
+        # determine the scale of the new resulting image by taking
+        # the ratio of the distance between eyes in the *current*
+        # image to the ratio of distance between eyes in the
+        # *desired* image
+        dist = np.sqrt((dX ** 2) + (dY ** 2))
+        desiredDist = (desiredRightEyeX - self._desiredLeftEye[0])
+        desiredDist *= self._desiredFaceWidth
+        scale = desiredDist / dist
+
+        # compute center (x, y)-coordinates (i.e., the median point)
+        # between the two eyes in the input image
+        eyesCenter = ((leftEyePts[0] + rightEyePts[0]) // 2,
+                      (leftEyePts[1] + rightEyePts[1]) // 2)
+
+        # grab the rotation matrix for rotating and scaling the face
+        M = cv2.getRotationMatrix2D(eyesCenter, angle, scale)
+
+        # update the translation component of the matrix
+        tX = self._desiredFaceWidth * 0.5
+        tY = self._desiredFaceHeight * self._desiredLeftEye[1]
+        M[0, 2] += (tX - eyesCenter[0])
+        M[1, 2] += (tY - eyesCenter[1])
+
+        # apply the affine transformation
+        (w, h) = (self._desiredFaceWidth, self._desiredFaceHeight)
+        aligned_faceImage = cv2.warpAffine(faceImage, M, (w, h), flags=cv2.INTER_CUBIC)
+
+        # return the aligned face
+        return aligned_faceImage
+
+    def align_face(self,faceImage,rgbImage=True):
         """
         align_face
 
-        :param image: image
-        :param faceRects: (x1,y1,x2,y2)
-        :param color_mode: one of 'rgb','bgr'
+        :param faceImage: cv faceImage
         :return: aligned faceImages,landmarks_list
         """
-        faceImages=[]
-        landmarks_list=[]
 
         # convert the landmark (x, y)-coordinates to a NumPy array
-        if color_mode=='bgr':
-            rgb_image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+        rgb_image = cv2.cvtColor(faceImage, cv2.COLOR_BGR2RGB)
+        r = rectangle(0,0,faceImage.shape[1],faceImage.shape[0])
+
+        shape = self._predictor(rgb_image, r)
+
+        left_eye = self._extract_landmarkPts(shape, self._landmarks_idxes['left_eye'])
+        right_eye= self._extract_landmarkPts(shape, self._landmarks_idxes['right_eye'])
+        nose = self._extract_landmarkPts(shape, self._landmarks_idxes['nose'])
+        angle = PyMaths.get_degree(right_eye, left_eye)
+        landmarks = {
+            'left_eye': left_eye,
+            'right_eye': right_eye,
+            'nose': nose,
+            'angle': angle
+        }
+
+        if self._predictor_type==68:
+            left_lip = self._extract_landmarkPts(shape, self._landmarks_idxes['left_lip'])
+            right_lip = self._extract_landmarkPts(shape, self._landmarks_idxes['right_lip'])
+            jaw = self._extract_landmarkPts(shape, self._landmarks_idxes['jaw'])
+            landmarks.update({
+                'left_lip': left_lip,
+                'right_lip': right_lip,
+                'jaw': jaw})
+            roll, pitch, yaw, coordinate_pts = self._get_face_orientation(faceImage.shape, landmarks)
+            landmarks.update({
+                'roll': roll,
+                'pitch': pitch,
+                'yaw': yaw})
+
+        if rgbImage:
+            aligned_faceImage = self._align(rgb_image,left_eye,right_eye)
         else:
-            rgb_image = image.copy()
+            aligned_faceImage = self._align(faceImage, left_eye, right_eye)
 
-        for faceRect in faceRects:
-            r = rectangle(*faceRect)
-            shape = self._predictor(rgb_image, r)
-            shape = self._shape_to_np(shape)
+        for k in self._landmarks_idxes.keys():
+            landmarks[k] = (max(0,min(faceImage.shape[1],landmarks[k][0])),max(0,min(faceImage.shape[0],landmarks[k][1])))
 
-            (lStart, lEnd) = self._facial_landmarks_idxs["left_eye"]
-            (rStart, rEnd) = self._facial_landmarks_idxs["right_eye"]
-            (nStart, nEnd) = self._facial_landmarks_idxs["nose"]
-
-            leftEyePts = shape[lStart:lEnd]
-            rightEyePts = shape[rStart:rEnd]
-            nosePts = shape[nStart:nEnd]
-            # landmarks_list.append({
-            #     'left_eye':
-            # })
-
-            # compute the center of mass for each eye
-            leftEyeCenter = leftEyePts.mean(axis=0).astype("int")
-            rightEyeCenter = rightEyePts.mean(axis=0).astype("int")
-
-            # compute the angle between the eye centroids
-            dY = rightEyeCenter[1] - leftEyeCenter[1]
-            dX = rightEyeCenter[0] - leftEyeCenter[0]
-            angle = np.degrees(np.arctan2(dY, dX)) - 180
-
-            # compute the desired right eye x-coordinate based on the
-            # desired x-coordinate of the left eye
-            desiredRightEyeX = 1.0 - self._desiredLeftEye[0]
-
-            # determine the scale of the new resulting image by taking
-            # the ratio of the distance between eyes in the *current*
-            # image to the ratio of distance between eyes in the
-            # *desired* image
-            dist = np.sqrt((dX ** 2) + (dY ** 2))
-            desiredDist = (desiredRightEyeX - self._desiredLeftEye[0])
-            desiredDist *= self._desiredFaceWidth
-            scale = desiredDist / dist
-
-            # compute center (x, y)-coordinates (i.e., the median point)
-            # between the two eyes in the input image
-            eyesCenter = ((leftEyeCenter[0] + rightEyeCenter[0]) // 2,
-                          (leftEyeCenter[1] + rightEyeCenter[1]) // 2)
-
-            # grab the rotation matrix for rotating and scaling the face
-            M = cv2.getRotationMatrix2D(eyesCenter, angle, scale)
-
-            # update the translation component of the matrix
-            tX = self._desiredFaceWidth * 0.5
-            tY = self._desiredFaceHeight * self._desiredLeftEye[1]
-            M[0, 2] += (tX - eyesCenter[0])
-            M[1, 2] += (tY - eyesCenter[1])
-
-            # apply the affine transformation
-            (w, h) = (self._desiredFaceWidth, self._desiredFaceHeight)
-            aligned_face = cv2.warpAffine(image, M, (w, h),flags=cv2.INTER_CUBIC)
-
-            # return the aligned face
-            faceImages.append(aligned_face)
-
-        return faceImages
-
-    def vis_face_landmarks(self,image,faceRects,colors=None,thickness=2,directShow=False):
-        """
-        show landmarks
-
-        :param image: image
-        :param faceRects: (x1, y1, x2, y2)
-        :param colors: will color on landmarks
-        :param alpha: alpha blending
-        :return: image
-        """
-        # create two copies of the input image -- one for the
-        # overlay and one for the final output image
-        overlay = image.copy()
-        output = image.copy()
-
-        # if the colors list is None, initialize it with a unique
-        # color for each facial landmark region
-        if colors is None:
-            colors = [(19, 199, 109), (79, 76, 240), (230, 159, 23),
-                (168, 100, 168), (158, 163, 32),(255,100,255),
-                (163, 38, 32), (180, 42, 220)]
-
-        for faceRect in faceRects:
-            r = rectangle(*faceRect)
-            shape = self._predictor(image, r)
-            shape = self._shape_to_np(shape)
-
-            # loop over the facial landmark regions individually
-            if len(self._facial_landmarks_idxs)==3:
-                for i,(j,k) in enumerate(self._facial_landmarks_idxs.values()):
-                    pt = tuple(shape[j])
-                    cv2.circle(output,pt,thickness,colors[i],-1)
-
-            else:
-                for i, name in enumerate(self._facial_landmarks_idxs.keys()):
-                    # grab the (x, y)-coordinates associated with the
-                    # face landmark
-                    (j, k) = self._facial_landmarks_idxs[name]
-                    pts = shape[j:k]
-
-                    # check if are supposed to draw the jawline
-                    if name == "jaw":
-                        # since the jawline is a non-enclosed facial region,
-                        # just draw lines between the (x, y)-coordinates
-                        for l in range(1, len(pts)):
-                            ptA = tuple(pts[l - 1])
-                            ptB = tuple(pts[l])
-                            cv2.line(overlay, ptA, ptB, colors[i], 2)
-
-                    # otherwise, compute the convex hull of the facial
-                    # landmark coordinates points and display it
-                    else:
-                        hull = cv2.convexHull(pts)
-                        cv2.drawContours(overlay, [hull], -1, colors[i], -1)
-
-                # apply the transparent overlay
-                cv2.addWeighted(overlay, 0.75, output, 1 - 0.75, 0, output)
-
-        if directShow:
-            plt.imshow(output[...,::-1])
-            plt.show()
-        else:
-            # return the output image
-            return output
-
-
+        return aligned_faceImage, landmarks

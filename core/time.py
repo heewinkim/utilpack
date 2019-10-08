@@ -9,11 +9,10 @@ time module
  Module     time module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
-    * HianTime 클래스를 제공합니다.
+    * PyTime 클래스를 제공합니다.
     * 시간 관련한 처리 함수를 제공합니다.
 
 ===============================================
@@ -29,7 +28,7 @@ import re
 from .error import *
 
 
-class HianTime(object):
+class PyTime(object):
 
     @staticmethod
     def check_date_inrange(date, date_range):
@@ -101,7 +100,7 @@ class HianTime(object):
         :return: second which is time of difference between two times
         """
 
-        return (HianTime.str2datetime(dsttime) - HianTime.str2datetime(srctime)).total_seconds()
+        return (PyTime.str2datetime(dsttime) - PyTime.str2datetime(srctime)).total_seconds()
 
     @staticmethod
     def get_diffday(srctime, dsttime):
@@ -114,8 +113,8 @@ class HianTime(object):
         :return: second which is day of difference between two times
         """
 
-        srctime = HianTime.str2datetime(srctime)
-        dsttime = HianTime.str2datetime(dsttime)
+        srctime = PyTime.str2datetime(srctime)
+        dsttime = PyTime.str2datetime(dsttime)
 
         srctime = datetime(srctime.year, srctime.month, srctime.day, 0, 0, 0)
         dsttime = datetime(dsttime.year, dsttime.month, dsttime.day, 0, 0, 0)
@@ -147,13 +146,13 @@ class HianTime(object):
                 head_time = image[time_type]
 
                 # 초단위로 미분값을 저장합니다.
-                diff_time = abs(HianTime.get_difftime(previous_tail_time, head_time))
+                diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
 
                 differential_times.append(diff_time)
                 previous_tail_time = head_time
 
         except Exception:
-            raise HianError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some images'.format(time_type))
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some images'.format(time_type))
 
         return differential_times
 
@@ -182,7 +181,7 @@ class HianTime(object):
         if differential_times_:
             differential_times = differential_times_
         else:
-            differential_times = HianTime.get_differential_times(images,time_type)
+            differential_times = PyTime.get_differential_times(images,time_type)
         if not differential_times:
             return groups
 
@@ -203,7 +202,7 @@ class HianTime(object):
 
                 # 잘린 앞부분이 포토북 범위보다 크다면(재귀)
                 elif len(images[:max_idx]) > max:
-                    groups_ = HianTime._grouping(images[:max_idx], min, max,time_type,differential_times[:max_idx])
+                    groups_ = PyTime._grouping(images[:max_idx], min, max,time_type,differential_times[:max_idx])
                     groups.extend(groups_)
 
                 # 잘린 뒷부분이 포토북 범위에 들어간다면
@@ -212,7 +211,7 @@ class HianTime(object):
 
                 # 잘린 뒷부분이 포토북 범위보다 크다면(재귀)
                 elif len(images[max_idx:]) > max:
-                    groups_ = HianTime._grouping(images[max_idx:], min, max,time_type,differential_times[max_idx:])
+                    groups_ = PyTime._grouping(images[max_idx:], min, max,time_type,differential_times[max_idx:])
                     groups.extend(groups_)
                 break
             else:
@@ -263,7 +262,7 @@ class HianTime(object):
         if sort:
             images = sorted(images,key=lambda v:v[time_type])
 
-        groups = HianTime._grouping(images,min,max,time_type)
+        groups = PyTime._grouping(images,min,max,time_type)
         if after_merge:
-            groups = HianTime._grouping_postprocessing(groups,max)
+            groups = PyTime._grouping_postprocessing(groups,max)
         return groups

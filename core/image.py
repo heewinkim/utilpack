@@ -9,11 +9,10 @@ image module
  Module     image module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
-    * HianImage 클래스를 제공합니다.
+    * PyImage 클래스를 제공합니다.
     * 이미지 관련한 처리 함수를 제공합니다.
 
 ===============================================
@@ -29,7 +28,7 @@ from io import BytesIO
 import base64
 
 
-class HianImage(object):
+class PyImage(object):
 
     @staticmethod
     def calculate_sizerate(ot, w, h):
@@ -62,7 +61,7 @@ class HianImage(object):
     def bytes2cv(img_data):
         """
         byte 데이터를 cv 이미지로 변환합니다.
-        에러 발생시 HianError.EncodeByte2CvError를 발생시킵니다.
+        에러 발생시 PyError.EncodeByte2CvError를 발생시킵니다.
 
         :param img_data: byte image data
         :return: cv 이미지
@@ -72,9 +71,13 @@ class HianImage(object):
         img_cv = cv2.imdecode(np.frombuffer(img_data, np.uint8), cv2.IMREAD_COLOR)
 
         if img_cv is None:
-            raise HianError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to bytes2cv image in HianImage')
+            raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to bytes2cv image in pyImage')
 
         return img_cv
+
+    @staticmethod
+    def cv2bytes(img_cv):
+        return cv2.imencode('.jpg', img_cv, [int(cv2.IMWRITE_JPEG_QUALITY), 100])[1].tostring()
 
     @staticmethod
     def read_bytedata(data, img_type):
@@ -83,7 +86,7 @@ class HianImage(object):
 
 
         :param data: input data
-        :param img_type: input img_type , ['url','filepath','bytes'] 중 하나
+        :param img_type: input img_type , ['url','filepath','bytes','b64'] 중 하나
         :return: byte image data
         :raise IMAGE_READ_ERROR:
         """
@@ -97,18 +100,20 @@ class HianImage(object):
                 bytes_data = data.read()
             elif img_type == 'url':
                 if data.startswith('/Upload'):
-                    data = 'https://www.Hian.com' + data
+                    data = 'https://www.py.com' + data
                 response = urllib.request.urlopen(data)
                 if response.getcode() == 200:
                     bytes_data = response.read()
             elif img_type == 'filepath':
                 with open(data, 'rb') as f:
                     bytes_data = f.read()
+            elif img_type == 'b64':
+                bytes_data = base64.b64decode(data)
 
             return bytes_data
 
         except Exception:
-            raise HianError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to read image - read_bytedata in HianImage')
+            raise PyError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to read image - read_bytedata in PyImage')
 
     @staticmethod
     def rotate_image(img, orientation: int = 0,copy=False):
@@ -148,7 +153,7 @@ class HianImage(object):
             return result_img
 
     @staticmethod
-    def cv2base64(img_cv):
+    def cv2base64(img_cv,tostring=False):
         """
         cv2 이미지를 base64_jpeg 포맷으로 변환합니다
 
@@ -159,10 +164,13 @@ class HianImage(object):
 
         encoded_img = cv2.imencode('.jpg', img_cv, [int(cv2.IMWRITE_JPEG_QUALITY), 100])[1]
 
-        img_b64 = np.array([base64.urlsafe_b64encode(encoded_img)])
+        if tostring:
+            img_b64 = base64.b64encode(encoded_img).decode('utf-8')
+        else:
+            img_b64 = np.array([base64.urlsafe_b64encode(encoded_img)])
 
         if img_b64 is None:
-            raise HianError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to convert cv2 to base64 - cv2base64 in HianImage')
+            raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to convert cv2 to base64 - cv2base64 in PyImage')
         else:
             return img_b64
 
@@ -179,7 +187,7 @@ class HianImage(object):
         img_b64 = np.array([base64.urlsafe_b64encode(bytes_data)])
 
         if img_b64 is None:
-            raise HianError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to convert bytes to base64 - byte2base64 in HianImage')
+            raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to convert bytes to base64 - byte2base64 in PyImage')
         else:
             return img_b64
 
@@ -187,12 +195,12 @@ class HianImage(object):
     def check_image_shape(img_cv) -> None:
         """
         입력 이미지 shape 확인. 드물게, 3차원 배열이 아닌 4차원 배열로 들어오는 이미지가 존재함.
-        뎁쓰 값이 3이 아닐시에 HianError.ImageShapeError 를 발생시킵니다.
+        뎁쓰 값이 3이 아닐시에 PyError.ImageShapeError 를 발생시킵니다.
 
         :param img_cv: cv 이미지
         """
         if img_cv.shape[2] is not 3:
-            raise HianError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'wrong image shape - check_image_shape in HianImage')
+            raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'wrong image shape - check_image_shape in PyImage')
 
     @staticmethod
     def check_img_sz_fmt(bytes_data, min_size=(20, 20), max_size=(10000, 10000),
@@ -214,11 +222,11 @@ class HianImage(object):
         fmt = img.format
 
         if (h < min_size[1] and w < min_size[0]) or (w * h < min_size[0] * min_size[1]):
-            raise HianError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'image is too small in check_img_sz_fmt')
+            raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'image is too small in check_img_sz_fmt')
         if (h > max_size[1] and w > max_size[0]) or (w * h > max_size[0] * max_size[1]):
-            raise HianError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'image is too big in check_img_sz_fmt')
+            raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'image is too big in check_img_sz_fmt')
         if not fmt.lower() in allowed_extensions:
-            raise HianError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'not supported image format in check_img_sz_fmt')
+            raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'not supported image format in check_img_sz_fmt')
 
     @staticmethod
     def preprocessing_image(data, img_type, img_ot, cvt_type='cv2'):
@@ -231,37 +239,36 @@ class HianImage(object):
         convert to cv image -> check image shape -> rotate image
         [b64]
         input data -> byte image data -> image check ->
-
         if ot is 0 or 1, convert to b64 image
-
         else, convert to cv image -> check image shape -> rotate image -> convert to b64 image
 
         :param data: img_type에 따른 input data
         :param img_type: bytes, url, filepath 중 하나s
         :param img_ot: image orientation 값
         :param cvt_type: 'cv2', or 'b64' default : cv2
-        :return: cv 이미지
+        :return: cvt_type의 이미지
+
         :raise IMAGE_READ_ERROR:
         :raise IMAGE_FORMAT_ERROR:
         :raise IMAGE_PROCESS_ERROR:
         """
 
-        bytes_data = HianImage.read_bytedata(data, img_type)
-        HianImage.check_img_sz_fmt(bytes_data)
+        bytes_data = PyImage.read_bytedata(data, img_type)
+        PyImage.check_img_sz_fmt(bytes_data)
 
         if cvt_type == 'cv2':
 
-            img_cv = HianImage.bytes2cv(bytes_data)
-            img_cv = HianImage.rotate_image(img_cv, orientation=img_ot)
-            HianImage.check_image_shape(img_cv)
+            img_cv = PyImage.bytes2cv(bytes_data)
+            img_cv = PyImage.rotate_image(img_cv, orientation=img_ot)
+            PyImage.check_image_shape(img_cv)
             return img_cv
 
         elif cvt_type == 'b64':
 
             if int(img_ot) not in [0, 1]:
-                img_cv = HianImage.bytes2cv(bytes_data)
-                img_cv = HianImage.rotate_image(img_cv, orientation=img_ot)
-                HianImage.check_image_shape(img_cv)
-                return HianImage.cv2base64(img_cv)
+                img_cv = PyImage.bytes2cv(bytes_data)
+                img_cv = PyImage.rotate_image(img_cv, orientation=img_ot)
+                PyImage.check_image_shape(img_cv)
+                return PyImage.cv2base64(img_cv)
             else:
-                return HianImage.byte2base64(bytes_data)
+                return PyImage.byte2base64(bytes_data)

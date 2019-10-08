@@ -9,7 +9,6 @@ keras_tool module
  Module     keras_tool module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
@@ -22,22 +21,57 @@ keras_tool module
 
 import os
 import sys
-current_dir = os.path.dirname(__file__) # common.util
+current_dir = os.path.dirname(os.path.abspath(__file__)) # common.util
 parent_dir = os.path.dirname(current_dir) # common
 sys.path.insert(0,parent_dir)
+
 import cv2
+import json
 import keras
+import requests
 import numpy as np
 import pandas as pd
 from time import time
-import keras.backend as K
 import matplotlib.pyplot as plt
-import requests
-import json
+from datetime import datetime
 
 
-class HianKerasUtil(object):
+class PyKerasUtil(object):
 
+    @staticmethod
+    def getGenerator_fromData(x_list,y_list=None,resize=None,**kwargs):
+        """
+        데이터로부터 직접 제너레이터를 만듭니다.
+
+        :param x_list: n 개의 x데이터 리스트
+        :param y_list: n 개의 y데이터 리스트
+        :return: generator
+        """
+
+        imageDataGeneratorKwargs={}
+        flowKwargs={}
+        for key,value in dict(kwargs).items():
+            if key in ['featurewise_center', 'samplewise_center', 'featurewise_std_normalization',
+                       'samplewise_std_normalization','zca_whitening','zca_epsilon',
+                       'rotation_range','width_shift_range','height_shift_range',
+                       'brightness_range','shear_range','zoom_range','channel_shift_range',
+                       'fill_mode','cval','horizontal_flip','vertical_flip','rescale',
+                       'preprocessing_function','data_format','validation_split','dtype']:
+                imageDataGeneratorKwargs[key]=value
+            elif key in ['batch_size', 'shuffle', 'sample_weight', 'seed',
+                         'save_to_dir', 'save_prefix', 'save_format', 'subset']:
+
+                flowKwargs[key]=value
+
+        if resize:
+            x_list = [cv2.resize(x,resize) for x in x_list]
+
+        imageGgenerator = keras.preprocessing.image.ImageDataGenerator(**imageDataGeneratorKwargs)
+        if y_list is None:
+            generator = imageGgenerator.flow(np.array(x_list), **flowKwargs)
+        else:
+            generator = imageGgenerator.flow(np.array(x_list),np.array(y_list),**flowKwargs)
+        return generator
 
     @staticmethod
     def gen2list(generator,step):
@@ -54,7 +88,7 @@ class HianKerasUtil(object):
         return x_list,y_list
 
     @staticmethod
-    def getGenerator_fromDataframe(anno_path, batch_size, input_shape, class_mode, validation_split=0.2,
+    def getGenerator_fromDataframe(anno_path, batch_size, input_shape, class_mode='categorical', validation_split=0.2,
                                    rescale=1. / 255,color_mode='rgb'):
         """
         annotation 파일을 읽어 학습 제너레이터 혹은 학습,검증 제너레이터를 반환합니다
@@ -118,7 +152,8 @@ class HianKerasUtil(object):
                                                           )
             return generator
 
-    def getGenerators(self,root_path, input_resolution=(224, 224), batch_size=64,rescale=1./255,class_mode='categorical'):
+    @staticmethod
+    def getGenerators(root_path, input_resolution=(224, 224), batch_size=64,rescale=1./255,class_mode='categorical'):
         """
         root_path 아래에 각 train,validation,test 데이터에 대한 제너레이터를 제공합니다.
         폴더가 존재하지 않는경우 해당 제너레이터는 None값으로 반환됩니다.
@@ -139,7 +174,7 @@ class HianKerasUtil(object):
         generators=[]
         for path in [train_dir,validation_dir,test_dir]:
             if os.path.exists(path):
-                generators.append(HianKerasUtil.getGenerator_fromDirectory(path,input_resolution,batch_size,rescale,class_mode))
+                generators.append(PyKerasUtil.getGenerator_fromDirectory(path,input_resolution,batch_size,rescale,class_mode))
             else:
                 generators.append(None)
 
@@ -169,7 +204,7 @@ class HianKerasUtil(object):
                 class_mode=class_mode)
             return generator
         else:
-            raise HianError(ERROR_TYPES.RUNTIME_ERROR,'{} is not exist'.format(path))
+            raise PyError(ERROR_TYPES.RUNTIME_ERROR,'{} is not exist'.format(path))
 
     @staticmethod
     def get_generatorStep(generator):
@@ -338,7 +373,7 @@ class HianKerasUtil(object):
 
             return score
         except Exception:
-            raise HianERROR(ERROR_TYPES.RUNTIME_ERROR,'Need to compile model')
+            raise PyERROR(ERROR_TYPES.RUNTIME_ERROR,'Need to compile model')
 
     @staticmethod
     def show_cam(generator, model, show_layer_idx=-3,figsize=(10,10),show=False,max_idx=16):
@@ -358,7 +393,7 @@ class HianKerasUtil(object):
             img_array = np.expand_dims(img, axis=0)
 
             ## get prediction result and conv_output values
-            get_output = K.function([model.layers[0].input], [model.layers[show_layer_idx].output, model.layers[-1].output])
+            get_output = keras.backend.function([model.layers[0].input], [model.layers[show_layer_idx].output, model.layers[-1].output])
             [conv_outputs, predictions] = get_output([img_array])
             conv_outputs = conv_outputs[0, :, :, :]
             class_weights = model.layers[-1].get_weights()[0]
@@ -431,7 +466,7 @@ class HianKerasUtil(object):
             save_model.save_weights("{}.h5".format(save_model_name))
 
     @staticmethod
-    def get_callback(use_ckpt=True, ckpt_path='./models',ckpt_filename='weights.{epoch:02d}-{val_loss:.3f}.hdf5',
+    def get_callback(use_ckpt=True, ckpt_path='checkpoint/{}'.format(datetime.now().strftime("%Y%m%d_%H%M%S")),ckpt_filename='checkpoint.{epoch:02d}-{val_loss:.3f}.h5',
                      use_early_stop=True, early_stop_patience=3,
                      use_learning_rate_scheduler=False, lr_rate=0.001, lr_decay=0.9,
                      use_csv_logger=False, csv_save_dir='./csv_log',
@@ -461,8 +496,11 @@ class HianKerasUtil(object):
         callbacks = []
 
         if use_ckpt:
-            ckpt = keras.callbacks.ModelCheckpoint(ckpt_path + '/'+ckpt_filename, monitor='val_loss',
-                                   save_best_only=True)
+
+            if not os.path.exists(ckpt_path):
+                os.makedirs(ckpt_path,exist_ok=True)
+
+            ckpt = keras.callbacks.ModelCheckpoint(ckpt_path + '/'+ckpt_filename, monitor='val_loss',save_best_only=True)
             callbacks.append(ckpt)
         if use_early_stop:
             early_stopping = keras.callbacks.EarlyStopping(monitor='val_acc', patience=early_stop_patience)
@@ -484,72 +522,168 @@ class HianKerasUtil(object):
             callbacks.append(remote_monitor)
 
         return callbacks
+    @staticmethod
+    def example_1():
+        print("""
+    
+        from keras.optimizers import Adam
+        from keras.models import load_model, Model
+        from keras.layers import Dense
+        from datetime import datetime
+        import argparse
+    
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-annotation_path', type=str,required=True,help='annotation_path(header : imgPath,label')
+        parser.add_argument('-batch_size', type=int, default=64, help='batch size integer recommend 1~64')
+        parser.add_argument('-input_shape', nargs='+', type=int, default=[96, 96, 3], help='width height channel')
+        parser.add_argument('-n_classes', type=int, default=2, help='number of classes(labels)')
+        parser.add_argument('-epoch', type=int, default=50, help='the number of epoch')
+        parser.add_argument('-backbone', type=str, help='pretrained model path')
+        args = parser.parse_args()
+        args.input_shape = tuple(args.input_shape)
+    
+        # Init parameter
+        batch_size = args.batch_size
+        input_shape = args.input_shape
+        n_classes = args.n_classes
+        epoch = args.epoch
+        data_dir = args.data_dir
+    
+        # 학습 데이터 파싱
+        train_gen, validation_gen, test_gen = PyKerasUtil.getGenerators(args.data_dir, input_shape[:2], batch_size)
+        train_step,validation_step,test_step = [PyKerasUtil.get_generatorStep(gen) for gen in [train_gen,validation_gen,test_gen]]
+    
+        # 데이터 이미지 출력
+        PyKerasUtil.show_generator(train_gen)
+    
+        #using pretrained model
+        if args.backbone:
+            model = load_model(args.backbone)
+    
+            # Model 수정
+            feature_output = model.layers[-2].output
+            output = Dense(n_classes, activation='softmax', name='last_dense')(feature_output)
+            model = Model(inputs=model.input, outputs=output)
+        else:
+            # 모델 구현
+            from keras.applications.vgg16 import VGG16
+            from keras.layers import GlobalAveragePooling2D, Dense
+            from keras.models import Model
+            from keras.optimizers import Adam
+            backbone = VGG16(include_top=False, weights='imagenet', input_shape=input_shape)
+            x = backbone.output
+            x = GlobalAveragePooling2D(x)
+            output = Dense(n_classes, activation='softmax')(x)
+            model = Model(inputs=backbone.input, outputs=output)
+            model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+            model.summary()
+    
+        # 콜백함수 정의
+        callbacks = PyKerasUtil.get_callback()
+    
+        # 학습
+        history = model.fit_generator(
+                generator= train_gen,
+                steps_per_epoch=train_step,
+                epochs=epoch,
+                validation_data=validation_gen,
+                validation_steps=validation_step,
+                callbacks=callbacks,
+                verbose=1
+                )
+    
+    
+        # 최종 학습모델 저장
+        model.save('models/gender_model_{}.h5'.format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+    
+    
+        # 학습 그래프 확인
+        PyKerasUtil.plot_history(history)
+    
+    
+        # 정확도 확인
+        PyKerasUtil.evaluate_model(test_gen,model)
+    
+    
+        # 각 이미지별 예측 결과 상세 확인
+        PyKerasUtil.test_model(test_gen, model, cols=8, steps=1, figsize=(20, 20))
+    
+    
+        # CAM 확인
+        PyKerasUtil.show_cam(test_gen,model,show_layer_idx=-5,figsize=(20,20),max_idx=16)
+        
+        """)
 
-def example():
-
-    # 파라미터 정의
-    batch_size = 64
-    input_shape = (224, 224, 3)
-    n_classes = 3
-    epoch = 100
-    data_dir = './data'
-
-    # 학습 데이터 파싱
-    train_gen, validation_gen, test_gen = HianKerasUtil.getGenerators(data_dir, input_shape[:2], batch_size)
-    train_step = HianKerasUtil.get_generatorStep(train_gen)
-    validation_step = HianKerasUtil.get_generatorStep(validation_gen)
-    test_step = HianKerasUtil.get_generatorStep(test_gen)
-
-
-    # 데이터 이미지 출력
-    HianKerasUtil.show_generator(train_gen)
-
-
-    # 모델 구현
-    from keras.applications.vgg16 import VGG16
-    from keras.layers import GlobalAveragePooling2D,Dense
-    from keras.models import Model
-    from keras.optimizers import Adam
-    backbone = VGG16(include_top=False,weights='imagenet',input_shape=input_shape)
-    x = backbone.output
-    x = GlobalAveragePooling2D(x)
-    output = Dense(n_classes,activation='softmax')(x)
-    model = Model(inputs=backbone.input,outputs=output)
-    model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
-    model.summary()
-
-    # 가중치 로드
-    model.load_weights('./checkpoint/checkpoint-22-0.0097.h5')
-
-    # 콜백함수 정의
-    callbacks = HianKerasUtil.get_callback()
-
-    # 학습
-    history = model.fit_generator(
-            generator= train_gen,
+    @staticmethod
+    def example_2():
+        print("""
+        from keras.optimizers import Adam
+        from keras.models import load_model, Model
+        from keras.layers import Dense
+        from datetime import datetime
+        import argparse
+    
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-annotation_path', type=str,required=True,help='annotation_path(header : imgPath,label')
+        parser.add_argument('-batch_size', type=int, default=64, help='batch size integer recommend 1~64')
+        parser.add_argument('-input_shape', nargs='+', type=int, default=[96, 96, 3], help='width height channel')
+        parser.add_argument('-n_classes', type=int, default=2, help='number of classes(labels)')
+        parser.add_argument('-epoch', type=int, default=50, help='the number of epoch')
+        parser.add_argument('-backbone', type=str, help='pretrained model path')
+        args = parser.parse_args()
+        args.input_shape = tuple(args.input_shape)
+    
+        # Init parameter
+        batch_size = args.batch_size
+        input_shape = args.input_shape
+        n_classes = args.n_classes
+        epoch = args.epoch
+    
+        train_gen, validation_gen = PyKerasUtil.getGenerator_fromDataframe(args.annotation_path, batch_size, input_shape)
+        train_step, validation_step = [PyKerasUtil.get_generatorStep(gen) for gen in [train_gen, validation_gen]]
+    
+        # PyKerasUtil.show_generator(train_gen,rows=2,cols=10,figsize=(25,25))
+    
+        #using pretrained model
+        if args.backbone:
+            model = load_model(args.backbone)
+    
+            # Model 수정
+            feature_output = model.layers[-2].output
+            output = Dense(n_classes, activation='softmax', name='last_dense')(feature_output)
+            model = Model(inputs=model.input, outputs=output)
+        else:
+            # 모델 구현
+            from keras.applications.vgg16 import VGG16
+            from keras.layers import GlobalAveragePooling2D, Dense
+            from keras.models import Model
+            from keras.optimizers import Adam
+            backbone = VGG16(include_top=False, weights='imagenet', input_shape=input_shape)
+            x = backbone.output
+            x = GlobalAveragePooling2D(x)
+            output = Dense(n_classes, activation='softmax')(x)
+            model = Model(inputs=backbone.input, outputs=output)
+            model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+            model.summary()
+    
+        # Compile model
+        model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
+    
+        # Get callbacks
+        callbacks = PyKerasUtil.get_callback(use_ckpt=True, use_early_stop=True, early_stop_patience=10,
+                                                use_learning_rate_scheduler=True, lr_rate=1e-4, lr_decay=0.9)
+    
+        # Train
+        # fine tunning  adam 1e-4, decay 0.9(AFAD dataset)
+        history = model.fit_generator(
+            generator=train_gen,
             steps_per_epoch=train_step,
             epochs=epoch,
             validation_data=validation_gen,
             validation_steps=validation_step,
             callbacks=callbacks,
             verbose=1
-            )
-
-    # 최종 학습모델 저장
-    HianKerasUtil.save_model(save_model_name='good_model',save_model=model,mode=0)
-
-
-    # 학습 그래프 확인
-    HianKerasUtil.plot_history(history)
-
-
-    # 정확도 확인
-    HianKerasUtil.evaluate_model(test_gen,model)
-
-
-    # 각 이미지별 예측 결과 상세 확인
-    HianKerasUtil.test_model(test_gen, model, cols=8, steps=1, figsize=(20, 20))
-
-
-    # CAM 확인
-    HianKerasUtil.show_cam(test_gen,model,show_layer_idx=-5,figsize=(20,20),max_idx=16)
+        )
+    
+        model.save('models/model_{}.h5'.format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+        """)

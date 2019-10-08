@@ -9,7 +9,6 @@ debug module
  Module     debug module
  Date       2019-03-26
  Author     hian
- Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*

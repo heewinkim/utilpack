@@ -1,0 +1,15 @@
+requests==2.22.0
+jupyterlab==1.0.4
+matplotlib==2.2.2
+sklearn==0.0
+pandas==0.22
+tqdm==4.33.0
+Pillow==5.2.0
+opencv-python==3.4.1.15
+dlib
+
+# # not mendatory packages..
+# PyMySQL==0.9.3
+# psutil==5.6.1
+# Keras==2.2.4
+# tensorflow==1.8.0
