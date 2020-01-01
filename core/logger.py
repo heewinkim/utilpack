@@ -39,7 +39,11 @@ logger module
 """
 import time
 import logging
+import os
 from .singleton import Singleton
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+projroot_dir = os.path.dirname(parent_dir)
 monthes = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12',
@@ -48,7 +52,7 @@ monthes = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
 
 class PyLogger(logging.Filter,metaclass=Singleton):
 
-    def __init__(self, log_name):
+    def __init__(self, log_name,useFileHandler=False):
 
         """
         init function
@@ -58,9 +62,6 @@ class PyLogger(logging.Filter,metaclass=Singleton):
 
         # 로그 저장 경로
         self.log_name = log_name
-        self.logs_type = ["info", "error"]
-        self.logs_info = {"format":".log"}
-
         self.__logger = logging.getLogger(self.log_name)
         self.__logger.setLevel(logging.INFO)
 
@@ -73,6 +74,13 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         super().__init__()
         self.__logger.addFilter(self)
         self.set_request_info()
+
+        # fileHandler set
+        if useFileHandler:
+            self.logs_info = {"format": ".log"}
+            self.log_dir = projroot_dir + '/' + log_name
+            self._set_fileHandler('info')
+            self._set_fileHandler('error')
 
     def info(self,message,**kwargs):
         """
@@ -161,3 +169,42 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         today = ctime_list[-1][2:]+'-'+monthes[ctime_list[1]]+'-'+'%02d' % int(ctime_list[-3])
 
         return today
+
+    def _set_fileHandler(self, log_type) -> None:
+        """
+        한개 로그 모듈 설정
+
+        :param log_type: (str) 'info' or 'error'
+        """
+
+        log_save_dir = "{}/{}_log/".format(self.log_dir, log_type)
+        log_save_name = "{}_{}".format(self.log_name, log_type)
+
+        self.logs_info[log_type] = log_save_name
+        self.logs_info[log_type + "_dir"] = log_save_dir
+
+        # 로그 저장 경로 존재 확인 및 생성
+        try:
+            if not os.path.exists(log_save_dir):
+                os.makedirs(log_save_dir)
+                print("The log dir was created: ", log_save_dir)
+                time.sleep(0.3)
+        except FileExistsError as e:
+            print("log dir exist, ignore create command..")
+            time.sleep(0.1)
+
+        # 스트림과 파일로 로그를 출력하는 핸들러를 각각 만든다.
+        fileHandler = logging.FileHandler(log_save_dir + log_save_name + self.logs_info["format"])
+
+        # 각 핸들러에 포매터를 지정한다.
+        fileHandler.setFormatter(self.formatter)
+
+        # 로그 레벨 설정
+        if log_type == "info":
+            fileHandler.setLevel(logging.INFO)
+
+        elif log_type == "error":
+            fileHandler.setLevel(logging.ERROR)
+
+        # 로거 인스턴스에 스트림 핸들러와 파일핸들러를 붙인다.
+        self.__logger.addHandler(fileHandler)
