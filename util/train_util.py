@@ -8,7 +8,7 @@ keras_tool module
 ========== ====================================
  Module     keras_tool module
  Date       2019-03-26
- Author     hian
+ Author     heewinkim
 ========== ====================================
 
 *Abstract*

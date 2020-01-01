@@ -8,7 +8,7 @@ face_util module
 ========== ====================================
  Module     face_util module
  Date       2019-07-29
- Author     hian
+ Author     heewinkim
 ========== ====================================
 
 *Abstract*

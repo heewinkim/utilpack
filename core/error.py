@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 ===============================================
-error module
+PyError module
 ===============================================
 
 ========== ====================================
 ========== ====================================
- Module     error module
+ Module     PyError module
  Date       2019-03-26
- Author     hian
+ Author     heewinkim
 ========== ====================================
 
 *Abstract*
@@ -78,7 +78,7 @@ class PyError(Exception):
         """
         example : PyError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to download the image')
 
-        Autor : hian
+        Autor : heewinkim
 
         :param err_type: 에러타입(ERROR_TYPES 멤버)
         :param message: 상세 에러 내용

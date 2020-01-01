@@ -8,11 +8,12 @@ time module
 ========== ====================================
  Module     time module
  Date       2019-03-26
- Author     hian
+ Author     heewinkim
+ Comment    `관련문서링크 <call to heewinkim >`_
 ========== ====================================
 
 *Abstract*
-    * PyTime 클래스를 제공합니다.
+    * Time 클래스를 제공합니다.
     * 시간 관련한 처리 함수를 제공합니다.
 
 ===============================================
@@ -23,7 +24,6 @@ from random import seed
 import numpy as np
 from collections import deque
 from datetime import datetime
-from dateutil.parser import parse
 import re
 from .error import *
 
@@ -54,27 +54,8 @@ class PyTime(object):
         try:
             p = re.compile('[-: ]')
             return datetime(*map(int, p.split(row)))
-
         except Exception:
-
-            try:
-                yy = row[:4]
-                mm = row[5:7]
-                dd = row[8:10]
-                hms = row[11:]
-                newrow = "{}-{}-{} {}".format(yy, mm, dd, hms)
-
-                parse_date = parse(newrow)
-
-                # 1971 년보다 작으면 1971년도로 변환
-                if (datetime(1971, 1, 1)) > parse_date:
-                    parse_date = parse('1971-01-01')
-
-                return parse_date
-
-            except Exception:
-                # 강제 default로 변환
-                return parse('1971-01-01')
+            return None
 
     @staticmethod
     def check_datetime(time):
@@ -83,11 +64,11 @@ class PyTime(object):
         :param row: 입력된 날짜 데이터
         :return: 1 or None
         """
-        if time:
-            if len(str(time)) == 19:
-                return True
-            else:
-                return False
+
+        if len(time)==19 and PyTime.str2datetime(time):
+            return True
+        else:
+            return False
 
     @staticmethod
     def get_difftime(srctime, dsttime):
@@ -99,8 +80,10 @@ class PyTime(object):
         :param format: datetime클래스의 포맷
         :return: second which is time of difference between two times
         """
-
-        return (PyTime.str2datetime(dsttime) - PyTime.str2datetime(srctime)).total_seconds()
+        try:
+            return (PyTime.str2datetime(dsttime) - PyTime.str2datetime(srctime)).total_seconds()
+        except Exception:
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid date format ("YYYY-mm-dd")')
 
     @staticmethod
     def get_diffday(srctime, dsttime):
@@ -112,14 +95,16 @@ class PyTime(object):
         :param format: datetime클래스의 포맷
         :return: second which is day of difference between two times
         """
+        try:
+            srctime = PyTime.str2datetime(srctime)
+            dsttime = PyTime.str2datetime(dsttime)
 
-        srctime = PyTime.str2datetime(srctime)
-        dsttime = PyTime.str2datetime(dsttime)
+            srctime = datetime(srctime.year, srctime.month, srctime.day, 0, 0, 0)
+            dsttime = datetime(dsttime.year, dsttime.month, dsttime.day, 0, 0, 0)
 
-        srctime = datetime(srctime.year, srctime.month, srctime.day, 0, 0, 0)
-        dsttime = datetime(dsttime.year, dsttime.month, dsttime.day, 0, 0, 0)
-
-        return (dsttime-srctime).total_seconds()
+            return (dsttime-srctime).total_seconds()
+        except Exception:
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid date format ("YYYY-mm-dd")')
 
     @staticmethod
     def get_differential_times(images,time_type='exifDate'):
@@ -132,7 +117,7 @@ class PyTime(object):
         단 각 이미지는 제공된 time_type 리스트중 하나라도 값을 가져야한다.
 
         :param images: image list, exifDate 키를 포함하는 딕셔너리 형태의 image
-        :param time_type: 시간데이터 키 리스트,리스트 순서대로 시간데이터를 찾는다. first found priority
+        :param time_type: images 한 원소에서 시간값을 갖는 키
         :return: list
         """
         try:
@@ -155,6 +140,19 @@ class PyTime(object):
             raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some images'.format(time_type))
 
         return differential_times
+
+    @staticmethod
+    def get_mean_time(date_list):
+        """
+        :param date_list: YYYY:MM:DD HH:MM:SS 형식의 날짜리스트( format인 :, ,- 등은 상관없음)
+        :return: 평균 datetime 포맷 변환 된 날짜
+        """
+        date_list = [PyTime.str2datetime(date) for date in date_list if PyTime.check_datetime(date)]
+        if len(date_list)==0:
+            return None
+        else:
+            average_time= datetime.fromtimestamp(sum(map(datetime.timestamp, date_list)) / len(date_list))
+            return average_time
 
     @staticmethod
     def _grouping(images,min,max,time_type,differential_times_=None):
@@ -246,7 +244,7 @@ class PyTime(object):
         이미지개수범위를 min,max에 맞게 분할합니다.
         분할기준은 시간미분값을 기준으로 합니다.
 
-        autor : hian
+        autor : heewinkim
 
         :param images: 이미지 배열
         :param min: 분할된 그룹의 최소 이미지 개수

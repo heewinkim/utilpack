@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 ===============================================
-flask module
+PyFlask module
 ===============================================
 
 ========== ====================================
 ========== ====================================
- Module     flask  module
+ Module     PyFlask  module
  Date       2018-03-27
- Author     hian
+ Author     heewinkim
+ Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
-    * api 이름을 파라미터로 받는 PyFlask 클래스의 인스턴스를 Flask application 객체처럼 사용하시면 됩니다.
-    * request 데이터의 경우 원래의 값 그대로 PyFlask의 args,files,form,json의 속성으로 저장됩니다.
+    * api 이름을 파라미터로 받는 Flask 클래스의 인스턴스를 Flask application 객체처럼 사용하시면 됩니다.
+    * request 데이터의 경우 원래의 값 그대로 Flask의 args,files,form,json의 속성으로 저장됩니다.
     * input,output,elapse time 의 로깅처리가 사전구현 되어있습니다.
 
     * 인스턴스 마다 logging,output 객체가 생성됩니다. logging, error, output 의 경우 자체구현되어있어 따로 관련기능을 구현할 필요가 없습니다.
@@ -35,7 +36,7 @@ flask module
     >>> 실제 구현 예시
     api_name = 'api'
     api_app = PyFlask(api_name)
-    # api_instance = PyApi()
+    # api_instance = Api()
 
     # @api_app.route('/prefix/version/api_name',methods=['POST','GET'])
     # def request_test():
@@ -151,14 +152,12 @@ class PyFlask(Flask):
         data = {}
 
         if request.form:
-            k,v = dict(request.form).popitem()
-            data.update({k: v[0]})
+            data.update(request.form.to_dict())
         if request.args:
-            k,v = dict(request.args).popitem()
-            data.update({k:v[0]})
+            data.update(request.args.to_dict())
         if request.files:
-            k,v = dict(request.files).popitem()
-            data.update({k:v[0].filename})
+            for k,v in dict(request.files).items():
+                data.update({k: v[0].filename})
         if request.json:
             data.update(dict(request.json))
 
@@ -205,7 +204,7 @@ class PyFlask(Flask):
         """
         self.is_health = True
 
-        return 'Hello Py!'
+        return 'Hello !'
 
     def validate_keys(self,object:dict,keys:list,value_check=False):
         """
@@ -224,6 +223,5 @@ class PyFlask(Flask):
             elif object.get(key) is None:
                 if value_check:
                     raise PyError(ERROR_TYPES.PARAMETER_ERROR, 'Invalid {}'.format(key))
-
 
 

@@ -8,7 +8,8 @@ output module
 ========== ====================================
  Module     output module
  Date       2019-03-26
- Author     hian
+ Author     heewinkim
+ Comment    `관련문서링크 <>`_
 ========== ====================================
 
 *Abstract*
@@ -27,7 +28,7 @@ output module
     # {"statusCode": 200, "message": "success", "a": 0, "b": [1, 2, 3]}
 
     print(output.get_output())
-    # {"statusCode": -1, "message": -1, "a": -1, "b": -1}
+    # {"statusCode": None, "message": None, "a": None, "b": None}
 
 ===============================================
 """
@@ -49,22 +50,22 @@ class PyOutput(object,metaclass=Singleton):
 
     def __init__(self,top_keys=['statusCode','message']):
 
-        self.output={k: -1 for k in top_keys}
+        self.output={k: None for k in top_keys}
         self.default_obj=None
         self.reset()
 
     def reset(self)-> None:
         """
-        최상단의 object 값들을 -1로 리셋합니다.
+        최상단의 object 값들을 None로 리셋합니다.
         :return:
         """
 
         if self.default_obj:
             self.output = self.default_obj.copy()
         elif self.output:
-            self.output = self.output.fromkeys(self.output,-1)
+            self.output = self.output.fromkeys(self.output,None)
         else:
-            self.output = {k: -1 for k in ['statusCode','message']}
+            self.output = {k: None for k in ['statusCode','message']}
 
     def set_default(self,**kwargs):
         """
@@ -83,7 +84,7 @@ class PyOutput(object,metaclass=Singleton):
 
         if 'keys' in kwargs:
             keys = kwargs.get('keys')
-            default_value = kwargs.get('default_value',-1)
+            default_value = kwargs.get('default_value',None)
             self.default_obj = {k: default_value for k in keys}
 
         elif 'dict_obj' in kwargs:
