@@ -154,10 +154,6 @@ class PyTime(object):
             average_time= datetime.fromtimestamp(sum(map(datetime.timestamp, date_list)) / len(date_list))
             return average_time
 
-<<<<<<< HEAD:utilpack/core/time.py
-
-=======
->>>>>>> origin/master:core/time.py
     @staticmethod
     def _grouping(images,min,max,time_type,differential_times_=None):
         """
