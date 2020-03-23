@@ -23,8 +23,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__)) # common.util
 parent_dir = os.path.dirname(current_dir) # common
 sys.path.insert(0,parent_dir)
 
-from core.time import PyTime
-from core.error import *
+from utilpack.core import *
 
 import cv2
 import glob

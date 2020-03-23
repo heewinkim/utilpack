@@ -19,25 +19,91 @@ data module
 
 
 from .image_util import PyImageUtil
+from .time_util import Timeout
 import os
 import sys
-import uuid
-import time
 import json
 import pickle
 import timeit
 import itertools
 import subprocess
-import traceback
 import numpy as np
 import urllib.request
-from PIL import Image
-from datetime import datetime
 import matplotlib.pyplot as plt
-from tqdm import tqdm_notebook,tqdm
+import pymysql
+from tqdm import tqdm
 
 
 class PyDataUtil(object):
+
+    @staticmethod
+    def limit_minmax(x, min_=0, max_=None):
+        return max(min_, x) if not max_ else min(max(min_, x), max_)
+
+    @staticmethod
+    def plot3D(arr_list, label_list=None, figsize=(15, 15), colors=["#ff0000", "#0000ff", "#00ff00"],
+               seperate_plot=False):
+        from mpl_toolkits.mplot3d import Axes3D
+        if not seperate_plot:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.add_subplot(111, projection='3d')
+
+            ax.set_xlabel('x', fontsize=15)
+            ax.set_ylabel('y', fontsize=15)
+            ax.set_zlabel('z', fontsize=15)
+
+            for i, data in enumerate(arr_list):
+                ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colors[i % len(colors)], s=30)
+            if label_list:
+                ax.legend(label_list)
+            else:
+                ax.legend(['data{}'.format(i) for i in range(len(arr_list))])
+            ax.grid()
+        else:
+            figsize = (list(figsize)[1] * len(arr_list), list(figsize)[1])
+            fig = plt.figure(figsize=figsize)
+
+            for i, data in enumerate(arr_list):
+                ax = fig.add_subplot(1, len(arr_list), i + 1, projection='3d')
+
+                ax.set_xlabel('x', fontsize=15)
+                ax.set_ylabel('y', fontsize=15)
+                ax.set_zlabel('z', fontsize=15)
+
+                ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colors[i % len(colors)], s=30)
+
+                if label_list:
+                    ax.legend([label_list[i]])
+                else:
+                    ax.legend(['data{}'.format(i)])
+                ax.grid()
+        plt.show()
+
+    @staticmethod
+    def query2mysql(query,host,port,user,password,db,charset='utf8',to_dataframe=False,timeout=10):
+        conn = pymysql.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            db=db,
+            charset=charset,
+            cursorclass=pymysql.cursors.DictCursor)
+        try:
+            with conn.cursor() as curs:
+                with Timeout(seconds=timeout):
+                    curs.execute(query)
+                rows = curs.fetchall()
+        finally:
+            conn.close()
+
+        if not len(rows):
+            return None
+        elif to_dataframe:
+            import pandas as pd
+            return pd.DataFrame().from_dict(rows)
+        else:
+            return rows
 
     @staticmethod
     def save_json(data,path):

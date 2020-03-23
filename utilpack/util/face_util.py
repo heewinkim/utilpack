@@ -14,7 +14,6 @@ face_util module
 *Abstract*
     * PyFaceUtil 클래스 제공 - 메서드 (get_align_faces,vis_face_landmarks
     * shape_predictor 모델 다운로드 경로
-    * https://kr-py-prd-data.s3.ap-northeast-2.amazonaws.com/model/face/shape_predictor_68_face_landmarks.dat
 
 ===============================================
 """
@@ -26,7 +25,7 @@ parent_dir = os.path.dirname(current_dir) # common
 sys.path.insert(0,parent_dir)
 from dlib import shape_predictor,rectangle
 from collections import OrderedDict
-from core.maths import PyMaths
+from utilpack.core.maths import PyMaths
 from urllib.request import urlopen
 from tqdm import tqdm
 import numpy as np
@@ -45,6 +44,8 @@ class FaceAligner:
         :param desiredFaceHeight: face height
         :param predictor_type: number of landmark, 5 or 68
         """
+
+        raise NotImplementedError("Write '_download_landmark' inner method.")
 
         self._predictor_type=int(predictor_type)
 
@@ -258,3 +259,36 @@ class FaceAligner:
             landmarks[k] = (max(0,min(faceImage.shape[1],landmarks[k][0])),max(0,min(faceImage.shape[0],landmarks[k][1])))
 
         return aligned_faceImage, landmarks
+
+
+class PyFaceUtil(object):
+
+    @staticmethod
+    def crop_face(image,x1,y1,x2,y2,copy=True):
+        """
+        cropped 된 얼굴을 반환합니다.
+
+        Overloaded function list.
+
+        :param image: image
+        :param x1,y1,x2,y2: face's coordinates, each points are left,top,right,bottom.
+        :param copy: return copy data, default True
+
+
+        :return: cropped face
+        """
+        if copy:
+            return image[y1:y2,x1:x2,:].copy()
+        else:
+            return image[y1:y2, x1:x2, :]
+
+    @staticmethod
+    def draw_face(image,x1,y1,x2,y2,color=(255,0,255), thickness=3):
+        """
+        img_cv 위에 face 사각형을 그립니다.
+
+        :param image: image
+        :param x1,y1,x2,y2: face's coordinates, each points are left,top,right,bottom.
+        :return: None
+        """
+        cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)

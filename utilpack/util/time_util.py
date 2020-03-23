@@ -19,6 +19,7 @@ time_util module
 from datetime import datetime,timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import signal
 
 
 class PyTimeUtil(object):
@@ -66,3 +67,24 @@ class PyTimeUtil(object):
         ax.tick_params(axis='x', colors='gray')
         ax.set_facecolor('#FFFFFF00')
         plt.show()
+
+
+# USE EXAMPLE
+# with timeout(seconds=3):
+#   do_something()
+
+class Timeout:
+
+    def __init__(self, seconds=1, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(self.error_message)
+
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)

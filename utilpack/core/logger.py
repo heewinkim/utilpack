@@ -32,8 +32,6 @@ logger module
     except Exception as e:
         logger.logger.error(traceback.format_exc())
 
-    * TODO info 로그에 error로그가 포함되는 문제 개선필요
-
 
 ===============================================
 """

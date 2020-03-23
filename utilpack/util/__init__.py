@@ -1,6 +1,5 @@
 # list of offering util class
 from .data_util import PyDataUtil
-from .face_util import PyMaths
 from .time_util import PyTimeUtil
 from .image_util import PyImageUtil
 

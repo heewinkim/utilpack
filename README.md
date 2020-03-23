@@ -1,9 +1,9 @@
-## Py common pakage  
+## utilpack  
+
 
 ### Note
-    본 프로젝트는 일반적인 파이썬 프로젝트 진행시에 필요한 공통 모듈 패키지가 포함되어있습니다.
-    keras_util의 경우 keras==2.2.0, tensorflow==1.8.0 을 직접 설치해야 합니다.
-     
+    본 프로젝트는 일반적인 파이썬 프로젝트 진행시에 필요한 유틸 모듈 패키지가 포함되어있습니다.
+    
 ---
 
 ### common.core
@@ -28,10 +28,8 @@
 - data_util : PyDataUtil 클래스 제공, 데이터 분석 및 처리 기능 제공
 - debug_util : 디버그에 필요한 모듈 제공
 - image_util : PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
-- keras_util :PyKearsUtil 케라스 학습 및 분석 기능 제공
 - time_util : PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
-- train_util : PyTrainUtil 클래스 제공, 학습 관련 데이터 전후처리 기능 제공
-- wider_benchmark : wider dataset 벤치마킹 기능 제공
+- vis_util : PyVisUtil 클래스 제공, 시각화 툴 제
 
 
 ### common.framwork  
