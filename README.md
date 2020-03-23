@@ -7,17 +7,17 @@
 ---
 
 ### common.core
-- config : PyConfig 클래스 제공, 설정파일 로드 기능을 제공
-- error : PyError 에러클래스 제공, ERROR_TYPES의 에러 타입 제공
-- image : PyImage 클래스 제공, 이미지 읽기, 및 핵심 처리기능 제공
-- logger : PyLogger 클래스 제공, 로그관련 처리 기능 제공
-- output : PyOutput 클래스 제공, output 관련기능, 에러에 대한 로그처리 기능 제공
-- time : PyTime 클래스 제공, 시간 관련된 핵심 처리기능 제공
-- algorithm : PyAlgorithm 클래스 제공
+- PyConfig 클래스 제공, 설정파일 로드 기능을 제공
+- PyError 에러클래스 제공, ERROR_TYPES의 에러 타입 제공
+- PyImage 클래스 제공, 이미지 읽기, 및 핵심 처리기능 제공
+- PyLogger 클래스 제공, 로그관련 처리 기능 제공
+- PyOutput 클래스 제공, output 관련기능, 에러에 대한 로그처리 기능 제공
+- PyTime 클래스 제공, 시간 관련된 핵심 처리기능 제공
+- PyAlgorithm 클래스 제공
 
    
     >>> EXMAPLE
-    from core import PyAlgorithm
+    from utilpack.core import PyAlgorithm
     
     pair_list = [ [1,2], [2,7], [0,3], [4,5], [5,7] ]
     result = PyAlgorithm.get_connected_components(pari_list)
@@ -25,16 +25,22 @@
 
 ### common.util
 
-- data_util : PyDataUtil 클래스 제공, 데이터 분석 및 처리 기능 제공
-- debug_util : 디버그에 필요한 모듈 제공
-- image_util : PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
-- time_util : PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
-- vis_util : PyVisUtil 클래스 제공, 시각화 툴 제
+- PyDataUtil 클래스 제공, 데이터 분석 및 처리 기능 제공
+- 디버그에 필요한 모듈 제공
+- PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
+- PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
+- PyVisUtil 클래스 제공, 시각화 툴 제
 
 
+    >>> EXMAPLE
+    from utilpack.util import PyDebugUtil
+    
+    PyDebugUtil.tic()
+    PyDebugUtil.toc()
+    
 ### common.framwork  
 
-- py_flask : Flask로 구현된 웹 API 클래스인 PyFlask 를 제공합니다.  
+- Flask로 구현된 웹 API 클래스인 PyFlask 를 제공합니다.  
 
 
     >>> EXMAPLE
@@ -55,7 +61,7 @@
             return result
     
     
-    from framework.py_flask import PyFlask
+    from utilpack.framework import PyFlask
     
     example_api = ExampleApi()
     application = PyFlask('ex')

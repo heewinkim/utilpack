@@ -2,7 +2,7 @@
 from .data_util import PyDataUtil
 from .time_util import PyTimeUtil
 from .image_util import PyImageUtil
-from .debug_util import PyDebug
+from .debug_util import PyDebugUtil
 from .face_util import PyFaceUtil
 from .vis_util import PyVisUtil
 
