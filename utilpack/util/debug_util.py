@@ -22,7 +22,7 @@ import os
 tic_ = 0
 toc_ = 0
 
-class PyDebug(object):
+class PyDebugUtil(object):
 
     @staticmethod
     def tic():
