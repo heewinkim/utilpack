@@ -7,5 +7,4 @@ pandas
 tqdm
 Pillow
 opencv-python
-dlib
 pymysql
