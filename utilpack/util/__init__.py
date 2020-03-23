@@ -2,6 +2,9 @@
 from .data_util import PyDataUtil
 from .time_util import PyTimeUtil
 from .image_util import PyImageUtil
+from .debug_util import PyDebug
+from .face_util import PyFaceUtil
+from .vis_util import PyVisUtil
 
 
 # list of not offering class but module
