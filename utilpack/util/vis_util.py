@@ -8,7 +8,7 @@ vis_util module
 ========== ====================================
  Module     vis_util module
  Date       2019-03-26
- Author     hian
+ Author     heewinkim
  Comment    `관련문서링크 <>`_
 ========== ====================================
 

@@ -8,13 +8,16 @@
 
 ### common.core
 
+- PyAlgorithm 클래스 제공
 - PyConfig 클래스 제공, 설정파일 로드 기능을 제공
+- PyData 클래스 제공, 압축관련 및 데이터 전후처리 제공
 - PyError 에러클래스 제공, ERROR_TYPES의 에러 타입 제공
 - PyImage 클래스 제공, 이미지 읽기, 및 핵심 처리기능 제공
 - PyLogger 클래스 제공, 로그관련 처리 기능 제공
+- PyMaths 클래스 제공, 수학관련 기능 제공
 - PyOutput 클래스 제공, output 관련기능, 에러에 대한 로그처리 기능 제공
 - PyTime 클래스 제공, 시간 관련된 핵심 처리기능 제공
-- PyAlgorithm 클래스 제공
+
 
    
     >>> EXMAPLE
@@ -28,7 +31,8 @@
 ### common.util
 
 - PyDataUtil 클래스 제공, 데이터 분석 및 처리 기능 제공
-- 디버그에 필요한 모듈 제공
+- PyDebugUtil 디버그에 필요한 모듈 제공
+- PyFaceUtil 얼굴 이미지 관련 유틸 제공
 - PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
 - PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
 - PyVisUtil 클래스 제공, 시각화 툴 제공
