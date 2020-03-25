@@ -14,12 +14,13 @@ require_packages=[
     'Pillow',
     'opencv-python',
     'pymysql',
+    'ipywidgets',
 ]
 
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='1.0.8',
+    version='1.0.9',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',

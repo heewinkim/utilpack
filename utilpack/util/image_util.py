@@ -18,11 +18,6 @@ image module
 """
 
 import os
-import sys
-current_dir = os.path.dirname(os.path.abspath(__file__)) # common.util
-parent_dir = os.path.dirname(current_dir) # common
-sys.path.insert(0,parent_dir)
-
 from utilpack.core import *
 
 import cv2
@@ -150,6 +145,23 @@ class PyImageUtil(object):
             previous_tail_time = head_time
 
         return differential_times
+
+    @staticmethod
+    def plot(img,figsize=(5,5),color_mode='bgr'):
+
+        img_ = img.copy()
+        plt.figure(figsize=figsize)
+        plt.xticks([]);plt.yticks([])
+
+        if img_.max()==255:
+            img_ = img_/255.
+        if color_mode=='rgb':
+            plt.imshow(img_)
+        elif color_mode=='bgr':
+            plt.imshow(img_[...,::-1])
+        elif color_mode=='gray':
+            plt.imshow(img_,cmap='gray')
+        plt.show()
 
     @staticmethod
     def plot_imglist(path_list=None, img_list=None, url_list=None,title_list=None, cols=8, figsize=(10, 10), img_resize=(600, 600),color_mode='bgr'):
@@ -558,7 +570,6 @@ class PyImageUtil(object):
         finally:
             return lat, lng
 
-    #temp method
     @staticmethod
     def parse_ot(img_ot,data=None,types=None,image=None,bytes_data=None):
         """
