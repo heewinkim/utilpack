@@ -9,3 +9,4 @@ Pillow
 opencv-python
 pymysql
 ipywidgets
+pycryptodome
