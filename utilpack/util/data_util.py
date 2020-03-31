@@ -18,8 +18,8 @@ data module
 """
 
 
-from .image_util import PyImageUtil
-from .time_util import Timeout
+from image_util import PyImageUtil
+from time_util import Timeout
 import os
 import sys
 import json
@@ -31,10 +31,28 @@ import numpy as np
 import urllib.request
 import matplotlib.pyplot as plt
 import pymysql
+import math
 from tqdm import tqdm
 
 
 class PyDataUtil(object):
+
+    @staticmethod
+    def splitList(data,n):
+        """
+        동일한 크기로 list를 나눕니다.
+        정확하게 나누어 지지 않을시에 마지막 리스트에 남은 원소들이 할당됩니다.
+
+        EXAMPLE :  splitList([1,2,3,4,5,6,7,8],3) -> [ [1,2,3], [4,5,6], [7,8] ]
+
+        :param data: 나누어질 리스트
+        :param n: 나누어진 리스트의 각 크기
+        :return: list of list
+        """
+        result = []
+        for i in range(0,math.ceil(len(data)/n)):
+            result.append(data[i*n:(i+1)*n])
+        return result
 
     @staticmethod
     def limit_minmax(x, min_=0, max_=None):
