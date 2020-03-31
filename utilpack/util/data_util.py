@@ -18,8 +18,8 @@ data module
 """
 
 
-from image_util import PyImageUtil
-from time_util import Timeout
+from .image_util import PyImageUtil
+from .time_util import Timeout
 import os
 import sys
 import json
