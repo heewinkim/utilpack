@@ -26,16 +26,24 @@ import datetime
 import numpy as np
 import urllib.request
 from math import ceil
-from PIL import Image
+from PIL import Image,ImageDraw,ImageFont
 from io import BytesIO
 import matplotlib.pyplot as plt
 from PIL.ExifTags import TAGS, GPSTAGS
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class PyImageUtil(object):
 
     cv2 = cv2
     plt = plt
+
+    @staticmethod
+    def putText(img_cv,text,org,color,fontsize):
+        img_pil = Image.fromarray(img_cv)
+        draw = ImageDraw.Draw(img_pil)
+        draw.text(org, text, font=ImageFont.truetype(current_dir+"/font/gulim.ttf", fontsize), fill=tuple(list(color)+[0]))
+        return np.array(img_pil)
 
     @staticmethod
     def read_fileinfo(path: str):
