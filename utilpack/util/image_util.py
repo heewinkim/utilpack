@@ -42,7 +42,7 @@ class PyImageUtil(object):
     def putText(img_cv,text,org,color,fontsize,ttf_path='gulim.ttf'):
         img_pil = Image.fromarray(img_cv)
         draw = ImageDraw.Draw(img_pil)
-        draw.text(org, text, font=ImageFont.truetype(current_dir+ttf_path, fontsize), fill=tuple(list(color)+[0]))
+        draw.text(org, text, font=ImageFont.truetype(ttf_path, fontsize), fill=tuple(list(color)+[0]))
         return np.array(img_pil)
 
     @staticmethod
