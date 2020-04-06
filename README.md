@@ -36,6 +36,7 @@
 - PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
 - PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
 - PyVisUtil 클래스 제공, 시각화 툴 제공
+- PyUI 클래스 제공, 주피터 UI 작성 유틸 제공 
 
 
     >>> EXMAPLE
