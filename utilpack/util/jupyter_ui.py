@@ -77,6 +77,32 @@ class ButtonController(object):
 class PyUI(object):
 
     @staticmethod
+    def jupyterSummary(title, contents=None, author='heewinkim', numbering=False):
+        """
+        주피터 요약 설명문을 출력합니다.
+
+        :param title: 제목
+        :param contents: list of string which is descriptions
+        :param author: author name
+        :param numbering: use <ol> tag if numbering is true , else use <ul>
+        :return: None
+        """
+        if contents is None:
+            contents = []
+        summary = HTML("""
+        <div style="border: 5px ridge #ffffff; padding:10px;">
+            <h3>{0}</h3>
+            <h5 align="right">{1}</h5>
+            <hr/>
+            <{3}>
+                {2}
+            </{3}>
+        </div>
+        """.format(title, author, '\n'.join(['<li>' + content + '</li>' for content in contents]),
+                   'ol' if numbering else 'ul'))
+        display(summary)
+
+    @staticmethod
     def select(dataList, options, runFunc,initFunc=None,backFunc=None,width=None, description='데이터 리스트',**funcKwargs):
         """
         dataList를 options로 출력한뒤 선택된 option에 해당하는 data로 runFunc을 실행시킵니다.
