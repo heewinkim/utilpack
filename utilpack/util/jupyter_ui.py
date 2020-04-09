@@ -76,6 +76,8 @@ class ButtonController(object):
 
 class PyUI(object):
 
+    ErrorDecorator = ErrorDecorator
+
     @staticmethod
     def jupyterSummary(title, contents=None, author='heewinkim', numbering=False):
         """
@@ -154,7 +156,7 @@ class PyUI(object):
         :param backFunc: backFunc(**kwargs['init'])
         :param clearOutput: boolean
         :param kwargs: kwargs, consist of 'init','back',
-        :return: PyUI.ButtonController(initButton,backButton)
+        :return: PyUI.ButtonController(initButton,backButton), ButtonController object offered active,inactive methods
         """
         if clearOutput:
             clear_output()
