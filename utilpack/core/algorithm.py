@@ -16,9 +16,14 @@ algorithm module
 
 ===============================================
 """
+import numpy as np
 
 
 class PyAlgorithm(object):
+
+    @staticmethod
+    def limit_minmax(x, min_=0, max_=None):
+        return max(min_, x) if not max_ else min(max(min_, x), max_)
 
     @staticmethod
     def get_connected_components(pairs):
@@ -39,3 +44,13 @@ class PyAlgorithm(object):
                 set_list.append(set(pair))
 
         return [sorted(v) for v in set_list]
+
+    @staticmethod
+    def normalize(v):
+        if type(v) != list or type(v) != np.array:
+            v = list(v)
+        if np.sum(v) == 0:
+            return v
+        else:
+            norm = np.linalg.norm(v, ord=1)
+        return list(v / norm)
