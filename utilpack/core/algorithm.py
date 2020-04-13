@@ -52,7 +52,7 @@ class PyAlgorithm(object):
         return [sorted(v) for v in set_list]
 
     @staticmethod
-    def normalize(values):
+    def normalize(values,tolist=False):
         """
         합이 1이되도록 list를 normalize합니다.
 
@@ -61,11 +61,17 @@ class PyAlgorithm(object):
         """
         if type(values) != list or type(values) != np.array:
             values = list(values)
+
         if np.sum(values) == 0:
             return values
         else:
             norm = np.linalg.norm(values, ord=1)
-        return list(values / norm)
+
+        if tolist:
+            return list(values / norm)
+        else:
+            return values / norm
+
 
     @staticmethod
     def rank(values,startFrom=0,reverse=False,indices=False,tolist=False):
