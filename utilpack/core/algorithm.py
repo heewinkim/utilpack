@@ -94,6 +94,21 @@ class PyAlgorithm(object):
 
         return result
 
+    @staticmethod
+    def sortByValues(datas,values,reverse=False,sortFunc=None):
+        """
+        values 값을 key로하여 data를 정렬합니다.
 
-if __name__ == '__main__':
-    print(PyAlgorithm.rank([1,6,3,8]))
+        :param datas: data list to sorted
+        :param values: values which using sort key
+        :param sortFunc: key function of sort
+        :return:
+        """
+        if not sortFunc:
+            sortFunc = lambda v:v[1]
+
+        if not len(datas)==len(values):
+            raise ValueError("values must have same length with datas")
+
+        return [d for d,v in sorted(list(zip(datas,values)),key=sortFunc,reverse=reverse)]
+
