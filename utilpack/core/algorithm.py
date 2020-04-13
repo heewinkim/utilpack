@@ -27,6 +27,12 @@ class PyAlgorithm(object):
 
     @staticmethod
     def get_connected_components(pairs):
+        """
+        그래프적으로 연결된 노드들을 그룹화합니다.
+
+        :param pairs: 한쌍의 노트이름의 리스트 eg.[ [1,2], [2,7], [0,3], [4,5], [5,7] ]
+        :return: 연결된 그룹 리스트. eg.[[1, 2, 5, 7], [0, 3], [4, 5]]
+        """
 
         if len(pairs)==0:
             return []
@@ -46,11 +52,35 @@ class PyAlgorithm(object):
         return [sorted(v) for v in set_list]
 
     @staticmethod
-    def normalize(v):
-        if type(v) != list or type(v) != np.array:
-            v = list(v)
-        if np.sum(v) == 0:
-            return v
+    def normalize(values):
+        """
+        합이 1이되도록 list를 normalize합니다.
+
+        :param values: list
+        :return: list
+        """
+        if type(values) != list or type(values) != np.array:
+            values = list(values)
+        if np.sum(values) == 0:
+            return values
         else:
-            norm = np.linalg.norm(v, ord=1)
-        return list(v / norm)
+            norm = np.linalg.norm(values, ord=1)
+        return list(values / norm)
+
+    @staticmethod
+    def rank(values,reverse=False):
+        """
+        0부터 시작하하며 리스트의 순위를 얻습니다.
+
+        :param values: list,any
+        :param reverse: 참일시 값이 클수록 순위가 높습니다.
+        :return: list
+        """
+
+        if reverse:
+            return list(np.argsort(np.argsort(values)[::-1]))
+        else:
+            return list(np.argsort(np.argsort(values)))
+
+if __name__ == '__main__':
+    print(PyAlgorithm.get_connected_components([ [1,2], [2,7], [0,3], [4,5], [5,7] ]))
