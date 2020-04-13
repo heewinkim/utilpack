@@ -68,25 +68,32 @@ class PyAlgorithm(object):
         return list(values / norm)
 
     @staticmethod
-    def rank(values,reverse=False,startFrom=0):
+    def rank(values,startFrom=0,reverse=False,indices=False,tolist=False):
         """
         0부터 시작하하며 리스트의 순위를 얻습니다.
 
         :param values: list,any
         :param reverse: 참일시 값이 클수록 순위가 높습니다.
+        :param indices: rank 에 따른 index를 반환합니다.
         :return: list
         """
 
+        result = np.argsort(values)
+
         if reverse:
-            result = np.argsort(np.argsort(values)[::-1])
-        else:
-            result = np.argsort(np.argsort(values))
+            result = result[::-1]
 
         if startFrom!=0:
             result = result + int(startFrom)
 
-        return list(result)
+        if not indices:
+            result = np.argsort(result)
+
+        if tolist:
+            result = list(result)
+
+        return result
 
 
 if __name__ == '__main__':
-    print(PyAlgorithm.get_connected_components([ [1,2], [2,7], [0,3], [4,5], [5,7] ]))
+    print(PyAlgorithm.rank([1,6,3,8]))
