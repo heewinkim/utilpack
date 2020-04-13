@@ -7,3 +7,4 @@ from .singleton import Singleton
 from .data import PyData
 from .error import PyError,ERROR_TYPES
 from .crpyto import PyCrypto
+from .algorithm import PyAlgorithm
