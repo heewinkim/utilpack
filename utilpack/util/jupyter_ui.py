@@ -249,9 +249,12 @@ class PyUI(object):
                     horizontalWidgets[i] = empty
 
         # apply layout to each widgets
-        widget_layout = ipywidgets.Layout(flex='1 1 auto', width='auto')
         for w in sum(widgetStructure, []):
-            w.layout = widget_layout
+            if not w.layout.flex:
+                w.layout.flex='1 1 auto'
+            if not w.layout.width:
+                w.layout.width = 'auto'
+
             if type(w) == ipywidgets.Button:
                 w.add_class('pyButton')
 
