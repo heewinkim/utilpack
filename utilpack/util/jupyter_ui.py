@@ -245,6 +245,9 @@ class PyUI(object):
             if not w.layout.width:
                 w.layout.width = 'auto'
 
+            if type(w) == ipywidgets.Button:
+                w.add_class('pyButton')
+
         # row layout
         Hbox_layout = ipywidgets.Layout(
             display='flex',
