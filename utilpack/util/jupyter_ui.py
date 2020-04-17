@@ -217,16 +217,6 @@ class PyUI(object):
         ----------------------------
 
         """
-        HTML("""
-        <style>
-        .pyButton {
-            border-radius: 5px;
-            color:rgb(255,255,255) ; 
-            background-color:rgb(70,70,70);
-            font-size:100%
-        }
-        </style>
-        """)
 
         if 'logo' in kwargs:
             if 'logo_size' in kwargs:
@@ -254,9 +244,6 @@ class PyUI(object):
                 w.layout.flex='1 1 auto'
             if not w.layout.width:
                 w.layout.width = 'auto'
-
-            if type(w) == ipywidgets.Button:
-                w.add_class('pyButton')
 
         # row layout
         Hbox_layout = ipywidgets.Layout(
@@ -288,6 +275,7 @@ class PyUI(object):
 
         # make appLayout
         result = ipywidgets.VBox(verticalItems, layout=VboxLayout if VboxLayout else Vbox_layout)
+        result.add_class('appLayout')
         if run:
             display(result)
         else:
