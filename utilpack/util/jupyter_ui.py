@@ -294,6 +294,30 @@ class PyUI(object):
             return result
 
     @staticmethod
+    def styling(cssFile=None, cssStr=None):
+        """
+        apply css styling
+
+        :param cssFile: css file path
+        :param cssStr: css code string
+        :return:
+        """
+
+        if not cssFile and not cssStr:
+            print("One of 'cssFile','cssStr' parameter required.")
+            return
+
+        css = ""
+
+        if cssFile:
+            css = open(cssFile, 'r', encoding='utf8').read()
+
+        if cssStr:
+            css = cssStr
+
+        return HTML(css)
+
+    @staticmethod
     def messageBox(title, message):
         display(Javascript("""
             require(
