@@ -57,13 +57,17 @@ class PyAlgorithm(object):
         합이 1이되도록 list를 normalize합니다.
 
         :param values: list
+        :param tolist: True인경우 list 포맷으로 아닐경우 np.array포맷으로 반환됩니다
         :return: list
         """
         if type(values) != list or type(values) != np.array:
             values = list(values)
 
         if np.sum(values) == 0:
-            return values
+            if tolist:
+                return list(values)
+            else:
+                return np.array(values)
         else:
             norm = np.linalg.norm(values, ord=1)
 
