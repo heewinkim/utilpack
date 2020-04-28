@@ -17,7 +17,10 @@ widget util module
 
 ===============================================
 """
-
+import sys,os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from core.image import PyImage
+from .image_util import PyImageUtil
 from IPython.display import display, clear_output,HTML,Javascript
 import ipywidgets
 import time
@@ -146,6 +149,83 @@ class PyUI(object):
             widgetStructure[-1].append(initButton)
 
         PyUI.appLayout(widgetStructure,width=width)
+
+    @staticmethod
+    def select_image(runFunc,images=None,path_list=None,url_list=None, initFunc=None, backFunc=None, width=None, view_h=400,description='데이터 리스트', **funcKwargs):
+        """
+        dataList를 options로 출력한뒤 선택된 option에 해당하는 data로 runFunc을 실행시킵니다.
+
+        :param dataList: 실제 runFunc에 들어갈 데이터의 리스트
+        :param options: 화면상에 출력된 각 데이터의 설명 리스트, dataList과 1:1 매칭
+        :param runFunc: 실행될 함수, runFunc(data,**funcKwargs)->any
+        :param initFunc: init function, 파라미터는 지원하지 않습니다. init()->any, None일경우 표시하지 않음
+        :param description: runButton에 들어갈 텍스트
+        :param width: widget of widgetStructure, support px, % , eg. "10px" or "50%" , default "auto"
+        :param funcKwargs: runFunc에 들어갈 키워드변수
+        :return: None
+        """
+
+        if images:
+            options = [image['snapsImageThumbFile'] for image in images]
+            imread = lambda v: PyImage.preprocessing_image(v['snapsImageThumbFile'],'filepath',v.get('ot'))
+            dataList = images
+        elif path_list:
+            options = path_list
+            imread = lambda v: PyImageUtil.cv2.imread(v['snapsImageThumbFile'], 'filepath', v.get('ot'))
+            dataList = path_list
+        elif url_list:
+            options = url_list
+            imread = lambda v: PyImage.preprocessing_image(v, 'url', 0)
+            dataList = url_list
+        else:
+            raise ValueError("적어도 다음 중 하나는 제공 되어야 합니다.image,path_list,url_list")
+
+        list_widget = ipywidgets.Select(options=options, rows=5, layout=ipywidgets.Layout(width='100%'))
+        runButton = ipywidgets.Button(description=description)
+        initButton = ipywidgets.Button(description='초기화면')
+        backButton = ipywidgets.Button(description='이전화면')
+
+        previewWidget = ipywidgets.Image(
+            value=PyImage.cv2bytes(PyImageUtil.resize_image(imread(dataList[0]), height=view_h)),
+            format='png',
+            height=view_h,
+        )
+
+        if len(images) == 0:
+            print('생성된 데이터가 없습니다.')
+            display(initButton)
+            return
+
+        def onClickSelect(value):
+            previewWidget.value = PyImage.cv2bytes(
+                PyImageUtil.resize_image(imread(dataList[value.owner.index]), height=view_h))
+
+        def onClickRun(value):
+            selected_data = dataList[list_widget.index]
+            runFunc(selected_data, initFunc=initFunc, backFunc=backFunc, **funcKwargs)
+
+        runButton.on_click(onClickRun)
+        initButton.on_click(lambda v: initFunc())
+        backButton.on_click(lambda v: backFunc())
+        list_widget.observe(onClickSelect, ['value'])
+
+        widgetStructure = [
+            [previewWidget]
+        ]
+        if 'resultViews' in funcKwargs:
+            for resultView in funcKwargs['resultViews']:
+                resultView.height = view_h
+            widgetStructure[-1].extend(funcKwargs['resultViews'])
+        widgetStructure.extend([
+            [list_widget],
+            [runButton]
+        ])
+        if backFunc:
+            widgetStructure[-1].append(backButton)
+        if initFunc:
+            widgetStructure[-1].append(initButton)
+
+        PyUI.appLayout(widgetStructure, width=width)
 
     @staticmethod
     def back(initFunc=None,backFunc=None,clearOutput=True,**kwargs):
