@@ -108,7 +108,7 @@ class PyUI(object):
         display(summary)
 
     @staticmethod
-    def select(dataList, options, runFunc,initFunc=None,backFunc=None,width=None, description='데이터 리스트',**funcKwargs):
+    def select(dataList, options, runFunc,initFunc=None,backFunc=None,width=None, description='실행',**funcKwargs):
         """
         dataList를 options로 출력한뒤 선택된 option에 해당하는 data로 runFunc을 실행시킵니다.
 
@@ -151,7 +151,7 @@ class PyUI(object):
         PyUI.appLayout(widgetStructure,width=width)
 
     @staticmethod
-    def select_image(dataList, imreadFunc, runFunc, options, initFunc=None, backFunc=None, width=None, view_h=400,description='데이터 리스트', **funcKwargs):
+    def select_image(dataList, imreadFunc, runFunc, options, initFunc=None, backFunc=None, autoRun=False, width=None,view_h=400, description='실행', **funcKwargs):
         """
         dataList를 options로 출력한뒤 선택된 option에 해당하는 data로 runFunc을 실행시킵니다.
 
@@ -160,11 +160,14 @@ class PyUI(object):
         :param runFunc: dataList의 원소를 받아 실행할 함수 def runFunc(dataList[n],resultView,**kwargs) -> None
         :param options: dataList를 화면에 뿌릴 때 나타날 각 데이터의 내용들
         :param resultViews: runFunc에서 만약 결과를 출력할경우 사용될 ipywidgets.Image의 리스트,
+        :param controlWidgets: resultViews의 결과를 컨트롤할 ipywidget 리스트
+        :param autoRun: runButton의 필요없이 select 항목이 바뀔때마다 자동으로 runFunc실행할지에 대한 boolean값
         :param options: 화면상에 출력된 각 데이터의 설명 리스트, dataList과 1:1 매칭
         :param initFunc: init function, 파라미터는 지원하지 않습니다. init()->any, None일경우 표시하지 않음
         :param description: runButton에 들어갈 텍스트
         :param width: widget of widgetStructure, support px, % , eg. "10px" or "50%" , default "auto"
-        :param funcKwargs: runFunc에 들어갈 키워드변수
+        :param funcKwargs: runFunc에 들어갈 키워드변수,resultViews,controlWidgets를 포함합니다.
+
         :return: None
         """
 
@@ -184,13 +187,15 @@ class PyUI(object):
             display(initButton)
             return
 
+        def onClickRun(value):
+            selected_data = dataList[list_widget.index]
+            runFunc(selected_data,imreadFunc=imreadFunc, initFunc=initFunc, backFunc=backFunc, **funcKwargs)
+
         def onClickSelect(value):
             previewWidget.value = PyImage.cv2bytes(
                 PyImageUtil.resize_image(imreadFunc(dataList[value.owner.index]), height=view_h))
-
-        def onClickRun(value):
-            selected_data = dataList[list_widget.index]
-            runFunc(selected_data, initFunc=initFunc, backFunc=backFunc, **funcKwargs)
+            if autoRun:
+                onClickRun(0)
 
         runButton.on_click(onClickRun)
         initButton.on_click(lambda v: initFunc())
@@ -204,6 +209,8 @@ class PyUI(object):
             for resultView in funcKwargs['resultViews']:
                 resultView.height = view_h
             widgetStructure[-1].extend(funcKwargs['resultViews'])
+        if 'controlWidgets' in funcKwargs:
+            widgetStructure.append(funcKwargs['controlWidgets'])
         widgetStructure.extend([
             [list_widget],
             [runButton]
