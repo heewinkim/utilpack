@@ -144,13 +144,13 @@ class PyUI(object):
             [runButton]
         ]
         if not backFunc:
-            backFunc.layout.visibility = 'hidden'
+            backButton.layout.visibility = 'hidden'
         if not initFunc:
-            backFunc.layout.visibility = 'hidden'
+            initButton.layout.visibility = 'hidden'
 
         widgetStructure[-1].extend([v for v in [backButton,initButton] if v.layout.visibility!='hidden'])
         PyUI.appLayout(widgetStructure,width=width)
-        return ButtonController([v for v in [runFunc,backButton,initButton] if v.layout.visibility!='hidden'])
+        return ButtonController([v for v in [runButton,backButton,initButton] if v.layout.visibility!='hidden'])
 
     @staticmethod
     def select_image(dataList, imreadFunc, runFunc, options, initFunc=None, backFunc=None, autoRun=False, width=None,view_h=400, description='실행', **funcKwargs):
@@ -218,14 +218,13 @@ class PyUI(object):
             [runButton]
         ])
         if not backFunc:
-            backFunc.layout.visibility = 'hidden'
+            backButton.layout.visibility = 'hidden'
         if not initFunc:
-            backFunc.layout.visibility = 'hidden'
+            initButton.layout.visibility = 'hidden'
 
         widgetStructure[-1].extend([v for v in [backButton, initButton] if v.layout.visibility != 'hidden'])
         PyUI.appLayout(widgetStructure, width=width)
-
-        return ButtonController([v for v in [runFunc, backButton, initButton] if v.layout.visibility != 'hidden'])
+        return ButtonController([v for v in [runButton, backButton, initButton] if v.layout.visibility != 'hidden'])
 
     @staticmethod
     def back(initFunc=None,backFunc=None,clearOutput=True,**kwargs):
