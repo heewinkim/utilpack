@@ -32,7 +32,7 @@ import urllib.request
 import matplotlib.pyplot as plt
 import pymysql
 import math
-from auto_tqdm import tqdm
+from tqdm.auto import tqdm
 
 
 class PyDataUtil(object):

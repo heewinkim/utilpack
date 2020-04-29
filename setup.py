@@ -10,7 +10,7 @@ require_packages=[
     'matplotlib',
     'sklearn',
     'pandas',
-    'auto-tqdm',
+    'tqdm',
     'Pillow',
     'opencv-python',
     'pymysql',
@@ -21,7 +21,7 @@ require_packages=[
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='1.3.7',
+    version='1.3.8',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',

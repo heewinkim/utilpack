@@ -4,7 +4,7 @@ requests
 matplotlib
 sklearn
 pandas
-auto-tqdm
+tqdm
 Pillow
 opencv-python
 pymysql
