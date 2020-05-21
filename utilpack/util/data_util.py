@@ -125,12 +125,12 @@ class PyDataUtil(object):
 
     @staticmethod
     def save_json(data,path):
-        with open(path,'w') as f:
+        with open(path,'w',encoding='utf8') as f:
             f.write(json.dumps(data))
 
     @staticmethod
     def load_json(path):
-        return json.loads(open(path).read())
+        return json.loads(open(path,encoding='utf8').read())
 
     @staticmethod
     def download(url:str,save_path):
