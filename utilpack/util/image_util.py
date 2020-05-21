@@ -27,6 +27,7 @@ import numpy as np
 import urllib.request
 from math import ceil
 from PIL import Image,ImageDraw,ImageFont
+from PIL import PngImagePlugin,JpegImagePlugin,BmpImagePlugin
 from io import BytesIO
 import matplotlib.pyplot as plt
 from PIL.ExifTags import TAGS, GPSTAGS
@@ -156,19 +157,37 @@ class PyImageUtil(object):
 
     @staticmethod
     def plot(img,figsize=(5,5),color_mode='bgr'):
+        """
+        단일 이미지를 출력합니다.
 
-        img_ = img.copy()
+        :param img: img path or bgr image or rgb image
+        :param figsize: figure size
+        :param color_mode: one of 'bgr', 'rgb', 'gray'(when img is path and want to plot gray img )
+        :return: None
+        """
+
         plt.figure(figsize=figsize)
-        plt.xticks([]);plt.yticks([])
+        plt.xticks([])
+        plt.yticks([])
 
-        if img_.max()==255:
-            img_ = img_/255.
-        if color_mode=='rgb':
-            plt.imshow(img_)
-        elif color_mode=='bgr':
-            plt.imshow(img_[...,::-1])
-        elif color_mode=='gray':
-            plt.imshow(img_,cmap='gray')
+        if type(img)==str and os.path.exists(img):
+            img = Image.open(img)
+            if color_mode=='gray':
+                plt.imshow(img.convert("L"),cmap='gray')
+            else:
+                plt.imshow(img)
+        else:
+            if type(img) in [PngImagePlugin.PngImageFile,JpegImagePlugin.JpegImageFile,BmpImagePlugin.BmpImageFile]:
+                plt.imshow(img)
+            elif type(img)==Image.Image:
+                plt.imshow(img,cmap='gray')
+            else:
+                if color_mode=='rgb':
+                    plt.imshow(img)
+                elif color_mode=='bgr' and len(img.shape)!= 2 and img.shape[2]!=1:
+                    plt.imshow(img[...,::-1])
+                else:
+                    plt.imshow(img,cmap='gray')
         plt.show()
 
     @staticmethod
@@ -183,6 +202,7 @@ class PyImageUtil(object):
         :param cols: 열의 개수
         :param figsize: 출력 전체 크기 (25,25) 추천
         :param img_resize: 각 이미지의 사이즈를 조정합니다.
+        :param color_mode: one of 'bgr', 'rgb', 'gray'(when img is path and want to plot gray img )
         :return: None
         """
 
@@ -209,7 +229,8 @@ class PyImageUtil(object):
                     resize_img = cv2.resize(tmp_img, (img_resize[0], img_resize[0]))
                     temp_list.append(resize_img[..., ::-1])
                 img_list = temp_list
-        elif color_mode == 'bgr':
+
+        elif img_list is not None and color_mode == 'bgr' and len(img_list[0].shape)==3 and img_list.shape[2]==3:
             img_list = [v[..., ::-1] for v in img_list]
 
         if len(img_list) % cols == 0:
@@ -233,7 +254,10 @@ class PyImageUtil(object):
                         frame.set_title('{}'.format(title_list[idx].replace(' ', '\n')), color='#808080')
                 frame.set_xticks([])
                 frame.set_yticks([])
-                frame.imshow(img_list[idx])
+                if len(img_list[idx].shape)==2 or img_list[idx].shape[2]==1:
+                    frame.imshow(img_list[idx],cmap='gray')
+                else:
+                    frame.imshow(img_list[idx])
 
             plt.show()
 
