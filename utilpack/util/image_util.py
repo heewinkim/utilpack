@@ -230,7 +230,7 @@ class PyImageUtil(object):
                     temp_list.append(resize_img[..., ::-1])
                 img_list = temp_list
 
-        elif img_list is not None and color_mode == 'bgr' and len(img_list[0].shape)==3 and img_list.shape[2]==3:
+        elif img_list is not None and color_mode == 'bgr' and len(img_list[0].shape)==3 and img_list[0].shape[2]==3:
             img_list = [v[..., ::-1] for v in img_list]
 
         if len(img_list) % cols == 0:
