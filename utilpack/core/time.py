@@ -61,11 +61,13 @@ class PyTime(object):
     def check_datetime(time):
         """
         datetime 형식이 맞는 지확인
-        :param row: 입력된 날짜 데이터
+        :param row: 입력된 날짜 데이터(str)('YYYY-MM-DD HH:MM:SS')
         :return: 1 or None
         """
+        if type(time)==datetime:
+            time = str(datetime)
 
-        if len(time)==19 and PyTime.str2datetime(time):
+        if time is not None and len(time)==19 and PyTime.str2datetime(time):
             return True
         else:
             return False
