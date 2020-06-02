@@ -17,9 +17,7 @@ widget util module
 
 ===============================================
 """
-import sys,os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from core.image import PyImage
+from utilpack.core import PyImage
 from .image_util import PyImageUtil
 from IPython.display import display, clear_output,HTML,Javascript
 import ipywidgets
