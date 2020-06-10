@@ -25,7 +25,10 @@ setup(
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',
-    long_description=open('README.md').read(),
+    long_description="""Python Utils\n
+    본 프로젝트는 일반적인 파이썬 프로젝트 진행시에 필요한 유틸 모듈 패키지가 포함되어있습니다.\n
+    자세한 사용법은 Git 페이지를 확인해주세요.
+    """,
     license='MIT',
     url='https://github.com/heewinkim/utilpack',
     download_url='https://github.com/heewinkim/utilpack/archive/master.zip',
