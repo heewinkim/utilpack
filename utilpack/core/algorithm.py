@@ -76,7 +76,6 @@ class PyAlgorithm(object):
         else:
             return values / norm
 
-
     @staticmethod
     def rank(values,startFrom=0,reverse=False,indices=False,tolist=False):
         """
@@ -121,4 +120,3 @@ class PyAlgorithm(object):
             raise ValueError("values must have same length with datas")
 
         return [d for d,v in sorted(list(zip(datas,values)),key=sortFunc,reverse=reverse)]
-
