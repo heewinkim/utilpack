@@ -266,3 +266,33 @@ class PyTime(object):
         if after_merge:
             groups = PyTime._grouping_postprocessing(groups,max)
         return groups
+
+    @staticmethod
+    def get_period(dates):
+        """
+        기간을 구합니다.
+        유일한 기간 하나만 있는경우 [ unique date, unique date ] 와 같이 같은 날짜의 기간으로 표현됩니다.
+        데이터 충분치 않은경우(0개 인 경우) None으로 표현됩니다.
+
+        예시
+        [ None, None ]
+
+
+        :param dates: date(str,'%Y-%m-%d %H:%M:%S) list
+        :return: [ pastest date, lastest date ]
+        """
+        time_period = [None, None]
+
+        for date in dates:
+            if PyTime.check_datetime(date):
+                st_date = PyTime.str2datetime(date)
+                time_period[0] = '{:04}-{:02}-{:02}'.format(st_date.year, st_date.month, st_date.day)
+                break
+        for date in reversed(dates):
+            if PyTime.check_datetime(date):
+                ed_date = PyTime.str2datetime(date)
+                time_period[1] = '{:04}-{:02}-{:02}'.format(ed_date.year, ed_date.month, ed_date.day)
+                break
+
+        return time_period
+
