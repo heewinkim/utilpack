@@ -272,7 +272,7 @@ class PyTime(object):
         """
         기간을 구합니다.
         유일한 기간 하나만 있는경우 [ unique date, unique date ] 와 같이 같은 날짜의 기간으로 표현됩니다.
-        데이터 충분치 않은경우(0개 인 경우) None으로 표현됩니다.
+        데이터 충분치 않은거나(0개 인 경우) 잘못된 날짜데이터로만 이루어진경우 None으로 표현됩니다.
 
         예시
         [ None, None ]
@@ -282,6 +282,8 @@ class PyTime(object):
         :return: [ pastest date, lastest date ]
         """
         time_period = [None, None]
+
+        dates = sorted([date for date in dates if date])
 
         for date in dates:
             if PyTime.check_datetime(date):
