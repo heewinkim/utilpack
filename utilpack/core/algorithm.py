@@ -17,9 +17,27 @@ algorithm module
 ===============================================
 """
 import numpy as np
+from shapely.geometry import box
 
 
 class PyAlgorithm(object):
+
+    @staticmethod
+    def intersectionRects(rect_list):
+        """
+        find intersection of rects
+
+        :param rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
+        :return: intersection Rect, (minx, miny, maxx, maxy)
+        """
+        # make some rectangles (for demonstration purposes and intersect with each other)
+        rect_list = [ box(*rect) for rect in rect_list]
+        intersection = rect_list[0]
+
+        # find intersection of rectangles (probably a more elegant way to do this)
+        for rect in rect_list[1:]:
+            intersection = intersection.intersection(rect)
+        return intersection.bounds
 
     @staticmethod
     def limit_minmax(x, min_=0, max_=None):

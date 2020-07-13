@@ -16,12 +16,13 @@ require_packages=[
     'pymysql',
     'ipywidgets',
     'pycryptodome',
+    'shapely',
 ]
 
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='1.4.7',
+    version='1.4.8',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',
