@@ -23,12 +23,29 @@ from shapely.geometry import box
 class PyAlgorithm(object):
 
     @staticmethod
+    def unionRects(rect_list):
+        """
+        find intersection of rects
+
+        :param rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
+        :return: box object (shapely.geometry)
+        """
+        # make some rectangles (for demonstration purposes and intersect with each other)
+        rect_list = [ box(*rect) for rect in rect_list]
+        union = rect_list[0]
+
+        # find intersection of rectangles (probably a more elegant way to do this)
+        for rect in rect_list[1:]:
+            union = union.union(rect)
+        return union
+
+    @staticmethod
     def intersectionRects(rect_list):
         """
         find intersection of rects
 
         :param rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
-        :return: intersection Rect, (minx, miny, maxx, maxy)
+        :return: box object (shapely.geometry)
         """
         # make some rectangles (for demonstration purposes and intersect with each other)
         rect_list = [ box(*rect) for rect in rect_list]
@@ -37,7 +54,7 @@ class PyAlgorithm(object):
         # find intersection of rectangles (probably a more elegant way to do this)
         for rect in rect_list[1:]:
             intersection = intersection.intersection(rect)
-        return intersection.bounds
+        return intersection
 
     @staticmethod
     def limit_minmax(x, min_=0, max_=None):
