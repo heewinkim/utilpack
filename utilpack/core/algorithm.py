@@ -31,13 +31,13 @@ class PyAlgorithm(object):
         :return: box object (shapely.geometry)
         """
         # make some rectangles (for demonstration purposes and intersect with each other)
-        rect_list = [ box(*rect) for rect in rect_list]
-        union = rect_list[0]
+        box_list = [ box(*rect) for rect in rect_list]
+        union = box_list[0]
 
         # find intersection of rectangles (probably a more elegant way to do this)
-        for rect in rect_list[1:]:
-            union = union.union(rect)
-        if union.area == rect_list[0].area:
+        for box_ in box_list[1:]:
+            union = union.union(box_)
+        if union.area == box_list[0].area:
             if PyAlgorithm.intersectionRects(rect_list).area:
                 return union
             else:
@@ -54,14 +54,14 @@ class PyAlgorithm(object):
         :return: box object (shapely.geometry)
         """
         # make some rectangles (for demonstration purposes and intersect with each other)
-        rect_list = [ box(*rect) for rect in rect_list]
-        intersection = rect_list[0]
+        box_list = [box(*rect) for rect in rect_list]
+        intersection = box_list[0]
 
         # find intersection of rectangles (probably a more elegant way to do this)
-        for rect in rect_list[1:]:
-            intersection = intersection.intersection(rect)
+        for box_ in box_list[1:]:
+            intersection = intersection.intersection(box_)
 
-        if intersection.area == rect_list[0].area:
+        if intersection.area == box_list[0].area:
             if intersection.area == PyAlgorithm.unionRects(rect_list).area:
                 return intersection
             else:
