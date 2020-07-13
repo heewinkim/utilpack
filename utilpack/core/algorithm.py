@@ -37,7 +37,13 @@ class PyAlgorithm(object):
         # find intersection of rectangles (probably a more elegant way to do this)
         for rect in rect_list[1:]:
             union = union.union(rect)
-        return union
+        if union.area == rect_list[0].area:
+            if PyAlgorithm.intersectionRects(rect_list).area:
+                return union
+            else:
+                return box(0,0,0,0)
+        else:
+            return union
 
     @staticmethod
     def intersectionRects(rect_list):
@@ -54,7 +60,14 @@ class PyAlgorithm(object):
         # find intersection of rectangles (probably a more elegant way to do this)
         for rect in rect_list[1:]:
             intersection = intersection.intersection(rect)
-        return intersection
+
+        if intersection.area == rect_list[0].area:
+            if intersection.area == PyAlgorithm.unionRects(rect_list).area:
+                return intersection
+            else:
+                return box(0,0,0,0)
+        else:
+            return intersection
 
     @staticmethod
     def limit_minmax(x, min_=0, max_=None):
