@@ -62,7 +62,7 @@ class PyAlgorithm(object):
             intersection = intersection.intersection(box_)
 
         if intersection.area == box_list[0].area:
-            if intersection.area == PyAlgorithm.unionRects(rect_list).area:
+            if intersection.area <= PyAlgorithm.unionRects(rect_list).area:
                 return intersection
             else:
                 return box(0,0,0,0)
