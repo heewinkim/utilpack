@@ -191,7 +191,7 @@ class PyImageUtil(object):
         plt.show()
 
     @staticmethod
-    def plot_imglist(path_list=None, img_list=None, url_list=None,title_list=None, cols=8, figsize=(10, 10), img_resize=(600, 600),color_mode='bgr'):
+    def plot_imglist(path_list=None, img_list=None, url_list=None,title_list=None, cols=8, figsize=(10, 10), img_resize=(600, 600),color_mode='bgr',fontsize=12):
         """
         리스트의 이미지 경로 혹은 이미지(array) 를 받아
         출력합니다
@@ -205,6 +205,7 @@ class PyImageUtil(object):
         :param color_mode: one of 'bgr', 'rgb', 'gray'(when img is path and want to plot gray img )
         :return: None
         """
+        plt.rcParams.update({'font.size': fontsize})
 
         if path_list is not None:
             temp_list = []
