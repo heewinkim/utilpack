@@ -78,6 +78,7 @@ class ButtonController(object):
 class PyUI(object):
 
     ErrorDecorator = ErrorDecorator
+    ButtonController = ButtonController
 
     @staticmethod
     def jupyterSummary(title, contents=None, author='heewinkim', numbering=False):
