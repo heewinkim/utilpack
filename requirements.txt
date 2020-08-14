@@ -5,7 +5,7 @@ matplotlib
 sklearn
 pandas
 tqdm
-Pillow
+Pillow>=7.1.0
 opencv-python
 pymysql
 ipywidgets
