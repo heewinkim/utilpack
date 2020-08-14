@@ -39,11 +39,11 @@ class PyAlgorithm(object):
             union = union.union(box_)
         if union.area == box_list[0].area:
             if PyAlgorithm.intersectionRects(rect_list).area:
-                return union
+                return union.bounds
             else:
                 return box(0,0,0,0)
         else:
-            return union
+            return union.bounds
 
     @staticmethod
     def intersectionRects(rect_list):
@@ -63,11 +63,11 @@ class PyAlgorithm(object):
 
         if intersection.area == box_list[0].area:
             if intersection.area <= PyAlgorithm.unionRects(rect_list).area:
-                return intersection
+                return intersection.bounds
             else:
                 return box(0,0,0,0)
         else:
-            return intersection
+            return intersection.bounds
 
     @staticmethod
     def limit_minmax(x, min_=0, max_=None):
@@ -135,16 +135,16 @@ class PyAlgorithm(object):
         :return: list
         """
 
-        result = np.argsort(values)
-
         if reverse:
-            result = result[::-1]
+            values = np.max(values)-values
 
-        if startFrom!=0:
-            result = result + int(startFrom)
+        result = np.argsort(values)
 
         if not indices:
             result = np.argsort(result)
+
+        if startFrom!=0:
+            result = result + int(startFrom)
 
         if tolist:
             result = list(result)
@@ -168,3 +168,19 @@ class PyAlgorithm(object):
             raise ValueError("values must have same length with datas")
 
         return [d for d,v in sorted(list(zip(datas,values)),key=sortFunc,reverse=reverse)]
+
+
+if __name__ == '__main__':
+
+    rst = PyAlgorithm.intersectionRects([[0, 0, 20, 20], [10, 10, 30, 30]])
+    print(rst)  # (10.0, 10.0, 20.0, 20.0)
+    rst = PyAlgorithm.unionRects([[0, 0, 20, 20], [10, 10, 30, 30]])
+    print(rst)  # (0.0, 0.0, 30.0, 30.0)
+    rst = PyAlgorithm.limit_minmax(256,0,255)
+    print(rst)  # 255
+    rst = PyAlgorithm.get_connected_components([ [1,2], [2,7], [0,3], [4,5], [5,7] ])
+    print(rst)  # [[1, 2, 5, 7], [0, 3], [4, 5]]
+    rst = PyAlgorithm.rank([1,10,3,15,40],startFrom=1,indices=False,reverse=True)
+    print(rst)  # [5 3 4 2 1]
+    rst = PyAlgorithm.sortByValues(['a','b','c','d'],[4,3,1,2])
+    print(rst)  # ['c', 'd', 'b', 'a']

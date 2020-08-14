@@ -17,13 +17,18 @@ pip3 install utilpack
 - PyAlgorithm 클래스 제공
 ```python
 from utilpack.core import PyAlgorithm
-
-pair_list = [ [1,2], [2,7], [0,3], [4,5], [5,7] ]
-
-# 연결된 컴포넌트 반환
-result = PyAlgorithm.get_connected_components(pair_list)
-print(result)
-
+rst = PyAlgorithm.intersectionRects([[0, 0, 20, 20], [10, 10, 30, 30]])
+print(rst)  # (10.0, 10.0, 20.0, 20.0)
+rst = PyAlgorithm.unionRects([[0, 0, 20, 20], [10, 10, 30, 30]])
+print(rst)  # (0.0, 0.0, 30.0, 30.0)
+rst = PyAlgorithm.limit_minmax(256,0,255)
+print(rst)  # 255
+rst = PyAlgorithm.get_connected_components([ [1,2], [2,7], [0,3], [4,5], [5,7] ])
+print(rst)  # [[1, 2, 5, 7], [0, 3], [4, 5]]
+rst = PyAlgorithm.rank([1,10,3,15,40],startFrom=1,indices=False,reverse=True)
+print(rst)  # [5 3 4 2 1]
+rst = PyAlgorithm.sortByValues(['a','b','c','d'],[4,3,1,2])
+print(rst)  # ['c', 'd', 'b', 'a']
 ```
 - PyConfig 클래스 제공, 설정파일 로드 기능을 제공
 ```python
