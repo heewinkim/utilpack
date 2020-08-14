@@ -17,16 +17,22 @@ pip3 install utilpack
 - PyAlgorithm 클래스 제공
 ```python
 from utilpack.core import PyAlgorithm
+# 사각형의 교집합을 구합니다.
 rst = PyAlgorithm.intersectionRects([[0, 0, 20, 20], [10, 10, 30, 30]])
 print(rst)  # (10.0, 10.0, 20.0, 20.0)
+# 사각형의 합집합을 구합니다.
 rst = PyAlgorithm.unionRects([[0, 0, 20, 20], [10, 10, 30, 30]])
 print(rst)  # (0.0, 0.0, 30.0, 30.0)
+# 값의 최소 최대값을 적용합니다.
 rst = PyAlgorithm.limit_minmax(256,0,255)
 print(rst)  # 255
+# 각 노드의 엣지관계 리스트를 받아 연결 컴포넌트를 구합니다.
 rst = PyAlgorithm.get_connected_components([ [1,2], [2,7], [0,3], [4,5], [5,7] ])
 print(rst)  # [[1, 2, 5, 7], [0, 3], [4, 5]]
+# 값의 랭크를 매깁니다.
 rst = PyAlgorithm.rank([1,10,3,15,40],startFrom=1,indices=False,reverse=True)
 print(rst)  # [5 3 4 2 1]
+# values 의 정렬 값으로 data를 정렬합니다.
 rst = PyAlgorithm.sortByValues(['a','b','c','d'],[4,3,1,2])
 print(rst)  # ['c', 'd', 'b', 'a']
 ```
