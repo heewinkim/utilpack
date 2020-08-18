@@ -132,7 +132,7 @@ class PyUI(object):
 
         def onClickRun(value):
             selected_data = dataList[list_widget.index]
-            runFunc(selected_data,initFunc=initFunc,backFunc=backFunc **funcKwargs)
+            runFunc(selected_data,initFunc=initFunc,backFunc=backFunc, **funcKwargs)
 
         runButton.on_click(onClickRun)
         initButton.on_click(lambda v:initFunc())
