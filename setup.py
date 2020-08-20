@@ -22,7 +22,7 @@ require_packages=[
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='1.5.7',
+    version='1.5.8',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',

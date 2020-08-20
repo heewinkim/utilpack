@@ -42,7 +42,7 @@ class PyImageUtil(object):
     @staticmethod
     def images2pdf(img_list, save_path='./images.pdf', color_mode='bgr'):
         if color_mode == 'bgr':
-            img_list = [Image.fromarray(img)[..., ::-1] for img in img_list]
+            img_list = [Image.fromarray(img[..., ::-1]) for img in img_list]
         else:
             img_list = [Image.fromarray(img) for img in img_list]
         img_list[0].save(save_path, "PDF", resolution=100.0, save_all=True, append_images=img_list[1:])
