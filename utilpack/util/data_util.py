@@ -38,27 +38,6 @@ from tqdm.auto import tqdm
 class PyDataUtil(object):
 
     @staticmethod
-    def splitList(data,n):
-        """
-        동일한 크기로 list를 나눕니다.
-        정확하게 나누어 지지 않을시에 마지막 리스트에 남은 원소들이 할당됩니다.
-
-        EXAMPLE :  splitList([1,2,3,4,5,6,7,8],3) -> [ [1,2,3], [4,5,6], [7,8] ]
-
-        :param data: 나누어질 리스트
-        :param n: 나누어진 리스트의 각 크기
-        :return: list of list
-        """
-        result = []
-        for i in range(0,math.ceil(len(data)/n)):
-            result.append(data[i*n:(i+1)*n])
-        return result
-
-    @staticmethod
-    def limit_minmax(x, min_=0, max_=None):
-        return max(min_, x) if not max_ else min(max(min_, x), max_)
-
-    @staticmethod
     def plot3D(arr_list, label_list=None, figsize=(15, 15), colors=["#ff0000", "#0000ff", "#00ff00"],
                seperate_plot=False):
         from mpl_toolkits.mplot3d import Axes3D

@@ -40,6 +40,14 @@ class PyImageUtil(object):
     plt = plt
 
     @staticmethod
+    def images2pdf(img_list, save_path='./images.pdf', color_mode='bgr'):
+        if color_mode == 'bgr':
+            img_list = [Image.fromarray(img)[..., ::-1] for img in img_list]
+        else:
+            img_list = [Image.fromarray(img) for img in img_list]
+        img_list[0].save(save_path, "PDF", resolution=100.0, save_all=True, append_images=img_list[1:])
+
+    @staticmethod
     def putText(img_cv,text,org,color,fontsize,ttf_path='gulim.ttf'):
         img_pil = Image.fromarray(img_cv)
         draw = ImageDraw.Draw(img_pil)
