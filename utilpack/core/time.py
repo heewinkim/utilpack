@@ -263,8 +263,8 @@ class PyTime(object):
             images = sorted(images,key=lambda v:v[time_type])
 
         if min==max:
-            groups = sorted([list(v) for v in np.array_split(np.array(images), min)],key=lambda v: v[0][time_type])
-            if all(groups):
+            groups = sorted([list(v) for v in np.array_split(np.array(images), len(images)//min)],key=lambda v: v[0][time_type])
+            if all([len(v)==min for v in groups]):
                 return groups
             else:
                 raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,"Can't split images({}) by {}".format(len(images),min))
