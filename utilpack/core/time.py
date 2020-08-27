@@ -262,10 +262,17 @@ class PyTime(object):
         if sort:
             images = sorted(images,key=lambda v:v[time_type])
 
-        groups = PyTime._grouping(images,min,max,time_type)
-        if after_merge:
-            groups = PyTime._grouping_postprocessing(groups,max)
-        return groups
+        if min==max:
+            groups = sorted([list(v) for v in np.array_split(np.array(images), min)],key=lambda v: v[0][time_type])
+            if all(groups):
+                return groups
+            else:
+                raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,"Can't split images({}) by {}".format(len(images),min))
+        else:
+            groups = PyTime._grouping(images,min,max,time_type)
+            if after_merge:
+                groups = PyTime._grouping_postprocessing(groups,max)
+            return groups
 
     @staticmethod
     def get_period(dates):
