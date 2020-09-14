@@ -135,6 +135,9 @@ class PyAlgorithm(object):
         :return: list
         """
 
+        if len(values)==0:
+            return [] if tolist else np.array([])
+
         if reverse:
             values = np.max(values)-values
 
