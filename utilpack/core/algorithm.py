@@ -184,15 +184,20 @@ class PyAlgorithm(object):
         :return: list
         """
 
+        result = []
         if seed is not None:
             random.seed(seed)
 
-        result = []
+        # 빈 배열일 경우 빈 리스트를 리턴합니다.
+        if len(arr) == 0:
+            return result
+
         for _ in range(k // len(arr)):
             result.extend(random.sample(arr, k=len(arr)))
         if k % len(arr) != 0:
             result.extend(random.sample(arr, k=k % len(arr)))
         return result
+
 
 if __name__ == '__main__':
 
