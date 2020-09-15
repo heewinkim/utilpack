@@ -54,5 +54,3 @@ class PyConfig(object):
         self.td_ip = self.config["LOG_INFO"]["TD_IP"]
         self.td_port = self.config["LOG_INFO"]["TD_PORT"]
         self.td_tag = self.config["LOG_INFO"]["TD_TAG"]
-
-

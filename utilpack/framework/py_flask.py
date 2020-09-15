@@ -72,7 +72,7 @@ import traceback
 
 class PyFlask(Flask):
 
-    def __init__(self,api_name):
+    def __init__(self,api_name,useFileHandler=False,td_log=False):
         """
         url 경로를 위한 prefix,version,api_name을 인수로 받습니다.
 
@@ -81,7 +81,7 @@ class PyFlask(Flask):
         :param api_name_: api_name
         """
         super().__init__(api_name)
-        self._logger = PyLogger(api_name)
+        self._logger = PyLogger(api_name,useFileHandler,td_log)
         self._api_name = api_name
         self.output = PyOutput()
         self.request = request

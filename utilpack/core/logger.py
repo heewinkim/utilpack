@@ -38,6 +38,10 @@ logger module
 import time
 import logging
 import os
+import json
+import requests
+from datetime import datetime
+from .config import PyConfig
 from .singleton import Singleton
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -46,17 +50,26 @@ monthes = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12',
            }
+py_config = PyConfig()
 
 
 class PyLogger(logging.Filter,metaclass=Singleton):
 
-    def __init__(self, log_name,useFileHandler=False):
+    def __init__(self, log_name,useFileHandler=False,td_log=False):
 
         """
         init function
 
         :param log_name: log 파일에 접미사로 붙을 이름
+        :param useFileHandler : 로그파일을 기록합니다.
+        :param td_log : fluentd 로그를 활성화 합니다. (PyConfig에서 설정되는 config파일에 [LOG_INFO] 의 TD_IP,TD_PORT,TD_TAG 값이 설정되어야 합니다.
         """
+
+        # fluentd-log parameters
+        self.td_log = td_log
+        self.td_ip = py_config.td_ip
+        self.td_port = py_config.td_port
+        self.td_tag = py_config.td_tag
 
         # 로그 저장 경로
         self.log_name = log_name
@@ -91,9 +104,31 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         :return:
         """
 
-        for k,v in kwargs.items():
-            self.__logger.info('{}\t{}'.format(k,v))
-        self.__logger.info(message)
+        if self.td_log:
+            data = {
+                'language':self.accept_language,
+                'deviceId':self.deviceId,
+                'appType':self.appType,
+                'userIp':self.userIp,
+                'processId':os.getpid(),
+                'userNo':self.userNo,
+                'user-agent':self.user_agent,
+                'type':'REQ' if message.split('\t')[0]=='input' else 'RES',
+                'hostname':self.host,
+                'uri':self.path,
+                'path_var':self.full_path,
+                'method': self.req_method,
+                'event_time': datetime.now().strftime('%Y%m%d%H%M%S.%f')[:-3],
+                'payload': json.loads(message.split('\t')[1]),
+            }
+            for k,v in kwargs.items():
+                data[k]=v
+
+            requests.post('http://{}:{}/{}'.format(self.td_ip,self.td_port,self.td_tag),json=data)
+        else:
+            for k,v in kwargs.items():
+                self.__logger.info('{}\t{}'.format(k,v))
+            self.__logger.info(message)
 
     def warning(self,message):
         self.__logger.warning(message)

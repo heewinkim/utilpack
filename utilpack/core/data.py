@@ -24,7 +24,7 @@ import io
 import zipfile
 import json
 import pickle
-from .error import *
+from error import *
 
 
 class Zip(object):
@@ -81,7 +81,6 @@ class Zip(object):
             raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Failed to compress zipfile')
 
 
-
 class PyData(object):
 
     zip=Zip
@@ -92,7 +91,7 @@ class PyData(object):
             f.write(json.dumps(data))
 
     @staticmethod
-    def load_json(data,fromfile=False):
+    def load_json(data,fromfile=True):
         if fromfile:
             return json.loads(open(data).read())
         else:
@@ -122,3 +121,27 @@ class PyData(object):
         with open(path,'rb') as f:
             data = pickle.load(f)
             return data
+
+if __name__ == '__main__':
+
+    # 데이터를 압축합니다.
+    compress_data = PyData.zip.compress('string data',filename='filename')
+    print(compress_data)  # b'PK\x03\x04\x14...
+
+    # 압축된 데이터를 읽습니다.
+    decompress = data = PyData.zip.decompress(compress_data,filename='filename')
+    print(decompress)  # b'string data'
+
+    # 데이터를 json 형태로 저장합니다.
+    PyData.save_json({'a':1,'b':2},'sample.json')
+
+    # json 데이터파일을 읽습니다.
+    data = PyData.load_json('sample.json')
+    print(data)  # {'a': 1, 'b': 2}
+
+    # 데이터를 pickle 형태로 저장합니다.
+    PyData.save_pickle({'a':1,'b':2},'sample.pkl')
+
+    # pickle 데이터파일을 읽습니다.
+    data = PyData.load_pickle('sample.pkl')
+    print(data)  # {'a': 1, 'b': 2}
