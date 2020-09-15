@@ -24,7 +24,7 @@ import io
 import zipfile
 import json
 import pickle
-from error import *
+from .error import *
 
 
 class Zip(object):
