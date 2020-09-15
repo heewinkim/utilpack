@@ -17,6 +17,7 @@ algorithm module
 ===============================================
 """
 import numpy as np
+import random
 from shapely.geometry import box
 
 
@@ -172,6 +173,26 @@ class PyAlgorithm(object):
 
         return [d for d,v in sorted(list(zip(datas,values)),key=sortFunc,reverse=reverse)]
 
+    @staticmethod
+    def sample_minimal_redundancy(arr, k, seed=None):
+        """
+        최소한의 중복을 허용하는 선에서 arr 배열중에서 k개의 샘플을 뽑습니다.
+
+        :param arr: 배열
+        :param k: 선택할 개수
+        :param seed: 랜덤 시드
+        :return: list
+        """
+
+        if seed is not None:
+            random.seed(seed)
+
+        result = []
+        for _ in range(k // len(arr)):
+            result.extend(random.sample(arr, k=len(arr)))
+        if k % len(arr) != 0:
+            result.extend(random.sample(arr, k=k % len(arr)))
+        return result
 
 if __name__ == '__main__':
 
@@ -187,3 +208,5 @@ if __name__ == '__main__':
     print(rst)  # [5 3 4 2 1]
     rst = PyAlgorithm.sortByValues(['a','b','c','d'],[4,3,1,2])
     print(rst)  # ['c', 'd', 'b', 'a']
+    rst = PyAlgorithm.sample_minimal_redundancy([1,2,3,4,5],k=7,seed='random_seed')
+    print(rst)  # [3, 2, 4, 5, 1, 4, 1]

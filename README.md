@@ -35,6 +35,9 @@ print(rst)  # [5 3 4 2 1]
 # values 의 정렬 값으로 data를 정렬합니다.
 rst = PyAlgorithm.sortByValues(['a','b','c','d'],[4,3,1,2])
 print(rst)  # ['c', 'd', 'b', 'a']
+# 최소한의 중복을 허용하는 선에서 arr 배열중에서 k개의 샘플을 뽑습니다.
+rst = PyAlgorithm.sample_minimal_redundancy([1,2,3,4,5],k=7,seed='random_seed')
+print(rst)  # [3, 2, 4, 5, 1, 4, 1]
 ```
 - PyConfig 클래스 제공, 설정파일 로드 기능을 제공
 ```python
