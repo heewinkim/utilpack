@@ -48,11 +48,36 @@ class PyImageUtil(object):
         img_list[0].save(save_path, "PDF", resolution=100.0, save_all=True, append_images=img_list[1:])
 
     @staticmethod
-    def putText(img_cv,text,org,color,fontsize,ttf_path='gulim.ttf'):
-        img_pil = Image.fromarray(img_cv)
-        draw = ImageDraw.Draw(img_pil)
-        draw.text(org, text, font=ImageFont.truetype(ttf_path, fontsize), fill=tuple(list(color)+[0]))
-        return np.array(img_pil)
+    def putTextCenter(img, text, org, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1., color=(0, 0, 0),thickness=2):
+        """
+        Korean language support
+
+        :param img_cv: image to draw
+        :param text: string
+        :param org: origin coordinates
+        :param color: rgb tuple eg.(255,0,255)
+        :param fontsize: fontsize
+        :param ttf_path: default=gulim.ttf in package
+        :return:
+        """
+
+        # get boundary of this text
+        textsize = cv2.getTextSize(text, fontFace, 1, 2)[0]
+
+        # get coords based on boundary
+        textX = list(org)[0] - (textsize[0] // 2)
+        textY = list(org)[1] + (textsize[1] // 2)
+
+        # add text centered on image
+        cv2.putText(
+            img=img,
+            text=text,
+            org=(textX, textY),
+            fontFace=fontFace,
+            fontScale=fontScale,
+            color=color,
+            thickness=thickness
+        )
 
     @staticmethod
     def read_fileinfo(path: str):
