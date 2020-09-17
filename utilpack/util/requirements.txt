@@ -8,6 +8,7 @@ Pillow==5.2.0
 opencv-python==3.4.1.15
 ipywidgets==7.5.1
 dlib
+psutil
 
 # # not mendatory packages..
 # PyMySQL==0.9.3

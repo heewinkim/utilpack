@@ -70,3 +70,15 @@ class PyVisUtil(object):
         plt.plot(hist)
         plt.xlim([0, 256])
         plt.show()
+
+
+if __name__ == '__main__':
+
+    img_cv = cv2.imread('/path/to/img.jpg')
+    gray_img_cv = cv2.imread('/path/to/img.jpg',0)
+
+    # 컬러 히스토그램을 그립니다.
+    PyVisUtil.color_hist(img_cv)
+
+    # 흑백 히스토그램을 그립니다.
+    PyVisUtil.gray_hist(gray_img_cv)

@@ -296,3 +296,50 @@ class PyDataUtil(object):
         plt.xlabel('Predicted label')
         plt.tight_layout()
         plt.show()
+
+
+if __name__ == '__main__':
+
+    # 3차원 데이터 리스트를 받아 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.plot3D()
+
+    # mysql에 쿼리를 날립니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.query2mysql()
+
+    # dict 데이터를 json으로 저장합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.save_json()
+
+    # 저장된 Json을 dict로 읽습니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.load_json()
+
+    # 주어진 url의 데이터를 다운로드 합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.download()
+
+    # 함수를 테스트 합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.func_test()
+
+    # 주피터 노트북 환경인지를 boolean값으로 리턴합니다.
+    is_in_notebook = PyDataUtil.in_notebook()
+    print(is_in_notebook)  # False
+
+    # pypi의 패키지를 설치합니다.
+    PyDataUtil.install('setuptools')
+
+    # 디렉토리의 특정 파일포맷 리스트를 얻습니다.  자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.get_pathlist('path/to/dir',recursive=False,format=['txt'])
+
+    # 경로의 디렉토리 리스트를 얻습니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.get_dirlist()
+
+    # 데이터를 pickle로 저장합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.save_pickle({'example':'data'},'data.pkl')
+
+    # 저장된 pickle 데이터를 불러옵니다. 자세한 사용법은 docstring을 참조하세요.
+    data = PyDataUtil.load_pickle('data.pkl')
+    print(data)  # {'example':'data'}
+
+    # 데이터 리스트를 받아 히스토그램으로 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.make_histplot()
+
+    # 데이터를 받아 confusion matrix를 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+    PyDataUtil.confusion_mat()

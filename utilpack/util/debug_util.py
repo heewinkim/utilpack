@@ -79,17 +79,39 @@ class PyDebugUtil(object):
             process = psutil.Process(os.getpid())
             return process.memory_info().rss
 
-        def wrapper(args, **kwargs):
+        def wrapper(*args, **kwargs):
             mem_before = _get_process_memory()
             start = time.time()
-            result = func(args, **kwargs)
+            result = func(*args, **kwargs)
             elapsed_time = time.strftime("%H:%M:%S", time.gmtime(time.time() - start))
             mem_after = _get_process_memory()
-            print("{}{}_memory before: {:,}, after: {:,}, consumed: {:,}; exec time: {}".format(
+            print("pid: {}\tfunc name: {}\tmemory before: {:,}\tafter: {:,}\tconsumed: {:,}\texec time: {}".format(
                 os.getpid(),
-                func.name,
+                func.__name__,
                 mem_before, mem_after, mem_after - mem_before,
                 elapsed_time))
             return result
 
         return wrapper
+
+
+if __name__ == '__main__':
+
+    from time import sleep
+
+    PyDebugUtil.tic()
+    sleep(1)
+    PyDebugUtil.toc()
+    # Difference Time : 1001ms
+
+    @PyDebugUtil.timer_deco
+    def do_something():
+        sleep(1)
+    do_something()
+    # do_something 함수가 실행되는데 걸린 시간: 1003.23ms
+
+    @PyDebugUtil.memory_deco
+    def do_something():
+        sleep(1)
+    do_something()
+    # pid: 34597	func name: do_something	memory before: 69,550,080	after: 69,550,080	consumed: 0	exec time: 00:00:01

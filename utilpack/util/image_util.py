@@ -98,97 +98,6 @@ class PyImageUtil(object):
         return file_info
 
     @staticmethod
-    def read_bytedata(data, img_type):
-        """
-        입력타입 ['url','filepath','bytes']에 따라 data를 byte image data로 로드합니다.
-
-
-        :param data: input data
-        :param img_type: input img_type , ['url','filepath','bytes'] 중 하나
-        :return: byte image data
-        :raise IMAGE_READ_ERROR:
-        """
-
-
-        try:
-            bytes_data = None
-
-            # 각 파일타입에 따른 데이터 읽기
-            if img_type == 'bytes':
-                bytes_data = data.read()
-            elif img_type == 'url':
-                if data.startswith('/Upload'):
-                    data = 'https://www.py.com' + data
-                response = urllib.request.urlopen(data)
-                if response.getcode() == 200:
-                    bytes_data = response.read()
-            elif img_type == 'filepath':
-                with open(data, 'rb') as f:
-                    bytes_data = f.read()
-
-            return bytes_data
-
-        except Exception:
-            raise PyError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to read image - read_bytedata in PyImage')
-
-    @staticmethod
-    def calculate_sizerate(ot, w, h):
-        """
-        사이즈 비율 계산
-
-        :param ot: 회전각도 (0~8)
-        :param w: 사진 가로 길이 (1~32767)
-        :param h: 사진 세로 길이 (1~32767)
-        :return: 계산 된 사이즈 비율
-        """"""
-        """
-        whRange = [0, 32768]
-        size_r = 0
-
-        if (whRange[1] > w > whRange[0]) and (whRange[1] > h > whRange[0]):
-
-            if 0 < ot <= 4:
-                size_r = w / h
-
-            elif 9 > ot > 4:
-                size_r = h / w
-
-            elif ot == 0:
-                size_r = 1
-
-        return size_r
-
-    @staticmethod
-    def get_differentail_times(images):
-        """
-        클러스터간의 시간미분값의 리스트를 반환
-
-        :param clusters: 클러스터
-        :return: list
-        """
-
-        differential_times = []
-
-        if not images:
-            return differential_times
-
-        if all([image.get('exifDate') for image in images]) is False:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'no exifDate key - _get_differential_times in PyTime')
-
-        previous_tail_time = images[0]['exifDate']
-
-        for image in images:
-            head_time = image['exifDate']
-
-            # 초단위로 미분값을 저장합니다.
-            diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
-
-            differential_times.append(diff_time)
-            previous_tail_time = head_time
-
-        return differential_times
-
-    @staticmethod
     def plot(img,figsize=(5,5),color_mode='bgr'):
         """
         단일 이미지를 출력합니다.
@@ -329,95 +238,6 @@ class PyImageUtil(object):
         return path_list
 
     @staticmethod
-    def get_pathlist_from_file(path: str) -> (list):
-        """
-        이미지 목록이 저장된 파일로부터 image list를 얻는다
-
-        :param path: 경로
-        :return: 이미지 리스트
-        """
-
-        img_list = []
-
-        with open(path, 'r') as f:
-
-            for line in f.readlines():
-
-                line = line.strip()
-
-                if line == '':
-                    continue
-
-                if line.split('.')[-1] == 'jpg' or line.split('.')[-1] == 'png':
-                    img_list.append(line)
-
-        return img_list
-
-    @staticmethod
-    def print_images(path: str = None, batch: tuple = None, fps: int = 0):
-        """
-        경로상의 이미지들을 차례대로 출력한다
-
-        :param path: directory path included images
-        :param batch: tuple(min,max), show min ~ max  images
-        :param fps: frame per second for skip next image
-        """
-        if path is None:
-            return
-
-        img_list, name_list = PyImageUtil.get_pathlist(path)
-
-        if batch is None:
-            batch = (0, len(img_list))
-
-        img_idx = 0
-
-        for img_path, file_name in zip(img_list, name_list):
-
-            if img_idx < batch[0]:
-                img_idx += 1
-                continue
-
-            img = cv2.imread(img_path)
-
-            if img is None:
-                print("{} file was damaged".format(file_name))
-                continue
-
-            for i in range(25):
-                for j in range(90):
-                    img[i, j, :] = img[i, j, :] / 3
-
-            cv2.putText(img, '{}th image'.format(img_idx), (10, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200))
-            print('{}th image'.format(img_idx))
-            cv2.imshow('image'.format(img_idx), img)
-
-            if cv2.waitKey(fps) & 0xFF == 27:
-                break
-
-            if img_idx >= batch[1]:
-                break
-
-            img_idx += 1
-
-    @staticmethod
-    def get_img_from_url(url):
-        """
-        url로 부터 cv 이미지를 얻는다
-
-        :param url:  url 주소
-        :return: cv image
-        """
-
-        response = urllib.request.urlopen(url)
-        if response.getcode() == 200:
-            bytedata = response.read()
-            imgstr2np = np.fromstring(bytedata, np.uint8)
-            img = cv2.imdecode(imgstr2np, cv2.IMREAD_COLOR)
-
-            return img
-
-    @staticmethod
     def resize_image(img_cv, width=0, height=0):
         """
         비율에 맞게 리사이징 합니다. width 혹은 height 값을 인수로 받습니다. 픽셀 혹은 비율값을 받습니다.
@@ -474,7 +294,7 @@ class PyImageUtil(object):
         if bytes_data:
             image = Image.open(BytesIO(bytes_data))
         elif data and types:
-            bytes_data = PyImageUtil.read_bytedata(data,types)
+            bytes_data = PyImage.read_bytedata(data,types)
             image = Image.open(BytesIO(bytes_data))
 
         if image is None:
@@ -498,33 +318,6 @@ class PyImageUtil(object):
                     exif[decoded] = value
 
         return exif
-
-    @staticmethod
-    def rotate_image(img_cv, orientation: int = 0):
-        """
-        orientation 값을 참조하여 원본 이미지로 복구합니다.
-
-        :param img_cv: array,image
-        :param orientation: int,0~8
-        :return:
-        """
-
-        if orientation in [0, 1]:
-            return img_cv
-        elif orientation == 2:
-            return np.fliplr(img_cv)
-        elif orientation == 3:
-            return np.rot90(img_cv, 2)
-        elif orientation == 4:
-            return np.fliplr(np.rot90(img_cv, 2))
-        elif orientation == 5:
-            return np.fliplr(np.rot90(img_cv, 3))
-        elif orientation == 6:
-            return np.rot90(img_cv, 3)
-        elif orientation == 7:
-            return np.fliplr(np.rot90(img_cv, 1))
-        elif orientation == 8:
-            return np.rot90(img_cv, 1)
 
     @staticmethod
     def read_orientation(data=None,types=None,image=None,bytes_data=None):
@@ -637,26 +430,6 @@ class PyImageUtil(object):
             return lat, lng
 
     @staticmethod
-    def parse_ot(img_ot,data=None,types=None,image=None,bytes_data=None):
-        """
-        (data,types) , image , bytes_data 중 하나가 제공되어야합니다
-
-        :param data: data
-        :param types: filepath, url, bytes 중 하나
-        :param image: pillow load image data
-        :param bytes_data: bytes image data
-        :param img_ot:
-        :return:
-        """
-
-        ot = PyImageUtil.read_orientation(data,types,image,bytes_data)
-
-        if ot in [2,3,4,5,6,7,8]:
-            return 1
-        else:
-            return img_ot
-
-    @staticmethod
     def _build_montages(image_list, image_shape, montage_shape):
         """
         ---------------------------------------------------------------------------------------------
@@ -721,3 +494,45 @@ class PyImageUtil(object):
         if start_new_img is False:
             image_montages.append(montage_image)  # add unfinished montage
         return image_montages
+
+
+if __name__ == '__main__':
+
+    # opencv-python의 cv2 객체와 같습니다.
+    PyImageUtil.cv2
+
+    # matplotlib의 matplotlib.pyplot 객체와 같습니다.
+    PyImageUtil.plt
+
+    # 이미지 리스트를 pdf로 변환합니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.images2pdf()
+
+    # 좌표를 텍스트의 중심으로 하는 putText 입니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.putTextCenter()
+
+    # 이미지 파일정보를 읽습니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.read_fileinfo()
+
+    # 이미지를 출력합니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.plot()
+
+    # 이미지 리스트를 타일형태로 출력합니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.plot_imglist()
+
+    # 디렉토리에서 이미지 경로 리스트를 얻습니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.get_pathlist()
+
+    # 이미지를 비율을 유지하며 리사이징 합니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.resize_image()
+
+    # 이미지의 exif를 읽습니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.read_exif()
+
+    # 이미지의 회전값을 읽습니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.read_orientation()
+
+    # 이미지를 타일형태의 grid로 만듭니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.make_gridImage()
+
+    # 이미지의 gps 경도,위도를 얻습니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.get_latlng()

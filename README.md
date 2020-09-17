@@ -282,34 +282,194 @@ print(period)  # ['2020-09-07', '2020-09-10']
 
 - PyDataUtil 클래스 제공, 데이터 분석 및 처리 기능 제공
 ```python
+from utilpack.util import PyDataUtil
 
+# 3차원 데이터 리스트를 받아 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.plot3D()
+
+# mysql에 쿼리를 날립니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.query2mysql()
+
+# dict 데이터를 json으로 저장합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.save_json()
+
+# 저장된 Json을 dict로 읽습니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.load_json()
+
+# 주어진 url의 데이터를 다운로드 합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.download()
+
+# 함수를 테스트 합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.func_test()
+
+# 주피터 노트북 환경인지를 boolean값으로 리턴합니다. 
+is_in_notebook = PyDataUtil.in_notebook()
+print(is_in_notebook)  # False
+
+# pypi의 패키지를 설치합니다. 
+PyDataUtil.install('setuptools')
+
+# 디렉토리의 특정 파일포맷 리스트를 얻습니다.  자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.get_pathlist('path/to/dir',recursive=False,format=['txt'])
+
+# 경로의 디렉토리 리스트를 얻습니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.get_dirlist()
+
+# 데이터를 pickle로 저장합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.save_pickle({'example':'data'},'data.pkl')
+
+# 저장된 pickle 데이터를 불러옵니다. 자세한 사용법은 docstring을 참조하세요.
+data = PyDataUtil.load_pickle('data.pkl')
+print(data)  # {'example':'data'}
+
+# 데이터 리스트를 받아 히스토그램으로 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.make_histplot()
+
+# 데이터를 받아 confusion matrix를 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+PyDataUtil.confusion_mat()
 ```
 - PyDebugUtil 디버그에 필요한 모듈 제공
 ```python
 from utilpack.util import PyDebugUtil
+from time import sleep
 
 PyDebugUtil.tic()
+sleep(1)
 PyDebugUtil.toc()
+# Difference Time : 1001ms
+
+@PyDebugUtil.timer_deco
+def do_something():
+    sleep(1)
+do_something()
+# do_something 함수가 실행되는데 걸린 시간: 1003.23ms
+
+@PyDebugUtil.memory_deco
+def do_something():
+    sleep(1)
+do_something()
+# pid: 34597	func name: do_something	memory before: 69,550,080	after: 69,550,080	consumed: 0	exec time: 00:00:01
 ```
 - PyFaceUtil 얼굴 이미지 관련 유틸 제공
 ```python
+import cv2
+from utilpack.util import PyFaceUtil
 
+face_img = cv2.imread('/path/to/face/included/img.jpg')
+
+# 얼굴이 포함된 이미지에서 얼굴을 크롭합니다. 드로잉 관련 후처리 사용시 copy를 True로 하여 참조가 아닌 복사가 되어야 합니다.
+PyFaceUtil.crop_face(face_img,10,10,100,100,copy=True)
+
+# 얼굴이 포함된 이미지에서 얼굴을 그립니다.
+PyFaceUtil.draw_face(face_img,10,10,100,100,(255,0,255),3)
 ```
 - PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
 ```python
+from utilpack.util import PyImageUtil
 
+# opencv-python의 cv2 객체와 같습니다.
+PyImageUtil.cv2
+
+# matplotlib의 matplotlib.pyplot 객체와 같습니다.
+PyImageUtil.plt
+
+# 이미지 리스트를 pdf로 변환합니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.images2pdf()
+
+# 좌표를 텍스트의 중심으로 하는 putText 입니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.putTextCenter()
+
+# 이미지 파일정보를 읽습니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.read_fileinfo()
+
+# 이미지를 출력합니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.plot()
+
+# 이미지 리스트를 타일형태로 출력합니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.plot_imglist()
+
+# 디렉토리에서 이미지 경로 리스트를 얻습니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.get_pathlist()
+
+# 이미지를 비율을 유지하며 리사이징 합니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.resize_image()
+
+# 이미지의 exif를 읽습니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.read_exif()
+
+# 이미지의 회전값을 읽습니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.read_orientation()
+
+# 이미지를 타일형태의 grid로 만듭니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.make_gridImage()
+
+# 이미지의 gps 경도,위도를 얻습니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.get_latlng()
 ```
 - PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
 ```python
+from utilpack.util import PyTimeUtil
 
+# 타임라인을 그립니다.
+PyTimeUtil.draw_timeline(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
 ```
 - PyVisUtil 클래스 제공, 시각화 툴 제공
 ```python
+import cv2
+from utilpack.util import PyVisUtil
 
+img_cv = cv2.imread('/path/to/img.jpg')
+gray_img_cv = cv2.imread('/path/to/img.jpg',0)
+
+# 컬러 히스토그램을 그립니다.
+PyVisUtil.color_hist(img_cv)
+
+# 흑백 히스토그램을 그립니다.
+PyVisUtil.gray_hist(gray_img_cv)
 ```
 - PyUI 클래스 제공, 주피터 UI 작성 유틸 제공
 ```python
+import ipywidgets
+from utilpack.util import PyUI
 
+# 주피터 내용을 정리하는 UI 를 출력합니다.
+PyUI.jupyterSummary('title',['content1','content2'],author='heewinkim',numbering=False)
+
+# 리스트 형태의 데이터를 선택하고, 선택시 실행될 메소드를 할당하는 UI를 출력합니다.
+# 자세한 사용법은 docstring을 참조하세요
+PyUI.select()
+
+# 이미지 데이터를 선택하고, 선택시 실행될 메소드를 할당하는 UI를 출력합니다.
+# 자세한 사용법은 docstring을 참조하세요
+PyUI.select_image()
+
+# 되돌아가기, 이전으로 가기 버튼을 생성하며 각 해당 메소드를 설정가능합니다.
+# 자세한 사용법은 docstring을 참조하세요
+PyUI.back()
+
+# 아래의 예시처럼 사용할시 아래와같은 모양의 UI가 출력됩니다.
+# 자세한 사용법은 docstring을 참조하세요,
+# -------------------
+# | Button | Button |
+# -------------------
+# | IntSlider       |
+# -------------------
+PyUI.appLayout(
+    widgetStructure=
+    [
+        [ipywidgets.Button(),ipywidgets.Button()],
+        [ipywidgets.IntSlider()]
+    ]
+)
+
+# UI에 사용되는 버튼, 레이아웃 등의 요소의 스타일을 바꿉니다.
+PyUI.styling(cssFile='path/to/style.css')
+
+# 팝업 메세지박스를 발생시킵니다.
+PyUI.messageBox('title','message')
+
+# IPython.display.clear_output() 과 같으며, 출력된것을 지웁니다.
+PyUI.clear()
 ``` 
     
 #### common.framwork  

@@ -57,3 +57,14 @@ class PyFaceUtil(object):
         :return: None
         """
         cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), color, thickness)
+
+
+if __name__ == '__main__':
+
+    face_img = cv2.imread('/path/to/face/included/img.jpg')
+
+    # 얼굴이 포함된 이미지에서 얼굴을 크롭합니다. 드로잉 관련 후처리 사용시 copy를 True로 하여 참조가 아닌 복사가 되어야 합니다.
+    PyFaceUtil.crop_face(face_img,10,10,100,100,copy=True)
+
+    # 얼굴이 포함된 이미지에서 얼굴을 그립니다.
+    PyFaceUtil.draw_face(face_img,10,10,100,100,(255,0,255),3)

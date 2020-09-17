@@ -88,3 +88,9 @@ class Timeout:
 
     def __exit__(self, type, value, traceback):
         signal.alarm(0)
+
+
+if __name__ == '__main__':
+
+    # 타임라인을 그립니다.
+    PyTimeUtil.draw_timeline(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
