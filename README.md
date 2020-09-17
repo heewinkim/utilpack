@@ -14,6 +14,10 @@ pip3 install utilpack
 
 #### common.core
 
+<details>
+<summary>PyAlgorithm</summary>
+<p>
+
 - PyAlgorithm 클래스 제공
 ```python
 from utilpack.core import PyAlgorithm
@@ -39,6 +43,15 @@ print(rst)  # ['c', 'd', 'b', 'a']
 rst = PyAlgorithm.sample_minimal_redundancy([1,2,3,4,5],k=7,seed='random_seed')
 print(rst)  # [3, 2, 4, 5, 1, 4, 1]
 ```
+
+</p>
+</details> 
+
+
+<details>
+<summary>PyConfig</summary>
+<p>
+
 - PyConfig 클래스 제공, 설정파일 로드 기능을 제공
 ```python
 # ./py_api.conf 파일의 내용은 아래와 같이 정의되며 패키지루트경로/core 디렉토리에 포함됩니다.
@@ -53,6 +66,14 @@ print(rst)  # [3, 2, 4, 5, 1, 4, 1]
 # useFileHandler 값이 True일때 
 # LOG_PATH인 /opt/py/log 디렉토리 밑의 app_name 디렉토리에 API관련된 로그파일이 기록되게 됩니다.  
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyCrypto</summary>
+<p>
+
 - PyCrypto 클래스 제공, AES256 등 암복호화 제공
 ```python
 from utilpack.core import PyCrypto
@@ -65,6 +86,14 @@ print(encrypt_data)  # cqw06setVz83Sy4aMpOjFeqbOKNfmRFOaIVqtYCogvFyXAhzbPrnoY+kh
 decrypt_data = crypto_obj.decrypt(encrypt_data)
 print(decrypt_data)  # example_data
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyData</summary>
+<p>
+
 - PyData 클래스 제공, 압축관련 및 데이터 전후처리 제공
 ```python
 from utilpack.core import PyData
@@ -97,6 +126,14 @@ PyData.pdf.add_metadata('file.pdf','save.pdf',{'a':1,'b':2,'c':3},'keyname')
 metadata = PyData.pdf.read_metadata('file.pdf','keyname')
 print(metadata)  # {'a': 1, 'b': 2, 'c': 3}
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyError</summary>
+<p>
+
 - PyError 에러클래스 제공, ERROR_TYPES의 에러 타입 제공
 ```python
 from utilpack.core import PyError,ERROR_TYPES
@@ -111,6 +148,14 @@ except Exception as e:
     print(e.err_type.name,hex(e.err_type.value))  # RUNTIME_ERROR 0x70003
     print(e)  # [RUNTIME_ERROR] example error
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyImage</summary>
+<p>
+
 - PyImage 클래스 제공, 이미지 읽기, 및 핵심 처리기능 제공
 ```python
 from utilpack.core import PyImage
@@ -148,6 +193,14 @@ PyImage.check_img_sz_fmt(bytes_data,min_size=(20,20),max_size=(10000,10000),allo
 # 읽기 실패, 데이터오류 등 발생할 수 있는 에러들에 대해 IMAGE_FORMAT_ERROR,IMAGE_READ_ERROR 등을 발생시킵니다.(PyError 참조)
 img_b64 = PyImage.preprocessing_image('https://homepages.cae.wisc.edu/~ece533/images/airplane.png','url',1,'cv2')
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyLogger</summary>
+<p>
+
 - PyLogger 클래스 제공, 로그관련 처리 기능 제공
 ```python
 from utilpack.core import PyLogger
@@ -164,6 +217,14 @@ logger.info('example_log')
 # INFO	26928	20-09-17 15:29:48	None	None	None	None	None	example_log 
 # In above log content, None means request Infos which activated when using PyFlask
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyMaths</summary>
+<p>
+
 - PyMaths 클래스 제공, 수학관련 기능 제공
 ```python
 from utilpack.core import PyMaths
@@ -172,6 +233,14 @@ from utilpack.core import PyMaths
 degree = PyMaths.get_degree((0,0),(10,10),degree90=True)
 print(degree)  # 45.0
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyOutput</summary>
+<p>
+
 - PyOutput 클래스 제공, output 관련기능, 에러에 대한 로그처리 기능 제공
 ```python
 from utilpack.core import PyOutput,PyError,ERROR_TYPES
@@ -208,6 +277,14 @@ print(returned_data)  # {"example": "data", "data": 1234, "statusCode": 200, "me
 # output.output인 데이터를 초기화 합니다.
 output.reset()
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyTime</summary>
+<p>
+
 - PyTime 클래스 제공, 시간 관련된 핵심 처리기능 제공
 ```python
 from utilpack.core import PyTime
@@ -275,10 +352,18 @@ period = PyTime.get_period(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09
 print(period)  # ['2020-09-07', '2020-09-10']
 ```
 
+</p>
+</details> 
+
+
    
 
 
 #### common.util
+
+<details>
+<summary>PyDataUtil</summary>
+<p>
 
 - PyDataUtil 클래스 제공, 데이터 분석 및 처리 기능 제공
 ```python
@@ -328,6 +413,14 @@ PyDataUtil.make_histplot()
 # 데이터를 받아 confusion matrix를 출력합니다. 자세한 사용법은 docstring을 참조하세요.
 PyDataUtil.confusion_mat()
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyDebugUtil</summary>
+<p>
+
 - PyDebugUtil 디버그에 필요한 모듈 제공
 ```python
 from utilpack.util import PyDebugUtil
@@ -350,6 +443,14 @@ def do_something():
 do_something()
 # pid: 34597	func name: do_something	memory before: 69,550,080	after: 69,550,080	consumed: 0	exec time: 00:00:01
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyFaceUtil</summary>
+<p>
+
 - PyFaceUtil 얼굴 이미지 관련 유틸 제공
 ```python
 import cv2
@@ -363,6 +464,14 @@ PyFaceUtil.crop_face(face_img,10,10,100,100,copy=True)
 # 얼굴이 포함된 이미지에서 얼굴을 그립니다.
 PyFaceUtil.draw_face(face_img,10,10,100,100,(255,0,255),3)
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyImageUtil</summary>
+<p>
+
 - PyImageUtil 클래스 제공, 이미지 분석관련 기능 제공
 ```python
 from utilpack.util import PyImageUtil
@@ -406,6 +515,14 @@ PyImageUtil.make_gridImage()
 # 이미지의 gps 경도,위도를 얻습니다. 자세한 사용법은 docstring을 참조하세요
 PyImageUtil.get_latlng()
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyTimeUtil</summary>
+<p>
+
 - PyTimeUtil 클래스 제공, 시간 관련 분석 기능 제공
 ```python
 from utilpack.util import PyTimeUtil
@@ -413,6 +530,14 @@ from utilpack.util import PyTimeUtil
 # 타임라인을 그립니다.
 PyTimeUtil.draw_timeline(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyVisUtil</summary>
+<p>
+
 - PyVisUtil 클래스 제공, 시각화 툴 제공
 ```python
 import cv2
@@ -427,6 +552,14 @@ PyVisUtil.color_hist(img_cv)
 # 흑백 히스토그램을 그립니다.
 PyVisUtil.gray_hist(gray_img_cv)
 ```
+
+</p>
+</details> 
+
+<details>
+<summary>PyUI</summary>
+<p>
+
 - PyUI 클래스 제공, 주피터 UI 작성 유틸 제공
 ```python
 import ipywidgets
@@ -471,11 +604,18 @@ PyUI.messageBox('title','message')
 # IPython.display.clear_output() 과 같으며, 출력된것을 지웁니다.
 PyUI.clear()
 ``` 
+
+</p>
+</details> 
+
     
 #### common.framwork  
 
-- Flask로 구현된 웹 API 클래스인 PyFlask 를 제공합니다.  
+<details>
+<summary>PyFlask</summary>
+<p>
 
+- Flask로 구현된 웹 API 클래스인 PyFlask 를 제공합니다.  
 ```python
    
 class ExampleApi(object):
@@ -503,20 +643,8 @@ if __name__ == '__main__':
     
 ```
 
-
-<details>
-<summary>I could use some help...</summary>
-<p>
-
-```c#
-public class Order
-{
-    public int OrderId { get; set; }
-    public int CustomerId { get; set; }
-
-    public List<int> Products { get; set; }
-}
-```
-
 </p>
-</details>  
+</details> 
+
+
+
