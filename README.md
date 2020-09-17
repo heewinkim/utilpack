@@ -232,8 +232,14 @@ print(difftime_seconds)  # 56930.0
 diff_days = PyTime.get_diffday('2020-09-09 12:11:10','2020-09-10 04:00:00')
 print(diff_days)  # 86400.0
 
-# time_list의 시간 차이 리스트를 구합니다. 처음 시간은 앞의 시간이 없으므로 시간차를 0으로 할당합니다.
-difference_timedays = PyTime.get_differential_times(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'],precision='day')
+# time_list의 시간 차이 리스트를 구합니다. 객체 리스트를 받으며 각 객체 리스트는 time_type을 포함해야 합니다.
+difference_timedays = PyTime.get_differential_times(
+    [
+        {'exifDate': '2020-09-07 12:11:10'},
+        {'exifDate': '2020-09-08 12:11:10'},
+        {'exifDate': '2020-09-10 12:11:10'}
+    ],
+    time_type='exifDate')
 print(difference_timedays)  # [0.0, 86400.0, 172800.0]
 
 # 주어진 date 리스트 중 평균 날짜를 구합니다.
