@@ -116,35 +116,32 @@ class PyTime(object):
             raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid date format ("YYYY-mm-dd")')
 
     @staticmethod
-    def get_differential_times(time_list,precision='sec'):
+    def get_differential_times(obj_list,time_type='exifDate'):
         """
         time_list의 시간 차이 리스트를 구합니다. 처음 시간은 앞의 시간이 없으므로 시간차를 0으로 할당합니다.
 
-        :param time_list: 'YYYY-mm-dd HH:MM:SS' string format time date list
+        :param obj_list: time_type필드가 포함된 객체 배열
         :param precision: 'sec','day' 지원
         :return: list
         """
         try:
             differential_times = []
-            if not len(time_list) >= 1:
+            if not len(obj_list) >= 1:
                 return differential_times
 
-            previous_tail_time = time_list[0]
+            previous_tail_time = obj_list[0][time_type]
 
-            for time in time_list:
-                head_time = time
+            for obj in obj_list:
+                head_time = obj[time_type]
 
                 # 초단위로 미분값을 저장합니다.
-                if precision == 'sec':
-                    diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
-                else:
-                    diff_time = abs(PyTime.get_diffday(previous_tail_time, head_time))
+                diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
 
                 differential_times.append(diff_time)
                 previous_tail_time = head_time
 
         except Exception:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Wrong time format data.')
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some images'.format(time_type))
 
         return differential_times
 
@@ -188,7 +185,7 @@ class PyTime(object):
         if differential_times_:
             differential_times = differential_times_
         else:
-            differential_times = PyTime.get_differential_times([v[time_type] for v in obj_list])
+            differential_times = PyTime.get_differential_times(obj_list,time_type)
         if not differential_times:
             return groups
 
@@ -262,7 +259,7 @@ class PyTime(object):
 
         ahutor : heewinkim
 
-        :param obj_list: 이미지 배열
+        :param obj_list: time_type필드가 포함된 객체 배열
         :param min: 분할된 그룹의 최소 이미지 개수
         :param max: 분할된 그룹의 최대 이미지 개수
         :param time_type: 시간 미분값으로 사용될 정보, exif,sys 둘중 하나 혹은 둘다, 둘다인 경우 exif우선으로 미분값을 계산
@@ -343,8 +340,14 @@ if __name__ == '__main__':
     diff_days = PyTime.get_diffday('2020-09-09 12:11:10','2020-09-10 04:00:00')
     print(diff_days)  # 86400.0
 
-    # time_list의 시간 차이 리스트를 구합니다. 처음 시간은 앞의 시간이 없으므로 시간차를 0으로 할당합니다.
-    difference_timedays = PyTime.get_differential_times(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'],precision='day')
+    # time_list의 시간 차이 리스트를 구합니다. 객체 리스트를 받으며 각 객체 리스트는 time_type을 포함해야 합니다.
+    difference_timedays = PyTime.get_differential_times(
+        [
+            {'exifDate': '2020-09-07 12:11:10'},
+            {'exifDate': '2020-09-08 12:11:10'},
+            {'exifDate': '2020-09-10 12:11:10'}
+        ],
+        time_type='exifDate')
     print(difference_timedays)  # [0.0, 86400.0, 172800.0]
 
     # 주어진 date 리스트 중 평균 날짜를 구합니다.
