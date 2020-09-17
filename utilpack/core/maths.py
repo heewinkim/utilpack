@@ -31,3 +31,10 @@ class PyMaths(object):
             angle = 180-angle if angle>90 else angle
 
         return angle
+
+
+if __name__ == '__main__':
+
+    # 두 x,y좌표간 각도 계산
+    degree = PyMaths.get_degree((0,0),(10,10),degree90=True)
+    print(degree)  # 45.0

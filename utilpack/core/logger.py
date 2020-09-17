@@ -55,7 +55,7 @@ py_config = PyConfig()
 
 class PyLogger(logging.Filter,metaclass=Singleton):
 
-    def __init__(self, log_name,useFileHandler=False,td_log=False):
+    def __init__(self, log_name='py',useFileHandler=False,td_log=False):
 
         """
         init function
@@ -241,3 +241,18 @@ class PyLogger(logging.Filter,metaclass=Singleton):
 
         # 로거 인스턴스에 스트림 핸들러와 파일핸들러를 붙인다.
         self.__logger.addHandler(fileHandler)
+
+
+if __name__ == '__main__':
+
+    # PyLogger는 singletone 디자인패턴으로 객체화 합니다.
+    logger = PyLogger(log_name='pylog',useFileHandler=True)
+    # below directories are created, you can change the ROOTPATH infomation on PyConfig
+    # {PACKAGE_ROOTPATH}/pylog/info_log
+    # {PACKAGE_ROOTPATH}/pylog/error_log
+
+    logger.info('example_log')
+
+    # {PACKAGE_ROOTPATH}/pylog/info_log/pylog_info.log
+    # INFO	26928	20-09-17 15:29:48	None	None	None	None	None	example_log
+    # In above log content, None means request Infos which activated when using PyFlask

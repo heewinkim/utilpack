@@ -20,15 +20,13 @@ PyError module
         >>> EXAMPLE
 
         def do_something():
-            raise PyError(ERROR_TYPES.RUPNTIME_ERROR,'test error')
-
-        output = PyOutput()
+            raise PyError(ERROR_TYPES.RUNTIME_ERROR,'example error')
 
         try:
-            do something()
+            do_something()
         except Exception as e:
-            output.set_error(e)
-
+            print(e.err_type.name,hex(e.err_type.value))  # RUNTIME_ERROR 0x70003
+            print(e)  # [RUNTIME_ERROR] example error
 
 
 ===============================================
@@ -93,3 +91,14 @@ class PyError(Exception):
         else:
             return '[{}] {}'.format(self.err_type.name.upper(),self.err_type.name.replace('_',' '))
 
+
+if __name__ == '__main__':
+
+    def do_something():
+        raise PyError(ERROR_TYPES.RUNTIME_ERROR,'example error')
+
+    try:
+        do_something()
+    except Exception as e:
+        print(e.err_type.name,hex(e.err_type.value))  # RUNTIME_ERROR 0x70003
+        print(e)  # [RUNTIME_ERROR] example error

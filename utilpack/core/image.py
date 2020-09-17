@@ -58,28 +58,6 @@ class PyImage(object):
         return size_r
 
     @staticmethod
-    def bytes2cv(img_data):
-        """
-        byte 데이터를 cv 이미지로 변환합니다.
-        에러 발생시 PyError.EncodeByte2CvError를 발생시킵니다.
-
-        :param img_data: byte image data
-        :return: cv 이미지
-        :raise IMAGE_PROCESS_ERROR:
-        """
-
-        img_cv = cv2.imdecode(np.frombuffer(img_data, np.uint8), cv2.IMREAD_COLOR)
-
-        if img_cv is None:
-            raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to bytes2cv image in pyImage')
-
-        return img_cv
-
-    @staticmethod
-    def cv2bytes(img_cv):
-        return cv2.imencode('.jpg', img_cv, [int(cv2.IMWRITE_JPEG_QUALITY), 100])[1].tostring()
-
-    @staticmethod
     def read_bytedata(data, img_type):
         """
         입력타입 ['url','filepath','bytes']에 따라 data를 byte image data로 로드합니다.
@@ -114,6 +92,28 @@ class PyImage(object):
 
         except Exception:
             raise PyError(ERROR_TYPES.IMAGE_READ_ERROR,'failed to read image - read_bytedata in PyImage')
+
+    @staticmethod
+    def bytes2cv(img_data):
+        """
+        byte 데이터를 cv 이미지로 변환합니다.
+        에러 발생시 PyError.EncodeByte2CvError를 발생시킵니다.
+
+        :param img_data: byte image data
+        :return: cv 이미지
+        :raise IMAGE_PROCESS_ERROR:
+        """
+
+        img_cv = cv2.imdecode(np.frombuffer(img_data, np.uint8), cv2.IMREAD_COLOR)
+
+        if img_cv is None:
+            raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to bytes2cv image in pyImage')
+
+        return img_cv
+
+    @staticmethod
+    def cv2bytes(img_cv):
+        return cv2.imencode('.jpg', img_cv, [int(cv2.IMWRITE_JPEG_QUALITY), 100])[1].tostring()
 
     @staticmethod
     def rotate_image(img, orientation: int = 0,copy=False):
@@ -175,7 +175,7 @@ class PyImage(object):
             return img_b64
 
     @staticmethod
-    def byte2base64(bytes_data):
+    def byte2base64(bytes_data,tostring=False):
         """
         byte data 이미지를 base64_jpeg 포맷으로 변홥합니다.
 
@@ -183,8 +183,10 @@ class PyImage(object):
         :return: array, base64 image
         :raise IMAGE_PROCESS_ERROR:
         """
-
-        img_b64 = np.array([base64.urlsafe_b64encode(bytes_data)])
+        if tostring:
+            img_b64 = base64.b64encode(bytes_data).decode('utf-8')
+        else:
+            img_b64 = np.array([base64.urlsafe_b64encode(bytes_data)])[0]
 
         if img_b64 is None:
             raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to convert bytes to base64 - byte2base64 in PyImage')
@@ -203,10 +205,9 @@ class PyImage(object):
             raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'wrong image shape - check_image_shape in PyImage')
 
     @staticmethod
-    def check_img_sz_fmt(bytes_data, min_size=(20, 20), max_size=(10000, 10000),
-                         allowed_extensions={'png', 'jpg', 'jpeg', 'bmp'}) -> None:
+    def check_img_sz_fmt(bytes_data, min_size=(20, 20), max_size=(10000, 10000),allowed_extensions={'png', 'jpg', 'jpeg', 'bmp'}) -> None:
         """
-                이미지 헤더를 읽어 사이즈와 포맷을 체크 합니다.
+        이미지 헤더를 읽어 사이즈와 포맷을 체크 합니다.
         사이즈가 너무작거나 큰경우, 지원하지 않는 이미지 포맷인경우 에러를 발생시킵니다.
 
         :param bytes_data: byte image data
@@ -272,3 +273,39 @@ class PyImage(object):
                 return PyImage.cv2base64(img_cv)
             else:
                 return PyImage.byte2base64(bytes_data)
+
+
+if __name__ == '__main__':
+
+    # 이미지의 크기 비율을 계산합니다 ot = exif orientation value ( 사진 회전값 )
+    ratio = PyImage.calculate_sizerate(ot=1,w=800,h=600)
+    print(ratio)  # 1.3333333333333333
+
+    # 이미지를 바이트 형태로 읽습니다, filepath, url, bytes 타입들의 이미지데이터를 지원합니다.
+    bytes_data = PyImage.read_bytedata('https://homepages.cae.wisc.edu/~ece533/images/airplane.png','url')
+    print(bytes_data[:10])  # b'\x89PNG\r\n\x1a\n\x00\x00'
+
+    # 이미지 bytes_data를 opencv-python 패키지의 이미지형식인 ndarray로 변환합니다.
+    img_cv = PyImage.bytes2cv(bytes_data)
+
+    # img_cv -> bytes_data
+    bytes_data = PyImage.cv2bytes(img_cv)
+    print(bytes_data[:10])  # b'\xff\xd8\xff\xe0\x00\x10JFIF'
+
+    # 이미지를 사진회전값에 맞게 회전시킵니다. 이미지에 드로잉 작업을 할 경우 copy=True로 하여 참조가 아닌 복사가 이루어져야 합니다.
+    roatated_img = PyImage.rotate_image(img_cv,orientation=6,copy=False)
+
+    # cv2 -> base64-jpeg format, tostring이 참인경우, string 타입으로 최종 변환됩니다.
+    img_b64_str = PyImage.cv2base64(img_cv,tostring=True)
+    print(img_b64_str[:10])  # /9j/4AAQSk
+
+    # bytes_data -> base64-jpeg format, tostring이 참인경우, string 타입으로 최종 변환됩니다.
+    img_b64_str = PyImage.byte2base64(bytes_data,tostring=True)
+    print(img_b64_str[:10])  # /9j/4AAQSk
+
+    # 이미지 헤더를 읽어 사이즈와 포맷을 체크 합니다, 사이즈가 너무작거나 큰경우, 지원하지 않는 이미지 포맷인경우 ERROR_TYPES.IMAGE_FORMAT_ERROR 에러를 발생시킵니다.(PyError 참조)
+    PyImage.check_img_sz_fmt(bytes_data,min_size=(20,20),max_size=(10000,10000),allowed_extensions={'png','jpg','jpeg','bmp'})
+
+    # filepath, url, bytes 등의 이미지 소스로 부터 cv2,base64-jpg 의 이미지포맷의 변환 및 이미지 검수,회전 등의 일련의 과정을 진행합니다.
+    # 읽기 실패, 데이터오류 등 발생할 수 있는 에러들에 대해 IMAGE_FORMAT_ERROR,IMAGE_READ_ERROR 등을 발생시킵니다.(PyError 참조)
+    img_b64 = PyImage.preprocessing_image('https://homepages.cae.wisc.edu/~ece533/images/airplane.png','url',1,'cv2')

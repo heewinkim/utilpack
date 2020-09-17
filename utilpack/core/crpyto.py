@@ -60,3 +60,13 @@ class _AES256():
 class PyCrypto(object):
 
     AES256 = _AES256
+
+
+if __name__ == '__main__':
+
+    crypto_obj = PyCrypto.AES256(key='key',block_size=32)
+
+    encrypt_data = crypto_obj.encrypt('example_data')
+    print(encrypt_data)  # cqw06setVz83Sy4aMpOjFeqbOKNfmRFOaIVqtYCogvFyXAhzbPrnoY+khmUfn+Q4
+    decrypt_data = crypto_obj.decrypt(encrypt_data)
+    print(decrypt_data)  # example_data

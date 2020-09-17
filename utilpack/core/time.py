@@ -32,6 +32,13 @@ class PyTime(object):
 
     @staticmethod
     def check_date_inrange(date, date_range):
+        """
+        데이터 포맷은 모두 string, 'YYYY-mm-dd HH:MM:SS' 이어야 합니다.
+
+        :param date: string datetime format
+        :param date_range: list,[st_date,end_date]
+        :return:
+        """
         try:
             if int(date_range[0][:4]) * 10000 + int(date_range[0][5:7]) * 100 + int(date_range[0][8:10]) <= int(
                     date[:4]) * 10000 + int(date[5:7]) * 100 + int(
@@ -61,7 +68,7 @@ class PyTime(object):
     def check_datetime(time):
         """
         datetime 형식이 맞는 지확인
-        :param row: 입력된 날짜 데이터(str)('YYYY-MM-DD HH:MM:SS')
+        :param row: 입력된 날짜 데이터간(str)('YYYY-MM-DD HH:MM:SS')
         :return: 1 or None
         """
         if type(time)==datetime:
@@ -90,7 +97,7 @@ class PyTime(object):
     @staticmethod
     def get_diffday(srctime, dsttime):
         """
-        format 형식에 따르는 string 데이터 타입의 두 srctime, dsttime에 대한 시간차이를 일단위로 반환합니다.
+        format 형식에 따르는 string 데이터 타입의 두 srctime, dsttime에 대한 일 단위차이를 초단위로 반환합니다.
         시간순으로 srctime이 빠르고 dsttime이 느린시간(src = 20180000, dst = 20181212) 입니다.
         :param srctime: string
         :param dsttime: string
@@ -109,43 +116,43 @@ class PyTime(object):
             raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid date format ("YYYY-mm-dd")')
 
     @staticmethod
-    def get_differential_times(images,time_type='exifDate'):
+    def get_differential_times(time_list,precision='sec'):
         """
-        클러스터간의 시간미분값의 리스트를 반환
-        원하는 타임 데이터의 리스트를 받는다
-        각 리스트의 순서대로 image(object)의 값 존재유무를 판단하여 그 값을 시간데이터로 저장한다
-        예를들어 exifDate로만 비교하고 싶다면 ['exifDate']를 넘기고
-        exifDate로 하지만 없는경우 sysDate로 하고 싶다면 ['exifDate','sysDate'] 와 같은 방식이다
-        단 각 이미지는 제공된 time_type 리스트중 하나라도 값을 가져야한다.
+        time_list의 시간 차이 리스트를 구합니다. 처음 시간은 앞의 시간이 없으므로 시간차를 0으로 할당합니다.
 
-        :param images: image list, exifDate 키를 포함하는 딕셔너리 형태의 image
-        :param time_type: images 한 원소에서 시간값을 갖는 키
+        :param time_list: 'YYYY-mm-dd HH:MM:SS' string format time date list
+        :param precision: 'sec','day' 지원
         :return: list
         """
         try:
             differential_times = []
-            if not len(images) >= 1:
+            if not len(time_list) >= 1:
                 return differential_times
 
-            previous_tail_time = images[0][time_type]
+            previous_tail_time = time_list[0]
 
-            for image in images:
-                head_time = image[time_type]
+            for time in time_list:
+                head_time = time
 
                 # 초단위로 미분값을 저장합니다.
-                diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
+                if precision == 'sec':
+                    diff_time = abs(PyTime.get_difftime(previous_tail_time, head_time))
+                else:
+                    diff_time = abs(PyTime.get_diffday(previous_tail_time, head_time))
 
                 differential_times.append(diff_time)
                 previous_tail_time = head_time
 
         except Exception:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some images'.format(time_type))
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Wrong time format data.')
 
         return differential_times
 
     @staticmethod
     def get_mean_time(date_list):
         """
+        주어진 date 리스트 중 평균 날짜를 구합니다.
+
         :param date_list: YYYY:MM:DD HH:MM:SS 형식의 날짜리스트( format인 :, ,- 등은 상관없음)
         :return: 평균 datetime 포맷 변환 된 날짜
         """
@@ -157,15 +164,15 @@ class PyTime(object):
             return average_time
 
     @staticmethod
-    def _grouping(images,min,max,time_type,differential_times_=None):
+    def _grouping(obj_list,min,max,time_type,differential_times_=None):
         """
-        각 domain의 이미지가 포토북의 최소 최대 (self.cut_range) 값에 해당되도록
         시간미분 값을 기준으로 재귀적으로 분할합니다.
 
-        :param key: 분할하고자하는 지역의 key
-        :param images: 분할하고자 하는 지역의 이미지
-        :param differential_times_: images에 대한 시간 차이 값 리스트
-        :return: 분할된 clusters
+        :param obj_list: 분할하고자 하는 obj 리스트
+        :param min: 분할된 파편의 최소 길이
+        :param max: 분할된 파편의 최대 길이
+        :param time_type: obj_list의 원소에서 기준 시간값을 나타내 필드이름
+        :param differential_times_: obj_list 대한 시간 차이 값 리스트
         :raise AssertionError: min*2<=max
         """
 
@@ -174,14 +181,14 @@ class PyTime(object):
         assert min * 2 <= max
 
         # 최소 2분할의 전제조건 체크
-        if len(images)<min*2:
-            return [images]
+        if len(obj_list)<min*2:
+            return [obj_list]
 
         # 시간 분할
         if differential_times_:
             differential_times = differential_times_
         else:
-            differential_times = PyTime.get_differential_times(images,time_type)
+            differential_times = PyTime.get_differential_times([v[time_type] for v in obj_list])
         if not differential_times:
             return groups
 
@@ -194,24 +201,24 @@ class PyTime(object):
             # 가장 큰 시간미분 값을 가진 인덱스
             max_idx = differential_times.index(np.max(differential_times))
 
-            if len(images[:max_idx]) >= min and len(images[max_idx:]) >= min:
+            if len(obj_list[:max_idx]) >= min and len(obj_list[max_idx:]) >= min:
 
-                # 잘린 앞부분이 포토북 범위에 들어간다면
-                if len(images[:max_idx]) <= max:
-                    groups.append(images[:max_idx])
+                # 잘린 앞부분이 범위에 들어간다면
+                if len(obj_list[:max_idx]) <= max:
+                    groups.append(obj_list[:max_idx])
 
-                # 잘린 앞부분이 포토북 범위보다 크다면(재귀)
-                elif len(images[:max_idx]) > max:
-                    groups_ = PyTime._grouping(images[:max_idx], min, max,time_type,differential_times[:max_idx])
+                # 잘린 앞부분이 범위보다 크다면(재귀)
+                elif len(obj_list[:max_idx]) > max:
+                    groups_ = PyTime._grouping(obj_list[:max_idx], min, max,time_type,differential_times[:max_idx])
                     groups.extend(groups_)
 
-                # 잘린 뒷부분이 포토북 범위에 들어간다면
-                if len(images[max_idx:]) <= max:
-                    groups.append(images[max_idx:])
+                # 잘린 뒷부분이 범위에 들어간다면
+                if len(obj_list[max_idx:]) <= max:
+                    groups.append(obj_list[max_idx:])
 
-                # 잘린 뒷부분이 포토북 범위보다 크다면(재귀)
-                elif len(images[max_idx:]) > max:
-                    groups_ = PyTime._grouping(images[max_idx:], min, max,time_type,differential_times[max_idx:])
+                # 잘린 뒷부분이 범위보다 크다면(재귀)
+                elif len(obj_list[max_idx:]) > max:
+                    groups_ = PyTime._grouping(obj_list[max_idx:], min, max,time_type,differential_times[max_idx:])
                     groups.extend(groups_)
                 break
             else:
@@ -221,6 +228,13 @@ class PyTime(object):
 
     @staticmethod
     def _grouping_postprocessing(groups,max):
+        """
+        너무 작게 나누어진 그룹 결과 다시 병합
+
+        :param groups: 나누어진 그룹들
+        :param max: 병합시 그룹길이의 최대길이
+        :return: 병합된 그룹, list
+        """
 
         result = []
 
@@ -240,15 +254,15 @@ class PyTime(object):
         return result
 
     @staticmethod
-    def grouping_bytimediff(images,min,max,time_type='exifDate',after_merge=True,seed_value=None,sort=False):
+    def grouping_bytimediff(obj_list,min,max,time_type='exifDate',after_merge=True,seed_value=None,sort=False):
         """
-        스냅스 이미지객체 리스트를 받아
-        이미지개수범위를 min,max에 맞게 분할합니다.
-        분할기준은 시간미분값을 기준으로 합니다.
+        객체 리스트를 받아 이미지개수범위를 min,max에 맞게 분할합니다.
+        분할기준은 시간미분값을 기준으로 하며, obj_list의 원소모두에 time_type 필드가 필수로 있어야합니다.
+        Eg. obj_list = [{'index':0,'exifDate':2020-09-09 12:00:00'},{'index':1,'exifDate':2020-09-09 12:00:01'},...]
 
-        autor : heewinkim
+        ahutor : heewinkim
 
-        :param images: 이미지 배열
+        :param obj_list: 이미지 배열
         :param min: 분할된 그룹의 최소 이미지 개수
         :param max: 분할된 그룹의 최대 이미지 개수
         :param time_type: 시간 미분값으로 사용될 정보, exif,sys 둘중 하나 혹은 둘다, 둘다인 경우 exif우선으로 미분값을 계산
@@ -260,16 +274,16 @@ class PyTime(object):
         if seed_value:
             seed(seed_value)
         if sort:
-            images = sorted(images,key=lambda v:v[time_type])
+            images = sorted(obj_list,key=lambda v:v[time_type])
 
         if min==max:
-            groups = sorted([list(v) for v in np.array_split(np.array(images), len(images)//min)],key=lambda v: v[0][time_type])
+            groups = sorted([list(v) for v in np.array_split(np.array(obj_list), len(images)//min)],key=lambda v: v[0][time_type])
             if all([len(v)==min for v in groups]):
                 return groups
             else:
                 raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,"Can't split images({}) by {}".format(len(images),min))
         else:
-            groups = PyTime._grouping(images,min,max,time_type)
+            groups = PyTime._grouping(obj_list,min,max,time_type)
             if after_merge:
                 groups = PyTime._grouping_postprocessing(groups,max)
             return groups
@@ -305,3 +319,62 @@ class PyTime(object):
 
         return time_period
 
+
+if __name__ == '__main__':
+
+
+    # 시간이 해당 기간 안에 포함되는지 체크합니다.
+    ret = PyTime.check_date_inrange('2020-09-09 12:11:10',['2020-09-08 12:11:10','2020-09-10 12:11:10'])
+    print(ret)  # True
+
+    # 올바른 시간 데이터 str, ('YYYY-mm-dd HH:MM:SS') 인지 확인합니다.
+    ret = PyTime.check_datetime('2020-09-09 12:11:10')
+    print(ret)  # True
+
+    # Sting 날짜 포맷을 시간으로 변환
+    datetime_data = PyTime.str2datetime('2020-09-09 12:11:10')
+    print(datetime_data)  # 2020-09-09 12:11:10
+
+    # string datetime(YYYY-mm-dd HH:MM:SS)의 두 srctime, dsttime에 대한 시간차이를 초단위로 반환합니다.
+    difftime_seconds = PyTime.get_difftime('2020-09-09 12:11:10','2020-09-10 04:00:00')
+    print(difftime_seconds)  # 56930.0
+
+    # string datetime(YYYY-mm-dd HH:MM:SS)의 두 srctime, dsttime에 대한 일 단위차이를 초단위로 반환합니다.
+    diff_days = PyTime.get_diffday('2020-09-09 12:11:10','2020-09-10 04:00:00')
+    print(diff_days)  # 86400.0
+
+    # time_list의 시간 차이 리스트를 구합니다. 처음 시간은 앞의 시간이 없으므로 시간차를 0으로 할당합니다.
+    difference_timedays = PyTime.get_differential_times(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'],precision='day')
+    print(difference_timedays)  # [0.0, 86400.0, 172800.0]
+
+    # 주어진 date 리스트 중 평균 날짜를 구합니다.
+    mean_data = PyTime.get_mean_time(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
+    print(mean_data)  # 2020-09-08 20:11:10
+
+    # 객체 리스트를 시간기준으로 적절할게 분할합니다.
+    groups = PyTime.grouping_bytimediff(
+        obj_list=[
+            {'exifDate': '2020-09-05 12:11:10','data':1},
+            {'exifDate': '2020-09-06 12:11:10','data':2},
+            {'exifDate': '2020-09-07 12:11:10','data':3},
+            {'exifDate': '2020-09-08 12:11:10','data':4},
+            {'exifDate': '2020-09-09 12:11:10','data':5},
+        ],
+        min=2,max=4,time_type='exifDate',after_merge=True,seed_value=1234,sort=False
+    )
+    print(groups)
+    # [
+    #   [
+    #     {'exifDate': '2020-09-05 12:11:10', 'data': 1},
+    #     {'exifDate': '2020-09-06 12:11:10', 'data': 2}
+    #   ],
+    #   [
+    #     {'exifDate': '2020-09-07 12:11:10', 'data': 3},
+    #     {'exifDate': '2020-09-08 12:11:10', 'data': 4},
+    #     {'exifDate': '2020-09-09 12:11:10', 'data': 5}
+    #   ]
+    # ]
+
+    # date 리스트를 받아 [가장 오래된 날짜, 가장 최근 날짜] 를 얻습니다.
+    period = PyTime.get_period(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
+    print(period)  # ['2020-09-07', '2020-09-10']
