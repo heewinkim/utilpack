@@ -502,3 +502,21 @@ if __name__ == '__main__':
     application.run('0.0.0.0',port=5000)    
     
 ```
+
+
+<details>
+<summary>I could use some help...</summary>
+<p>
+
+```c#
+public class Order
+{
+    public int OrderId { get; set; }
+    public int CustomerId { get; set; }
+
+    public List<int> Products { get; set; }
+}
+```
+
+</p>
+</details>  
