@@ -11,3 +11,4 @@ pymysql
 ipywidgets
 pycryptodome
 shapely
+pdfrw==0.4

@@ -17,6 +17,7 @@ require_packages=[
     'ipywidgets',
     'pycryptodome',
     'shapely',
+    'pdfrw'
 ]
 
 packages = list(open('requirements.txt').readlines())

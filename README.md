@@ -77,6 +77,13 @@ PyData.save_pickle({'a':1,'b':2},'sample.pkl')
 # pickle 데이터파일을 읽습니다.
 data = PyData.load_pickle('sample.pkl')
 print(data)  # {'a': 1, 'b': 2}
+
+# pdf 파일에 메타데이터를 추가합니다.
+PyData.pdf.add_metadata('file.pdf','save.pdf',{'a':1,'b':2,'c':3},'keyname')
+
+# pdf 파일에 있는 메타데이터를 읽어옵니다.
+metadata = PyData.pdf.read_metadata('file.pdf','keyname')
+print(metadata)  # {'a': 1, 'b': 2, 'c': 3}
 ```
 - PyError 에러클래스 제공, ERROR_TYPES의 에러 타입 제공
 ```python
