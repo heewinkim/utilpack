@@ -141,7 +141,7 @@ class PyTime(object):
                 previous_tail_time = head_time
 
         except Exception:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some images'.format(time_type))
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some obj_list'.format(time_type))
 
         return differential_times
 
@@ -271,14 +271,14 @@ class PyTime(object):
         if seed_value:
             seed(seed_value)
         if sort:
-            images = sorted(obj_list,key=lambda v:v[time_type])
+            obj_list = sorted(obj_list,key=lambda v:v[time_type])
 
         if min==max:
-            groups = sorted([list(v) for v in np.array_split(np.array(obj_list), len(images)//min)],key=lambda v: v[0][time_type])
+            groups = sorted([list(v) for v in np.array_split(np.array(obj_list), len(obj_list)//min)],key=lambda v: v[0][time_type])
             if all([len(v)==min for v in groups]):
                 return groups
             else:
-                raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,"Can't split images({}) by {}".format(len(images),min))
+                raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,"Can't split obj_list({}) by {}".format(len(obj_list),min))
         else:
             groups = PyTime._grouping(obj_list,min,max,time_type)
             if after_merge:
