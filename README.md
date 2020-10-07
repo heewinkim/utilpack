@@ -3,14 +3,17 @@
 
 ![](https://img.shields.io/badge/python-3.6.1-blue)
 
+---
 
-### 설치 방법
+### 설치 방법 (How To Install)
 
 ```sh
 pip3 install utilpack
 ```
 
-### 사용 예제
+---
+
+### 사용 예제 (Example)
 
 #### common.core
 
@@ -645,6 +648,5 @@ if __name__ == '__main__':
 
 </p>
 </details> 
-
 
 

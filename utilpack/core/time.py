@@ -141,7 +141,10 @@ class PyTime(object):
                 previous_tail_time = head_time
 
         except Exception:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'No {} data in some obj_list'.format(time_type))
+            if time_type=='sysDate':
+                raise PyError(ERROR_TYPES.PARAMETER_ERROR, 'Invalid sysDate data in some obj_list'.format(time_type))
+            else:
+                raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid exifDate data in some obj_list'.format(time_type))
 
         return differential_times
 
