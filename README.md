@@ -3,7 +3,6 @@
 
 ![](https://img.shields.io/badge/python-3.6.1-blue)
 
----
 
 # 설치 방법 (How To Install)
 
@@ -11,7 +10,6 @@
 pip3 install utilpack
 ```
 
----
 
 # 사용 예제 (Example)
 
