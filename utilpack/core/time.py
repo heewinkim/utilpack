@@ -437,3 +437,6 @@ if __name__ == '__main__':
     # date 리스트를 받아 [가장 오래된 날짜, 가장 최근 날짜] 를 얻습니다.
     period = PyTime.get_period(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
     print(period)  # ['2020-09-07', '2020-09-10']
+
+    dt = PyTime.get_timeFromFilename('20180501_235020')
+    print(dt)
