@@ -319,6 +319,59 @@ class PyTime(object):
 
         return time_period
 
+    @staticmethod
+    def get_timeFromFilename(filename):
+        """
+        파일명에서 날짜를 추출합니다.
+
+        # 20180501_235020
+        p1 = re.compile(r'\d{4}[0-1][0-9][0-3][0-9].*[0-2][0-9][0-5][0-9][0-5][0-9]')
+        # 20180501235020
+        p2 = re.compile(r'\d{4}[0-1][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]')
+        # 1559998800338 (timestamp)
+        p3 = re.compile(r'\d{7,}')
+        # 180501
+        p4 = re.compile(r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}')위
+
+
+        :param filename: 파일 이름
+        :return: YYYYMMDD HH:MM:SS or None
+        """
+        regexs=[
+            r'\d{4}[0-1][0-9][0-3][0-9].*[0-2][0-9][0-5][0-9][0-5][0-9]',
+            r'\d{4}[0-1][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]',
+            r'\d{7,}',
+            r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}'
+        ]
+        try:
+            if len(re.findall(regexs[0],filename)) == 1:
+                timedata = re.findall(regexs[0],filename)[0]
+                return str(datetime(int(timedata[:4]), int(timedata[4:6]), int(timedata[6:8]), int(timedata[9:11]),
+                                    int(timedata[11:13]), int(timedata[13:15])))
+            elif len(re.findall(regexs[1],filename)) == 1:
+                timedata = re.findall(regexs[1],filename)[0]
+                return str(datetime(int(timedata[:4]), int(timedata[4:6]), int(timedata[6:8]), int(timedata[8:10]),
+                                    int(timedata[10:12]), int(timedata[12:14])))
+            elif len(re.findall(regexs[2],filename)) == 1:
+                timestamp = int(re.findall(regexs[2],filename)[0])
+                if datetime(1971, 1, 1).timestamp() <= timestamp / 1000 <= datetime.now().timestamp():
+                    date = datetime.fromtimestamp(int(timestamp) / 1000)
+                    return datetime.strftime(date, '%Y-%m-%d %H:%M:%S')
+                elif datetime(1971, 1, 1).timestamp() <= timestamp <= datetime.now().timestamp():
+                    date = datetime.fromtimestamp(int(timestamp))
+                    return datetime.strftime(date, '%Y-%m-%d %H:%M:%S')
+                else:
+                    return None
+            elif len(re.findall(regexs[3],filename)) == 1:
+                timedata = re.findall(regexs[3],filename)[0][1:-1]
+                if int(filename[1:3]) > 0:
+                    return str(datetime(int('20' + timedata[:2]), int(timedata[4:6]), int(timedata[6:8])))
+                else:
+                    return str(datetime(int('19' + timedata[:2]), int(timedata[4:6]), int(timedata[6:8])))
+
+        except Exception as e:
+            return None
+
 
 if __name__ == '__main__':
 
