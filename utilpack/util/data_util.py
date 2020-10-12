@@ -37,7 +37,7 @@ from tqdm.auto import tqdm
 class PyDataUtil(object):
 
     @staticmethod
-    def comprehesion(list, attr):
+    def comprehension(list, attr):
         return [v[attr] for v in list]
 
     @staticmethod
