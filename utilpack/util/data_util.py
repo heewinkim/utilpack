@@ -31,11 +31,14 @@ import numpy as np
 import urllib.request
 import matplotlib.pyplot as plt
 import pymysql
-import math
 from tqdm.auto import tqdm
 
 
 class PyDataUtil(object):
+
+    @staticmethod
+    def comprehesion(list, attr):
+        return [v[attr] for v in list]
 
     @staticmethod
     def plot3D(arr_list, label_list=None, figsize=(15, 15), colors=["#ff0000", "#0000ff", "#00ff00"],

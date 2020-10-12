@@ -370,6 +370,11 @@ print(period)  # ['2020-09-07', '2020-09-10']
 ```python
 from utilpack.util import PyDataUtil
 
+# list of dict 데이터에서 각 원소의 attr 속성을 추출한 리스트를 반환합니다.
+listOfDict = [{'a':1,'b':2},{'a':3,'b':4}] 
+rst = PyDataUtil.comprehesion(listOfDict,'a')
+print(rst) # [1,3]
+
 # 3차원 데이터 리스트를 받아 출력합니다. 자세한 사용법은 docstring을 참조하세요.
 PyDataUtil.plot3D()
 
@@ -379,8 +384,9 @@ PyDataUtil.query2mysql()
 # dict 데이터를 json으로 저장합니다. 자세한 사용법은 docstring을 참조하세요.
 PyDataUtil.save_json()
 
-# 저장된 Json을 dict로 읽습니다. 자세한 사용법은 docstring을 참조하세요.
-PyDataUtil.load_json()
+# json filepath를 입력받아 Json을 dict로 읽습니다. 
+jsonData = PyDataUtil.load_json('/path/to/json/filename.json')
+print(jsonData)
 
 # 주어진 url의 데이터를 다운로드 합니다. 자세한 사용법은 docstring을 참조하세요.
 PyDataUtil.download()
