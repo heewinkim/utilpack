@@ -161,6 +161,9 @@ class PyFlask(Flask):
         if request.json:
             data.update(dict(request.json))
 
+        # 재사용을 위해 내부멤버에 데이터 연결
+        self.data = data
+
         # 요청 처리전 요청된 클라이언트 정보를 입력합니다.
         self._logger.set_request_info(userIp=request.remote_addr,
                                       user_agent=request.headers.get('User-Agent'),
@@ -183,10 +186,26 @@ class PyFlask(Flask):
         return None
 
     def _error_handler(self,e):
+        """
+        에러 발생시 에러처리
 
+        :param e:에러객체
+        :return: output (Flask로부터 상속되어 약속된 리턴값)
+        """
+        # Request data logging
+        self._logger.error('input\t{}'.format(json.dumps(self.data)))
+
+        # Error TraceBack logging
         self._logger.error(traceback.format_exc())
+
+        # Error Processing
         self.output.set_error(e)
-        return self.output.get_output()
+
+        # Get output, logging output
+        output = self.output.get_output()
+        self._logger.error("output\t{}".format(output))
+
+        return output
 
     def _health_check(self):
         """

@@ -100,7 +100,7 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         kwargs를 추가하여 td-log를 전송합니다.
 
         :param message: 메세지
-        :param kwargs: td log에 추가할 키워드 파라미터
+        :param kwargs: log에 추가할 키워드 파라미터
         :return:
         """
 
@@ -130,10 +130,30 @@ class PyLogger(logging.Filter,metaclass=Singleton):
                 self.__logger.info('{}\t{}'.format(k,v))
             self.__logger.info(message)
 
-    def warning(self,message):
+    def warning(self,message,**kwargs):
+        """
+        warning log를 남깁니다.
+
+        :param message: 메세지
+        :param kwargs: log에 추가할 키워드 파라미터
+        :return:
+        """
+
+        for k, v in kwargs.items():
+            self.__logger.error('{}\t{}'.format(k, v))
         self.__logger.warning(message)
 
-    def error(self,message):
+    def error(self,message,**kwargs):
+        """
+        error log를 남깁니다.
+
+        :param message: 메세지
+        :param kwargs: log에 추가할 키워드 파라미터
+        :return:
+        """
+
+        for k, v in kwargs.items():
+            self.__logger.error('{}\t{}'.format(k, v))
         self.__logger.error(message)
 
     def set_request_info(self,
