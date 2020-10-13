@@ -331,29 +331,35 @@ class PyTime(object):
         # 1559998800338 (timestamp)
         p3 = re.compile(r'\d{7,}')
         # 180501
-        p4 = re.compile(r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}')위
+        p4 = re.compile(r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}')
+        #
 
 
         :param filename: 파일 이름
         :return: YYYYMMDD HH:MM:SS or None
         """
-        regexs=[
-            r'\d{4}[0-1][0-9][0-3][0-9].*[0-2][0-9][0-5][0-9][0-5][0-9]',
+
+        p = re.compile('[-: ]')
+        filename_ = filename.split('/')[-1]
+        filename_ = ''.join(p.split(filename_))
+
+        regexs = [
+            r'\d{4}[0-1][0-9][0-3][0-9][^0-9]+[0-2][0-9][0-5][0-9][0-5][0-9]',
             r'\d{4}[0-1][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]',
             r'\d{7,}',
             r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}'
         ]
         try:
-            if len(re.findall(regexs[0],filename)) == 1:
-                timedata = re.findall(regexs[0],filename)[0]
+            if len(re.findall(regexs[0],filename_)) == 1:
+                timedata = re.findall(regexs[0],filename_)[0]
                 return str(datetime(int(timedata[:4]), int(timedata[4:6]), int(timedata[6:8]), int(timedata[9:11]),
                                     int(timedata[11:13]), int(timedata[13:15])))
-            elif len(re.findall(regexs[1],filename)) == 1:
-                timedata = re.findall(regexs[1],filename)[0]
+            elif len(re.findall(regexs[1],filename_)) == 1:
+                timedata = re.findall(regexs[1],filename_)[0]
                 return str(datetime(int(timedata[:4]), int(timedata[4:6]), int(timedata[6:8]), int(timedata[8:10]),
                                     int(timedata[10:12]), int(timedata[12:14])))
-            elif len(re.findall(regexs[2],filename)) == 1:
-                timestamp = int(re.findall(regexs[2],filename)[0])
+            elif len(re.findall(regexs[2],filename_)) == 1:
+                timestamp = int(re.findall(regexs[2],filename_)[0])
                 if datetime(1971, 1, 1).timestamp() <= timestamp / 1000 <= datetime.now().timestamp():
                     date = datetime.fromtimestamp(int(timestamp) / 1000)
                     return datetime.strftime(date, '%Y-%m-%d %H:%M:%S')
@@ -362,9 +368,9 @@ class PyTime(object):
                     return datetime.strftime(date, '%Y-%m-%d %H:%M:%S')
                 else:
                     return None
-            elif len(re.findall(regexs[3],filename)) == 1:
-                timedata = re.findall(regexs[3],filename)[0][1:-1]
-                if int(filename[1:3]) > 0:
+            elif len(re.findall(regexs[3],filename_)) == 1:
+                timedata = re.findall(regexs[3],filename_)[0][1:-1]
+                if int(filename_[1:3]) > 0:
                     return str(datetime(int('20' + timedata[:2]), int(timedata[4:6]), int(timedata[6:8])))
                 else:
                     return str(datetime(int('19' + timedata[:2]), int(timedata[4:6]), int(timedata[6:8])))
