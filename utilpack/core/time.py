@@ -43,7 +43,7 @@ class PyTime(object):
             if int(date_range[0][:4]) * 10000 + int(date_range[0][5:7]) * 100 + int(date_range[0][8:10]) <= int(
                     date[:4]) * 10000 + int(date[5:7]) * 100 + int(
                 date[8:10]) <= int(date_range[1][:4]) * 10000 + int(date_range[1][5:7]) * 100 + int(
-                    date_range[1][8:10]):
+                date_range[1][8:10]):
                 return True
             else:
                 return False
@@ -71,10 +71,10 @@ class PyTime(object):
         :param row: 입력된 날짜 데이터간(str)('YYYY-MM-DD HH:MM:SS')
         :return: 1 or None
         """
-        if type(time)==datetime:
+        if type(time) == datetime:
             time = str(datetime)
 
-        if time is not None and len(time)==19 and PyTime.str2datetime(time):
+        if time is not None and len(time) == 19 and PyTime.str2datetime(time):
             return True
         else:
             return False
@@ -92,7 +92,7 @@ class PyTime(object):
         try:
             return (PyTime.str2datetime(dsttime) - PyTime.str2datetime(srctime)).total_seconds()
         except Exception:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid date format ("YYYY-mm-dd")')
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR, 'Invalid date format ("YYYY-mm-dd")')
 
     @staticmethod
     def get_diffday(srctime, dsttime):
@@ -111,12 +111,12 @@ class PyTime(object):
             srctime = datetime(srctime.year, srctime.month, srctime.day, 0, 0, 0)
             dsttime = datetime(dsttime.year, dsttime.month, dsttime.day, 0, 0, 0)
 
-            return (dsttime-srctime).total_seconds()
+            return (dsttime - srctime).total_seconds()
         except Exception:
-            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,'Invalid date format ("YYYY-mm-dd")')
+            raise PyError(ERROR_TYPES.PREPROCESSING_ERROR, 'Invalid date format ("YYYY-mm-dd")')
 
     @staticmethod
-    def get_differential_times(obj_list,time_type='exifDate'):
+    def get_differential_times(obj_list, time_type='exifDate'):
         """
         time_list의 시간 차이 리스트를 구합니다. 처음 시간은 앞의 시간이 없으므로 시간차를 0으로 할당합니다.
 
@@ -157,14 +157,14 @@ class PyTime(object):
         :return: 평균 datetime 포맷 변환 된 날짜
         """
         date_list = [PyTime.str2datetime(date) for date in date_list if PyTime.check_datetime(date)]
-        if len(date_list)==0:
+        if len(date_list) == 0:
             return None
         else:
-            average_time= datetime.fromtimestamp(sum(map(datetime.timestamp, date_list)) / len(date_list))
+            average_time = datetime.fromtimestamp(sum(map(datetime.timestamp, date_list)) / len(date_list))
             return average_time
 
     @staticmethod
-    def _grouping(obj_list,min,max,time_type,differential_times_=None):
+    def _grouping(obj_list, min, max, time_type, differential_times_=None):
         """
         시간미분 값을 기준으로 재귀적으로 분할합니다.
 
@@ -181,14 +181,14 @@ class PyTime(object):
         assert min * 2 <= max
 
         # 최소 2분할의 전제조건 체크
-        if len(obj_list)<min*2:
+        if len(obj_list) < min * 2:
             return [obj_list]
 
         # 시간 분할
         if differential_times_:
             differential_times = differential_times_
         else:
-            differential_times = PyTime.get_differential_times(obj_list,time_type)
+            differential_times = PyTime.get_differential_times(obj_list, time_type)
         if not differential_times:
             return groups
 
@@ -209,7 +209,7 @@ class PyTime(object):
 
                 # 잘린 앞부분이 범위보다 크다면(재귀)
                 elif len(obj_list[:max_idx]) > max:
-                    groups_ = PyTime._grouping(obj_list[:max_idx], min, max,time_type,differential_times[:max_idx])
+                    groups_ = PyTime._grouping(obj_list[:max_idx], min, max, time_type, differential_times[:max_idx])
                     groups.extend(groups_)
 
                 # 잘린 뒷부분이 범위에 들어간다면
@@ -218,7 +218,7 @@ class PyTime(object):
 
                 # 잘린 뒷부분이 범위보다 크다면(재귀)
                 elif len(obj_list[max_idx:]) > max:
-                    groups_ = PyTime._grouping(obj_list[max_idx:], min, max,time_type,differential_times[max_idx:])
+                    groups_ = PyTime._grouping(obj_list[max_idx:], min, max, time_type, differential_times[max_idx:])
                     groups.extend(groups_)
                 break
             else:
@@ -227,7 +227,7 @@ class PyTime(object):
         return groups
 
     @staticmethod
-    def _grouping_postprocessing(groups,max):
+    def _grouping_postprocessing(groups, max):
         """
         너무 작게 나누어진 그룹 결과 다시 병합
 
@@ -254,7 +254,7 @@ class PyTime(object):
         return result
 
     @staticmethod
-    def grouping_bytimediff(obj_list,min,max,time_type='exifDate',after_merge=True,seed_value=None,sort=False):
+    def grouping_bytimediff(obj_list, min, max, time_type='exifDate', after_merge=True, seed_value=None, sort=False):
         """
         객체 리스트를 받아 이미지개수범위를 min,max에 맞게 분할합니다.
         분할기준은 시간미분값을 기준으로 하며, obj_list의 원소모두에 time_type 필드가 필수로 있어야합니다.
@@ -274,18 +274,20 @@ class PyTime(object):
         if seed_value:
             seed(seed_value)
         if sort:
-            obj_list = sorted(obj_list,key=lambda v:v[time_type])
+            obj_list = sorted(obj_list, key=lambda v: v[time_type])
 
-        if min==max:
-            groups = sorted([list(v) for v in np.array_split(np.array(obj_list), len(obj_list)//min)],key=lambda v: v[0][time_type])
-            if all([len(v)==min for v in groups]):
+        if min == max:
+            groups = sorted([list(v) for v in np.array_split(np.array(obj_list), len(obj_list) // min)],
+                            key=lambda v: v[0][time_type])
+            if all([len(v) == min for v in groups]):
                 return groups
             else:
-                raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,"Can't split obj_list({}) by {}".format(len(obj_list),min))
+                raise PyError(ERROR_TYPES.PREPROCESSING_ERROR,
+                              "Can't split obj_list({}) by {}".format(len(obj_list), min))
         else:
-            groups = PyTime._grouping(obj_list,min,max,time_type)
+            groups = PyTime._grouping(obj_list, min, max, time_type)
             if after_merge:
-                groups = PyTime._grouping_postprocessing(groups,max)
+                groups = PyTime._grouping_postprocessing(groups, max)
             return groups
 
     @staticmethod
@@ -320,66 +322,88 @@ class PyTime(object):
         return time_period
 
     @staticmethod
-    def get_timeFromFilename(filename):
+    def get_timeFromFilename(filename,exclude_strings=['screenshot']):
         """
         파일명에서 날짜를 추출합니다.
 
         # 20180501_235020
-        p1 = re.compile(r'\d{4}[0-1][0-9][0-3][0-9].*[0-2][0-9][0-5][0-9][0-5][0-9]')
+        p1 = re.compile(r'(\d{4}|\d{2})(0[1-9]|1[0-2]|[1-9])(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])\D+(0[0-9]|1[0-9]|2[0-3])([0-5][0-9])([0-5][0-9])')
         # 20180501235020
-        p2 = re.compile(r'\d{4}[0-1][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]')
+        p2 = re.compile(r'(\d{4}|\d{2})(0[1-9]|1[0-2]|[1-9])(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])(0[0-9]|1[0-9]|2[0-3])([0-5][0-9])([0-5][0-9])')
         # 1559998800338 (timestamp)
-        p3 = re.compile(r'\d{7,}')
+        p3 = re.compile(r'\d{10,}')
+        # 2020. 02. 04 | 20 04 23 | 20.  4. 3
+        p4 = re.compile(r'(\d{4}|\d{2})[^0-9]+\s*(0[1-9]|1[0-2]|[1-9])[^0-9]+\s*(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])')
         # 180501
-        p4 = re.compile(r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}')
+        p5 = re.compile(r'(\d{4}|\d{2})(0[1-9]|1[0-2]|[1-9])(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])')
 
 
         :param filename: 파일 이름
+        :param exclude_strings: 해당리스트의 단어들이 파일명에 포함되면 분석에서 제외됩니다.
         :return: YYYYMMDD HH:MM:SS or ''
         """
+
+        # 본 메서드는 2071까지 유효하며, 이후에는 수정되어야 합니다.
+        assert datetime.now().year < 2071
+
+        # scennshot 제외, None값 제외 , 기타 부정형 값 제외
+        if any([ex_str in filename.lower() for ex_str in exclude_strings]) or filename is None or not filename:
+            return ''
 
         p = re.compile('[-: ]')
         filename_ = filename.split('/')[-1]
         filename_ = ''.join(p.split(filename_))
 
         regexs = [
-            r'\d{4}[0-1][0-9][0-3][0-9][^0-9]+[0-2][0-9][0-5][0-9][0-5][0-9]',
-            r'\d{4}[0-1][0-9][0-3][0-9][0-2][0-9][0-5][0-9][0-5][0-9]',
+            r'(\d{4}|\d{2})(0[1-9]|1[0-2]|[1-9])(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])\D+(0[0-9]|1[0-9]|2[0-3])([0-5][0-9])([0-5][0-9])',
+            r'(\d{4}|\d{2})(0[1-9]|1[0-2]|[1-9])(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])(0[0-9]|1[0-9]|2[0-3])([0-5][0-9])([0-5][0-9])',
             r'\d{10,}',
-            r'[^0-9]{1}\d{2}[0-1][0-9][0-3][0-9][^0-9]{1}'
+            r'(\d{4}|\d{2})[^0-9]+\s*(0[1-9]|1[0-2]|[1-9])[^0-9]+\s*(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])',
+            r'(\d{4}|\d{2})(0[1-9]|1[0-2]|[1-9])(0[1-9]|[1-9]|[1-2][0-9]|3[0-1])',
         ]
         try:
-            if len(re.findall(regexs[0],filename_)) == 1:
-                timedata = re.findall(regexs[0],filename_)[0]
-                return str(datetime(int(timedata[:4]), int(timedata[4:6]), int(timedata[6:8]), int(timedata[9:11]),
-                                    int(timedata[11:13]), int(timedata[13:15])))
-            elif len(re.findall(regexs[1],filename_)) == 1:
-                timedata = re.findall(regexs[1],filename_)[0]
-                return str(datetime(int(timedata[:4]), int(timedata[4:6]), int(timedata[6:8]), int(timedata[8:10]),
-                                    int(timedata[10:12]), int(timedata[12:14])))
-            elif len(re.findall(regexs[2],filename_)) == 1:
-                timestamp = int(re.findall(regexs[2],filename_)[0][:10])
+            year, month, day, hour, minute, second = None, None, None, None, None, None
+            # 20180501_235020
+            if len(re.findall(regexs[0], filename_)) == 1:
+                year,month,day,hour,minute,second = map(int,re.findall(regexs[0], filename_)[0])
+            # 20180501235020
+            elif len(re.findall(regexs[1], filename_)) == 1:
+                year,month,day,hour,minute,second = map(int,re.findall(regexs[1], filename_)[0])
+            # 1559998800338 (timestamp)
+            elif len(re.findall(regexs[2], filename_)) == 1:
+                timestamp = int(re.findall(regexs[2], filename_)[0][:10])
                 if datetime(1971, 1, 1).timestamp() <= timestamp <= datetime.now().timestamp():
                     date = datetime.fromtimestamp(int(timestamp))
-                    return datetime.strftime(date, '%Y-%m-%d %H:%M:%S')
-                else:
-                    return ''
+                    year,month,day,hour,minute,second = date.year,date.month,date.day,date.hour,date.minute,date.second
+            # 2020. 02. 04 | 20 04 23 | 20.  4. 3
             elif len(re.findall(regexs[3],filename_)) == 1:
-                timedata = re.findall(regexs[3],filename_)[0][1:-1]
-                if int(filename_[1:3]) > 0:
-                    return str(datetime(int('20' + timedata[:2]), int(timedata[4:6]), int(timedata[6:8])))
-                else:
-                    return str(datetime(int('19' + timedata[:2]), int(timedata[4:6]), int(timedata[6:8])))
+                year, month, day = map(int, re.findall(regexs[3], filename_)[0])
+            # 180501
+            elif len(re.findall(regexs[4], filename_)) == 1:
+                year, month, day = map(int, re.findall(regexs[4], filename_)[0])
+            else:
+                return ''
+            # 4자리로 표현된 연도일 경우 1971 ~ now
+            if 1971 <= year <= datetime.now().year:
+                return str(datetime(year, month, day, hour if hour is not None else 0, minute if minute is not None else 0, second if second is not None else 0))
+            # 2자리로 표현된 연도일 경우 1971 ~ 1999
+            elif 71 <= year <= 99:
+                year+=1900
+                return str(datetime(year, month, day, hour if hour is not None else 0, minute if minute is not None else 0, second if second is not None else 0))
+            # 2자리로 표현된 연도일 경우 2000 ~ now
+            elif 0 <= year <= datetime.now().year:
+                year += 2000
+                return str(datetime(year, month, day, hour if hour is not None else 0, minute if minute is not None else 0, second if second is not None else 0))
+            else:
+                return ''
 
         except Exception as e:
             return ''
 
 
 if __name__ == '__main__':
-
-
     # 시간이 해당 기간 안에 포함되는지 체크합니다.
-    ret = PyTime.check_date_inrange('2020-09-09 12:11:10',['2020-09-08 12:11:10','2020-09-10 12:11:10'])
+    ret = PyTime.check_date_inrange('2020-09-09 12:11:10', ['2020-09-08 12:11:10', '2020-09-10 12:11:10'])
     print(ret)  # True
 
     # 올바른 시간 데이터 str, ('YYYY-mm-dd HH:MM:SS') 인지 확인합니다.
@@ -391,11 +415,11 @@ if __name__ == '__main__':
     print(datetime_data)  # 2020-09-09 12:11:10
 
     # string datetime(YYYY-mm-dd HH:MM:SS)의 두 srctime, dsttime에 대한 시간차이를 초단위로 반환합니다.
-    difftime_seconds = PyTime.get_difftime('2020-09-09 12:11:10','2020-09-10 04:00:00')
+    difftime_seconds = PyTime.get_difftime('2020-09-09 12:11:10', '2020-09-10 04:00:00')
     print(difftime_seconds)  # 56930.0
 
     # string datetime(YYYY-mm-dd HH:MM:SS)의 두 srctime, dsttime에 대한 일 단위차이를 초단위로 반환합니다.
-    diff_days = PyTime.get_diffday('2020-09-09 12:11:10','2020-09-10 04:00:00')
+    diff_days = PyTime.get_diffday('2020-09-09 12:11:10', '2020-09-10 04:00:00')
     print(diff_days)  # 86400.0
 
     # time_list의 시간 차이 리스트를 구합니다. 객체 리스트를 받으며 각 객체 리스트는 time_type을 포함해야 합니다.
@@ -409,19 +433,19 @@ if __name__ == '__main__':
     print(difference_timedays)  # [0.0, 86400.0, 172800.0]
 
     # 주어진 date 리스트 중 평균 날짜를 구합니다.
-    mean_data = PyTime.get_mean_time(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
+    mean_data = PyTime.get_mean_time(['2020-09-07 12:11:10', '2020-09-08 12:11:10', '2020-09-10 12:11:10'])
     print(mean_data)  # 2020-09-08 20:11:10
 
     # 객체 리스트를 시간기준으로 적절할게 분할합니다.
     groups = PyTime.grouping_bytimediff(
         obj_list=[
-            {'exifDate': '2020-09-05 12:11:10','data':1},
-            {'exifDate': '2020-09-06 12:11:10','data':2},
-            {'exifDate': '2020-09-07 12:11:10','data':3},
-            {'exifDate': '2020-09-08 12:11:10','data':4},
-            {'exifDate': '2020-09-09 12:11:10','data':5},
+            {'exifDate': '2020-09-05 12:11:10', 'data': 1},
+            {'exifDate': '2020-09-06 12:11:10', 'data': 2},
+            {'exifDate': '2020-09-07 12:11:10', 'data': 3},
+            {'exifDate': '2020-09-08 12:11:10', 'data': 4},
+            {'exifDate': '2020-09-09 12:11:10', 'data': 5},
         ],
-        min=2,max=4,time_type='exifDate',after_merge=True,seed_value=1234,sort=False
+        min=2, max=4, time_type='exifDate', after_merge=True, seed_value=1234, sort=False
     )
     print(groups)
     # [
@@ -437,7 +461,7 @@ if __name__ == '__main__':
     # ]
 
     # date 리스트를 받아 [가장 오래된 날짜, 가장 최근 날짜] 를 얻습니다.
-    period = PyTime.get_period(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
+    period = PyTime.get_period(['2020-09-07 12:11:10', '2020-09-08 12:11:10', '2020-09-10 12:11:10'])
     print(period)  # ['2020-09-07', '2020-09-10']
 
     dt = PyTime.get_timeFromFilename('20180501_235020')
