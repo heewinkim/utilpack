@@ -63,7 +63,7 @@ sys.path.insert(0,projroot_dir)
 
 import time
 import json
-from utilpack.core import *
+from utilpack.core import PyError,ERROR_TYPES
 from utilpack.core import PyLogger
 from utilpack.core import PyOutput
 from flask import Flask,request,jsonify
