@@ -29,6 +29,24 @@ import cv2
 class PyFaceUtil(object):
 
     @staticmethod
+    def draw_faceId(image, x, y, faceId, color=(255, 0, 255), fontScale=1, top_margin=0):
+        """
+        img_cv 위에 faceId 텍스트를 그립니다.
+
+        1. crop_face(image,fdi)
+        2. crop_face(image,fdi_face)
+
+        :param image: image
+        :param fdi: snaps fd result
+        :param fdi_face: 'faces' object
+        :return: None
+        """
+
+        margin = top_margin if (int(y) - top_margin) >= 0 else 0
+        cv2.putText(image,faceId, (int(x), int(y) - margin),
+                    cv2.FONT_HERSHEY_COMPLEX, fontScale, color, int(fontScale * 2))
+
+    @staticmethod
     def crop_face(image, x1, y1, x2, y2, copy=True):
         """
         cropped 된 얼굴을 반환합니다.
