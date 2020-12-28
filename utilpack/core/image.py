@@ -113,7 +113,7 @@ class PyImage(object):
 
     @staticmethod
     def cv2bytes(img_cv):
-        return cv2.imencode('.jpg', img_cv, [int(cv2.IMWRITE_JPEG_QUALITY), 100])[1].tostring()
+        return cv2.imencode('.png', img_cv, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])[1].tostring()
 
     @staticmethod
     def rotate_image(img, orientation: int = 0,copy=False):
@@ -162,7 +162,7 @@ class PyImage(object):
         :raise IMAGE_PROCESS_ERROR:
         """
 
-        encoded_img = cv2.imencode('.jpg', img_cv, [int(cv2.IMWRITE_JPEG_QUALITY), 100])[1]
+        encoded_img = cv2.imencode('.png', img_cv, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])[1]
 
         if tostring:
             img_b64 = base64.b64encode(encoded_img).decode('utf-8')
