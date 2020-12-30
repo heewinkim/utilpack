@@ -43,9 +43,6 @@ import requests
 from datetime import datetime
 from .config import PyConfig
 from .singleton import Singleton
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-projroot_dir = os.path.dirname(parent_dir)
 monthes = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12',
@@ -89,7 +86,7 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         # fileHandler set
         if useFileHandler:
             self.logs_info = {"format": ".log"}
-            self.log_dir = projroot_dir + '/' + log_name
+            self.log_dir = py_config.log_path + '/' + log_name
             self._set_fileHandler('info')
             self._set_fileHandler('error')
 
@@ -267,12 +264,12 @@ if __name__ == '__main__':
 
     # PyLogger는 singletone 디자인패턴으로 객체화 합니다.
     logger = PyLogger(log_name='pylog',useFileHandler=True)
-    # below directories are created, you can change the ROOTPATH infomation on PyConfig
-    # {PACKAGE_ROOTPATH}/pylog/info_log
-    # {PACKAGE_ROOTPATH}/pylog/error_log
+    # below directories are created, you can change the ROOTPATH infomation on PyConfig.log_path ({PACKAGE_ROOTDIR}/core/py_api.conf)
+    # {PyConfig.log_path}/pylog/info_log
+    # {PyConfig.log_path}/pylog/error_log
 
     logger.info('example_log')
 
-    # {PACKAGE_ROOTPATH}/pylog/info_log/pylog_info.log
+    # {PyConfig.log_path}/pylog/info_log/pylog_info.log
     # INFO	26928	20-09-17 15:29:48	None	None	None	None	None	example_log
     # In above log content, None means request Infos which activated when using PyFlask
