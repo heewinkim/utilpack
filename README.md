@@ -525,6 +525,9 @@ PyImageUtil.make_gridImage()
 
 # 이미지의 gps 경도,위도를 얻습니다. 자세한 사용법은 docstring을 참조하세요
 PyImageUtil.get_latlng()
+
+# plt figure를 numpy array로 변환합니다. 자세한 사용법은 docstring을 참조하세요
+PyImageUtil.figure_to_array()
 ```
 
 </p>

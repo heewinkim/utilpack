@@ -133,7 +133,7 @@ class PyImageUtil(object):
         plt.show()
 
     @staticmethod
-    def plot_imglist(path_list=None, img_list=None, url_list=None,title_list=None, cols=8, figsize=(10, 10), img_resize=(600, 600),color_mode='bgr',fontsize=12,save_path=None):
+    def plot_imglist(path_list=None, img_list=None, url_list=None,title_list=None, cols=8, figsize=(10, 10), img_resize=(600, 600),color_mode='bgr',fontsize=12):
         """
         리스트의 이미지 경로 혹은 이미지(array) 를 받아
         출력합니다
@@ -145,8 +145,7 @@ class PyImageUtil(object):
         :param figsize: 출력 전체 크기 (25,25) 추천
         :param img_resize: 각 이미지의 사이즈를 조정합니다.
         :param color_mode: one of 'bgr', 'rgb', 'gray'(when img is path and want to plot gray img )
-        :param save_path: None이 아닐시, 주어진 경로에 plot 이미지를 저장합니다. 포맷은 png이어야 합니다. eg. /path/to/fig.png
-        :return: None
+        :return: plot_imglist
         """
         plt.rcParams.update({'font.size': fontsize})
 
@@ -182,6 +181,7 @@ class PyImageUtil(object):
         else:
             rows = len(img_list) // cols + 1
 
+        plot_imglist=[]
         for row in range(rows):
 
             fig = plt.figure(figsize=figsize)
@@ -202,11 +202,18 @@ class PyImageUtil(object):
                     frame.imshow(img_list[idx],cmap='gray')
                 else:
                     frame.imshow(img_list[idx])
-
-            if save_path is not None:
-                plt.savefig(save_path)
+            plot_imglist.append(PyImageUtil.figure_to_array(fig)[(cols-1)*100+50:-(cols-1)*100-50,:,:3])
             plt.show()
+        return plot_imglist
 
+    @staticmethod
+    def figure_to_array(fig):
+        """
+        plt.figure를 RGB로 변환
+        shape: height, width, depth
+        """
+        fig.canvas.draw()
+        return np.array(fig.canvas.renderer._renderer)[...,::-1]
 
     @staticmethod
     def get_pathlist(path, recursive=False, format=['jpg', 'png', 'jpeg'], include_secretfile=False):
@@ -540,3 +547,6 @@ if __name__ == '__main__':
 
     # 이미지의 gps 경도,위도를 얻습니다. 자세한 사용법은 docstring을 참조하세요
     PyImageUtil.get_latlng()
+
+    # plt figure를 numpy array로 변환합니다. 자세한 사용법은 docstring을 참조하세요
+    PyImageUtil.figure_to_array()
