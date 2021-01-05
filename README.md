@@ -543,6 +543,14 @@ from utilpack.util import PyTimeUtil
 
 # 타임라인을 그립니다.
 PyTimeUtil.draw_timeline(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
+
+# 데이터를 시간단위로 나눕니다
+rst = PyTimeUtil.seperate_data_bytime([
+        { "value": 123,"exifDate": "2019-12-01 12:21:32" },
+        { "value": 127,"exifDate": "2020-12-01 12:21:35" },
+        { "value": 120,"exifDate": "2021-12-01 12:21:33" },
+],unit='year',time_types=['exifDate'])
+print(rst)
 ```
 
 </p>

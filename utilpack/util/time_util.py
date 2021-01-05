@@ -20,6 +20,7 @@ from datetime import datetime,timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import signal
+from utilpack.core import PyTime
 
 
 class PyTimeUtil(object):
@@ -68,6 +69,50 @@ class PyTimeUtil(object):
         ax.set_facecolor('#FFFFFF00')
         plt.show()
 
+    @staticmethod
+    def seperate_data_bytime(data, unit='year',time_types=['exifDate']):
+        """
+        data를 unit단위에 맞게 나눕니다.
+
+        eg. data = [
+            { "value": 123,"exifDate": "2019-12-01 12:21:32" },
+            { "value": 127,"exifDate": "2020-12-01 12:21:35" },
+            { "value": 120,"exifDate": "2021-12-01 12:21:33" },
+            ...
+        ]
+        output = {
+            "2019": [{ "value": 123,"exifDate": "2019-12-01 12:21:32" }]
+            "2020": [{ "value": 127,"exifDate": "2020-12-01 12:21:35" }]
+            "2021": [{ "value": 120,"exifDate": "2021-12-01 12:21:33" }]
+        }
+
+
+        :param data: dict의 리스트 형태이며, time_types 들 중 하나의 필드를 가지고 있어야합니다.
+        :param unit: 'year','month','day' 단위를 지원합니다.
+        :param time_types: 시간값을 가진 속성이름 입니다. exifDate,sysDate등 리스트 형태이며 리스트 순서대로 우선권을 가집니다.
+        :return:
+        """
+        result = {}
+        for elem in data:
+            time_type=''
+            for t in time_types:
+                if elem.get(t) and PyTime.check_datetime(elem[t]):
+                    time_type = t
+                    break
+
+            if not time_type:
+                return result
+
+            if elem.get(time_type) and PyTime.check_datetime(elem[time_type]):
+                date = PyTime.str2datetime(elem[time_type])
+                if unit == 'year':
+                    result[date.year] = result.get(date.year, []) + [elem]
+                elif unit == 'month':
+                    result[date.month] = result.get(date.month, []) + [elem]
+                elif unit == 'day':
+                    result[date.day] = result.get(date.day, []) + [elem]
+
+        return result
 
 # USE EXAMPLE
 # with timeout(seconds=3):
@@ -94,3 +139,11 @@ if __name__ == '__main__':
 
     # 타임라인을 그립니다.
     PyTimeUtil.draw_timeline(['2020-09-07 12:11:10','2020-09-08 12:11:10','2020-09-10 12:11:10'])
+
+    # 데이터를 시간단위로 나눕니다
+    rst = PyTimeUtil.seperate_data_bytime([
+            { "value": 123,"exifDate": "2019-12-01 12:21:32" },
+            { "value": 127,"exifDate": "2020-12-01 12:21:35" },
+            { "value": 120,"exifDate": "2021-12-01 12:21:33" },
+    ],unit='year',time_types=['exifDate'])
+    print(rst)
