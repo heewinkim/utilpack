@@ -300,6 +300,44 @@ class PyDataUtil(object):
         plt.tight_layout()
         plt.show()
 
+    @staticmethod
+    def pie(data, save_path=None, title='', labels=None, radius=1, explode=0.05, shadow=True, colors=None,figsize=(8, 5), fontsize=12):
+        """
+        데이터의 파이를 그립니다.
+        기본적으로 각 elelment의 percentage 및 개수를 표현하며, legend가 달립니다.
+
+        :param data: 어떠한 데이터의 수량을 나타내는 리스트
+        :param save_path: 경로 제공시 pie 이미지를 저장합니다.(eg. path/to/pie.png)
+        :param title: 제목
+        :param labels: 라벨 제공시 각 엘리먼트의 이름이 표시됩니다. 라벨은 데이터개수만큼의 문자요소 리스트 이어야 합니다.
+        :param radius: default 1, matplotlib.pyplot.pie의 radius와 같습니다.
+        :param explode: default 0.05, matplotlib.pyplot.pie의 요소와 같지만 리스트가 아닌 단일 float값을 받습니다.
+        :param shadow: boolean 그림자 표시여부
+        :param colors: default None, 각 요소의 색깔을 지정하고 싶을때 요소길이 만큼의 컬러가 주어져야합니다.
+        :param figsize: figure size
+        :param fontsize: element의 값을 표시하는 폰트의 크기
+        :return:
+        """
+
+        def label_func(percent, data):
+            absolute = int(percent / 100. * np.sum(data))
+            return "{:.1f}%\n({:d})".format(percent, absolute)
+
+        fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(aspect="equal"))
+
+        wedges, texts, autotexts = ax.pie(
+            data, autopct=lambda pct: label_func(pct, data), textprops=dict(color="w"),
+            radius=radius, explode=[explode] * len(data), shadow=shadow, colors=colors)
+
+        ax.legend(wedges, labels,
+                  title="Label",
+                  loc="center left",
+                  bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.setp(autotexts, size=fontsize, weight="bold")
+        ax.set_title(title)
+        if save_path:
+            plt.savefig('{}'.format(save_path))
+        plt.show()
 
 if __name__ == '__main__':
 
@@ -346,3 +384,6 @@ if __name__ == '__main__':
 
     # 데이터를 받아 confusion matrix를 출력합니다. 자세한 사용법은 docstring을 참조하세요.
     PyDataUtil.confusion_mat()
+
+    # 기본적인 셋팅이 되어있는 matplotlib.pie 입니다. 자세한 사용법은 docstring을 참조하세요
+    PyDataUtil.pie()

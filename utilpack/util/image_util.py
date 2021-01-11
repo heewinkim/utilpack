@@ -202,7 +202,7 @@ class PyImageUtil(object):
                     frame.imshow(img_list[idx],cmap='gray')
                 else:
                     frame.imshow(img_list[idx])
-            plot_imglist.append(PyImageUtil.figure_to_array(fig)[(cols-1)*100+50:-(cols-1)*100-50,:,:3])
+            plot_imglist.append(PyImageUtil.figure_to_array(fig))
             plt.show()
         return plot_imglist
 
@@ -213,7 +213,7 @@ class PyImageUtil(object):
         shape: height, width, depth
         """
         fig.canvas.draw()
-        return np.array(fig.canvas.renderer._renderer)[...,::-1]
+        return np.array(fig.canvas.renderer._renderer)[...,::-1][:,:,1:]
 
     @staticmethod
     def get_pathlist(path, recursive=False, format=['jpg', 'png', 'jpeg'], include_secretfile=False):
