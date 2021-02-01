@@ -72,17 +72,20 @@ import traceback
 
 class PyFlask(Flask):
 
-    def __init__(self,api_name,useFileHandler=False,td_log=False):
+    def __init__(self,api_name,useFileHandler=False,td_log=False,logFilter=None):
         """
-        url 경로를 위한 prefix,version,api_name을 인수로 받습니다.
+        PyFlask 객체를 생성합니다.
+        PyFlask 객체는 Flask를 상속받았으며 로깅, 아웃풋, 헬스체크 등 다양한 기본 구현이 되어있는 클래스 입니다.
 
-        :param prefix_: prefix
-        :param version_: version
         :param api_name_: api_name
+        :param useFileHandler : 로그파일을 기록합니다.
+        :param req_logFilter: function which apply to reqLog data, req_logFilter(dict:reqData) -> dict
+
         """
         super().__init__(api_name)
         self._logger = PyLogger(api_name,useFileHandler,td_log)
         self._api_name = api_name
+        self._logFilter = logFilter
         self.output = PyOutput()
         self.request = request
         self.is_health = False
@@ -132,7 +135,10 @@ class PyFlask(Flask):
             if self.is_health is False:
                 # 요청부터 응답까지의 시간
                 elapse = round((time.time() - self._before_time) * 1000,4)
-                self._logger.info("output\t{}".format(list(response.response)[0].decode('utf-8')),elapse=elapse)
+                resData = json.loads(list(response.response)[0].decode('utf-8'))
+                if self._logFilter.get('output'):
+                    resData = self._logFilter['output'](resData)
+                self._logger.info("output\t{}".format(json.dumps(resData)), elapse=elapse)
 
         except Exception:
             self._logger.warning(PyError(ERROR_TYPES.RUNTIME_ERROR,'logging time elapse failed - _after_request in PyFlask'))
@@ -179,6 +185,8 @@ class PyFlask(Flask):
                                       )
 
         if endpoint != '_health_check' and endpoint != '_home':
+            if self._logFilter.get('input'):
+                data = self._logFilter['input'](data)
             self._logger.info('input\t{}'.format(json.dumps(data)))
 
         self.__update_request_data()
