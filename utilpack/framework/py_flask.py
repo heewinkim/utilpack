@@ -85,7 +85,7 @@ class PyFlask(Flask):
         super().__init__(api_name)
         self._logger = PyLogger(api_name,useFileHandler,td_log)
         self._api_name = api_name
-        self._logFilter = logFilter
+        self._logFilter = logFilter if logFilter else {}
         self.output = PyOutput()
         self.request = request
         self.is_health = False
