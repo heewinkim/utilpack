@@ -650,8 +650,12 @@ class ExampleApi(object):
 from utilpack.framework import PyFlask
 
 example_api = ExampleApi()
-application = PyFlask('ex')
-
+application = PyFlask(
+    api_name = 'ex', # log 디렉토리 이름, health check url 경로, flask objeect name 등으로 설정됩니다.
+    td_log = False, # fluentd 가 설정되어 있을 시 py.conf 의 설정값을 통해 원격 로깅 지원 
+    logFilter = None, # input, output 데이터에 대한 필터처리 가능
+    slackNotify = True # py.conf 의 설정을 통해 에러 발생시 메세징 기능 
+)
 
 @application.route('/py/v1/example',methods=['POST','GET'])
 def request_api():
