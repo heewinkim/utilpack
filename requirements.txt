@@ -12,3 +12,4 @@ ipywidgets
 pycryptodome==3.9.8
 shapely==1.7.0
 pdfrw==0.4
+slack-sdk==3.3.0

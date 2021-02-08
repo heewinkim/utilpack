@@ -55,17 +55,10 @@ print(rst)  # [3, 2, 4, 5, 1, 4, 1]
 
 - PyConfig 클래스 제공, 설정파일 로드 기능을 제공
 ```python
-# ./py_api.conf 파일의 내용은 아래와 같이 정의되며 패키지루트경로/core 디렉토리에 포함됩니다.
-# 해당 파일은 PyFlask를 사용시 useFileHandler,td_log를 사용할때 정의되는 값들을 포함합니다. 
-# 아래는 파일내에 초기작성된 default 내용입니다. 
-# LOG_PATH = /opt/py/log
-# LOG_ROTATE = False
-# TD_IP = 0.0.0.0
-# TD_PORT = 12510
-# TD_TAG = py.ai
-# 예를들어 flask = PyFlask('app_name',useFileHandler=True) 와 같이 API구현을 위해 플라스크를 초기화하며,
-# useFileHandler 값이 True일때 
-# LOG_PATH인 /opt/py/log 디렉토리 밑의 app_name 디렉토리에 API관련된 로그파일이 기록되게 됩니다.  
+# ./py.conf 파일의 내용은 아래와 같이 정의되며 패키지루트경로/core 디렉토리에 포함됩니다.
+# 해당 파일은 PyFlask,PyLogger 를 사용시 useFileHandler,td_log,slack_notify 등 사용할때 정의되는 값들을 포함합니다. 
+# 예를들어 flask = PyFlask('app_name',useFileHandler=True)과 같이 파일에 로그하는 경우,
+# PyConfig의 ['LOG']['PATH'] 값인 /opt/py/log 디렉토리 밑의 app_name 디렉토리에 API관련된 로그파일이 기록되게 됩니다.  
 ```
 
 </p>
@@ -646,7 +639,7 @@ class ExampleApi(object):
         result = {'arg1':100,'arg2':200}
         return result
 
-
+    
 from utilpack.framework import PyFlask
 
 example_api = ExampleApi()
