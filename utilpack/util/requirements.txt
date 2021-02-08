@@ -4,7 +4,7 @@ matplotlib==2.2.2
 sklearn==0.0
 pandas==0.22
 tqdm==4.45.0
-Pillow==5.2.0
+Pillow==7.1.0
 opencv-python==3.4.1.15
 ipywidgets==7.5.1
 dlib
