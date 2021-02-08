@@ -17,13 +17,14 @@ require_packages=[
     'ipywidgets',
     'pycryptodome',
     'shapely',
-    'pdfrw'
+    'pdfrw',
+    'slack-sdk',
 ]
 
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='1.9.0',
+    version='1.9.1',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',
