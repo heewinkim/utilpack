@@ -72,7 +72,7 @@ import traceback
 
 class PyFlask(Flask):
 
-    def __init__(self,api_name,useFileHandler=False,td_log=False,logFilter=None):
+    def __init__(self,api_name,td_log=False,logFilter=None,slackNotify=False,useFileHandler=False):
         """
         PyFlask 객체를 생성합니다.
         PyFlask 객체는 Flask를 상속받았으며 로깅, 아웃풋, 헬스체크 등 다양한 기본 구현이 되어있는 클래스 입니다.
@@ -83,7 +83,7 @@ class PyFlask(Flask):
 
         """
         super().__init__(api_name)
-        self._logger = PyLogger(api_name,useFileHandler,td_log)
+        self._logger = PyLogger(api_name,td_log,slackNotify,useFileHandler)
         self._api_name = api_name
         self._logFilter = logFilter if logFilter else {}
         self.output = PyOutput()
@@ -252,3 +252,6 @@ class PyFlask(Flask):
                     raise PyError(ERROR_TYPES.PARAMETER_ERROR, 'Invalid {}'.format(key))
 
 
+if __name__ == '__main__':
+    app = PyFlask('app')
+    app.run()

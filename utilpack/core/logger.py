@@ -43,6 +43,8 @@ import requests
 from datetime import datetime
 from .config import PyConfig
 from .singleton import Singleton
+from slack_sdk import WebClient
+
 monthes = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12',
@@ -52,21 +54,26 @@ py_config = PyConfig()
 
 class PyLogger(logging.Filter,metaclass=Singleton):
 
-    def __init__(self, log_name='py',useFileHandler=False,td_log=False):
+    def __init__(self, log_name='py',td_log=False,slack_notify=False,useFileHandler=True):
 
         """
         init function
 
         :param log_name: log 파일에 접미사로 붙을 이름
         :param useFileHandler : 로그파일을 기록합니다.
-        :param td_log : fluentd 로그를 활성화 합니다. (PyConfig에서 설정되는 config파일에 [LOG_INFO] 의 TD_IP,TD_PORT,TD_TAG 값이 설정되어야 합니다.
+        :param td_log : fluentd 로그를 활성화 합니다. (PyConfig 설정되는 config파일에 [LOG] 태그의 IP,PORT,TAG 값이 설정되어야 합니다.
+        :param slack_notify: slack 메세징 기능을 활성화 합니다. (PyConfig 설정되는 config파일에 [SLACK] 태그의 TAG,CHANNELS 값이 설정되어야 합니다.
+        :param useFileHandler : 로그파일을 파일로 기록합니다.
         """
+
+        # slack notification info
+        self.slack_client = WebClient(py_config['SLACK']['TOKEN']) if slack_notify else None
 
         # fluentd-log parameters
         self.td_log = td_log
-        self.td_ip = py_config.td_ip
-        self.td_port = py_config.td_port
-        self.td_tag = py_config.td_tag
+        self.td_ip = py_config['FLUENTD']['IP']
+        self.td_port = py_config['FLUENTD']['PORT']
+        self.td_tag = py_config['FLUENTD']['TAG']
 
         # 로그 저장 경로
         self.log_name = log_name
@@ -86,7 +93,7 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         # fileHandler set
         if useFileHandler:
             self.logs_info = {"format": ".log"}
-            self.log_dir = py_config.log_path + '/' + log_name
+            self.log_dir = py_config['LOG']['PATH'] + '/' + log_name
             self._set_fileHandler('info')
             self._set_fileHandler('error')
 
@@ -153,6 +160,23 @@ class PyLogger(logging.Filter,metaclass=Singleton):
             self.__logger.error('{}\t{}'.format(k, v))
         self.__logger.error(message)
 
+        from io import BytesIO,StringIO
+        if self.slack_client is not None:
+            channels = [v for v in py_config['SLACK']['CHANNELS'].split(',') if v ]
+            for channel in channels:
+                if str(message).startswith('input'):
+                    file = message.split('\t')[-1].encode()
+                    initial_comment ='[ 에러 발생 : {} ]'.format(self.log_name.upper())
+                    title = "    ".join([datetime.now().strftime('%y-%m-%d %H:%M:%S'),self.userIp,self.user_agent,self.req_method,self.full_path])
+                    self.slack_client.files_upload(channels=channel, file=file,title=title,initial_comment=initial_comment,filename='{}.json'.format(message.split('\t')[0]))
+                elif str(message).startswith('output'):
+                    file = message.split('\t')[-1].encode()
+                    self.slack_client.files_upload(channels=channel, file=file,filename='{}.json'.format(message.split('\t')[0]))
+                else:
+                    # add api name, ip info
+                    self.slack_client.chat_postMessage(channel=channel,text=message)
+
+
     def set_request_info(self,
                          userIp=None,
                          user_agent=None,
@@ -208,17 +232,6 @@ class PyLogger(logging.Filter,metaclass=Singleton):
         record.full_path = self.full_path
         return True
 
-    @staticmethod
-    def _get_today():
-        """
-        YY-MM-DD 형식의 오늘날짜를 str으로 반환(eg. '18-07-08')
-        :return: str, 오늘날짜
-        """
-
-        ctime_list = time.ctime().split(' ')
-        today = ctime_list[-1][2:]+'-'+monthes[ctime_list[1]]+'-'+'%02d' % int(ctime_list[-3])
-
-        return today
 
     def _set_fileHandler(self, log_type) -> None:
         """

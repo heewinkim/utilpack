@@ -37,20 +37,14 @@ class PyConfig(object):
 
     """
 
-    def __init__(self,config_dirpath=current_dir):
-        """
-        common 파일 로드 및 데이터 저장
+    def __new__(cls,config_dirpath=current_dir):
+        configFilePath = config_dirpath + "/py.conf"
+        config = configparser.ConfigParser()
+        config.read(configFilePath, encoding='utf-8')
+        return config
 
-        :param config_dirpath: py_api.conf 파일 경로
-        """
-        configFilePath = config_dirpath + "/py_api.conf"
 
-        self.config = configparser.ConfigParser()
-        self.config.read(configFilePath, encoding='utf-8')
+if __name__ == '__main__':
 
-        self.log_path = self.config["LOG_INFO"]["LOG_PATH"]
-        self.log_rotate = bool(self.config["LOG_INFO"]["LOG_ROTATE"]=='True')
-
-        self.td_ip = self.config["LOG_INFO"]["TD_IP"]
-        self.td_port = self.config["LOG_INFO"]["TD_PORT"]
-        self.td_tag = self.config["LOG_INFO"]["TD_TAG"]
+    py_config = PyConfig()
+    print(py_config['LOG']['PATH'])
