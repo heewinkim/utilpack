@@ -186,7 +186,7 @@ class PyImage(object):
         if tostring:
             img_b64 = base64.b64encode(bytes_data).decode('utf-8')
         else:
-            img_b64 = np.array([base64.urlsafe_b64encode(bytes_data)])[0]
+            img_b64 = np.array([base64.urlsafe_b64encode(bytes_data)])
 
         if img_b64 is None:
             raise PyError(ERROR_TYPES.IMAGE_PROCESS_ERROR,'failed to convert bytes to base64 - byte2base64 in PyImage')
