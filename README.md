@@ -521,6 +521,9 @@ PyImageUtil.get_latlng()
 
 # plt figure를 numpy array로 변환합니다. 자세한 사용법은 docstring을 참조하세요
 PyImageUtil.figure_to_array()
+
+# 이미지의 밝기를 증가시킵니다.
+PyImageUtil.increase_brightness()
 ```
 
 </p>

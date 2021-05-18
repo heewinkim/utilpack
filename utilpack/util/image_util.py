@@ -40,6 +40,29 @@ class PyImageUtil(object):
     plt = plt
 
     @staticmethod
+    def increase_brightness(img, value=30):
+        """
+
+        이미지의 밝기를 증가시킵니다.
+        HSV 의 V channel value 값을 v'라고 했을때
+        v' =  v' + value (max value : 255)
+
+        :param img: numpy array, bgr channel order
+        :param value: 증가 시킬 값 default = 30
+        :return: img
+        """
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(hsv)
+
+        lim = 255 - value
+        v[v > lim] = 255
+        v[v <= lim] += value
+
+        final_hsv = cv2.merge((h, s, v))
+        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+        return img
+
+    @staticmethod
     def images2pdf(img_list, save_path='./images.pdf', color_mode='bgr'):
         if color_mode == 'bgr':
             img_list = [Image.fromarray(img[..., ::-1]) for img in img_list]
@@ -550,3 +573,6 @@ if __name__ == '__main__':
 
     # plt figure를 numpy array로 변환합니다. 자세한 사용법은 docstring을 참조하세요
     PyImageUtil.figure_to_array()
+
+    # 이미지의 밝기를 증가시킵니다.
+    PyImageUtil.increase_brightness()
