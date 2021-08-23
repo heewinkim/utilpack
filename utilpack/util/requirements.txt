@@ -1,5 +1,5 @@
 requests==2.22.0
-jupyterlab==1.0.4
+jupyterlab==1.2.21
 matplotlib==2.2.2
 sklearn==0.0
 pandas==0.22
