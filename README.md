@@ -1,7 +1,7 @@
 # [utilpack](https://github.com/heewinkim/utilpack)
     본 프로젝트는 일반적인 파이썬 프로젝트 진행시에 필요한 유틸 모듈 패키지가 포함되어있습니다.
 
-![](https://img.shields.io/badge/python-3.6.1-blue)
+![](https://img.shields.io/badge/python-3.7.10-blue)
 
 
 ### 설치 방법 (How To Install)

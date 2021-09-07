@@ -163,7 +163,7 @@ class PyFlask(Flask):
             data.update(request.args.to_dict())
         if request.files:
             for k,v in dict(request.files).items():
-                data.update({k: v[0].filename})
+                data.update({k: v.filename})
         if request.json:
             data.update(dict(request.json))
 
