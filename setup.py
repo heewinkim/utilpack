@@ -25,7 +25,7 @@ require_packages=[
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='2.0.3',
+    version='2.0.4',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',

@@ -386,12 +386,8 @@ class PyTime(object):
             # 4자리로 표현된 연도일 경우 1971 ~ now
             if 1971 <= year <= datetime.now().year:
                 return str(datetime(year, month, day, hour if hour is not None else 0, minute if minute is not None else 0, second if second is not None else 0))
-            # 2자리로 표현된 연도일 경우 1971 ~ 1999
-            elif 71 <= year <= 99:
-                year+=1900
-                return str(datetime(year, month, day, hour if hour is not None else 0, minute if minute is not None else 0, second if second is not None else 0))
             # 2자리로 표현된 연도일 경우 2000 ~ now
-            elif 0 <= year <= datetime.now().year:
+            elif 0 <= year <= datetime.now().year % 100:
                 year += 2000
                 return str(datetime(year, month, day, hour if hour is not None else 0, minute if minute is not None else 0, second if second is not None else 0))
             else:
