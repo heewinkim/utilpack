@@ -416,6 +416,9 @@ PyDataUtil.make_histplot()
 
 # 데이터를 받아 confusion matrix를 출력합니다. 자세한 사용법은 docstring을 참조하세요.
 PyDataUtil.confusion_mat()
+
+# 데이터를 받아 파이 그래프를 그립니다.
+PyDataUtil.pie()
 ```
 
 </p>
@@ -569,7 +572,11 @@ PyVisUtil.color_hist(img_cv)
 
 # 흑백 히스토그램을 그립니다.
 PyVisUtil.gray_hist(gray_img_cv)
+
+# 데이터를 받아 파이 그래프를 그립니다.
+PyVisUtil.pie()
 ```
+<img src="https://heewinkim.netlify.app/pie.png">
 
 </p>
 </details> 

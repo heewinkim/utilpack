@@ -329,6 +329,9 @@ class PyDataUtil(object):
             data, autopct=lambda pct: label_func(pct, data), textprops=dict(color="w"),
             radius=radius, explode=[explode] * len(data), shadow=shadow, colors=colors)
 
+        if not labels:
+            labels = [str(v) for v in data]
+
         ax.legend(wedges, labels,
                   title="Label",
                   loc="center left",
