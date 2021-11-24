@@ -72,10 +72,12 @@ class PyVisUtil(object):
         plt.show()
 
     @staticmethod
-    def pie(data, save_path=None, title='', labels=None, radius=1, explode=0.05, shadow=True, colors=None,figsize=(8, 5), fontsize=12):
+    def pie(data, labels=None, title='', save_path=None, legend=True, radius=1, explode=0.05, shadow=True, colors=None,
+            figsize=(8, 5), fontsize=12):
         """
         데이터의 파이를 그립니다.
         기본적으로 각 elelment의 percentage 및 개수를 표현하며, legend가 달립니다.
+        ex. pie(data=[1,2,3],labels=['a','b','c'])
 
         :param data: 어떠한 데이터의 수량을 나타내는 리스트
         :param save_path: 경로 제공시 pie 이미지를 저장합니다.(eg. path/to/pie.png)
@@ -90,28 +92,69 @@ class PyVisUtil(object):
         :return:
         """
 
+        data = list(data)
+        labels = list(labels) if labels else None
+
         def label_func(percent, data):
             absolute = int(percent / 100. * np.sum(data))
             return "{:.1f}%\n({:d})".format(percent, absolute)
 
         fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(aspect="equal"))
 
-        wedges, texts, autotexts = ax.pie(
-            data, autopct=lambda pct: label_func(pct, data), textprops=dict(color="w"),
-            radius=radius, explode=[explode] * len(data), shadow=shadow, colors=colors)
-
         if not labels:
             labels = [str(v) for v in data]
 
-        ax.legend(wedges, labels,
-                  title="Label",
-                  loc="center left",
-                  bbox_to_anchor=(1, 0, 0.5, 1))
+        wedges, texts, autotexts = ax.pie(
+            data, autopct=lambda pct: label_func(pct, data), textprops=dict(color="w"),
+            radius=radius, explode=[explode] * len(data), shadow=shadow, colors=colors, labels=labels)
+
+        if legend:
+            ax.legend(wedges, labels, title="Label", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
         plt.setp(autotexts, size=fontsize, weight="bold")
         ax.set_title(title)
         if save_path:
             plt.savefig('{}'.format(save_path))
         plt.show()
+
+    @staticmethod
+    def plot3D(arr_list, label_list=None, figsize=(15, 15), colors=["#ff0000", "#0000ff", "#00ff00"],
+               seperate_plot=False):
+        from mpl_toolkits.mplot3d import Axes3D
+        if not seperate_plot:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.add_subplot(111, projection='3d')
+
+            ax.set_xlabel('x', fontsize=15)
+            ax.set_ylabel('y', fontsize=15)
+            ax.set_zlabel('z', fontsize=15)
+
+            for i, data in enumerate(arr_list):
+                ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colors[i % len(colors)], s=30)
+            if label_list:
+                ax.legend(label_list)
+            else:
+                ax.legend(['data{}'.format(i) for i in range(len(arr_list))])
+            ax.grid()
+        else:
+            figsize = (list(figsize)[1] * len(arr_list), list(figsize)[1])
+            fig = plt.figure(figsize=figsize)
+
+            for i, data in enumerate(arr_list):
+                ax = fig.add_subplot(1, len(arr_list), i + 1, projection='3d')
+
+                ax.set_xlabel('x', fontsize=15)
+                ax.set_ylabel('y', fontsize=15)
+                ax.set_zlabel('z', fontsize=15)
+
+                ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colors[i % len(colors)], s=30)
+
+                if label_list:
+                    ax.legend([label_list[i]])
+                else:
+                    ax.legend(['data{}'.format(i)])
+                ax.grid()
+        plt.show()
+
 
 if __name__ == '__main__':
 

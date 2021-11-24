@@ -575,6 +575,9 @@ PyVisUtil.gray_hist(gray_img_cv)
 
 # 데이터를 받아 파이 그래프를 그립니다.
 PyVisUtil.pie()
+
+# 3차원 데이터 리스트를 받아 출력합니다. 자세한 사용법은 docstring을 참조하세요.
+PyVisUtil.plot3D()
 ```
 <img src="https://heewinkim.netlify.app/pie.png">
 
