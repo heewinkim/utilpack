@@ -105,7 +105,7 @@ class PyVisUtil(object):
             labels = [str(v) for v in data]
 
         wedges, texts, autotexts = ax.pie(
-            data, autopct=lambda pct: label_func(pct, data), textprops=dict(color="w"),
+            data, autopct=lambda pct: label_func(pct, data), textprops=dict(color="w",fontsize=fontsize),
             radius=radius, explode=[explode] * len(data), shadow=shadow, colors=colors, labels=labels)
 
         if legend:
