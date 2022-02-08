@@ -106,6 +106,31 @@ class PyDataUtil(object):
             return rows
 
     @staticmethod
+    def query2mysql_without_timeout(query, host, port, user, password, db, charset='utf8', to_dataframe=False, timeout=60):
+        conn = pymysql.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            db=db,
+            charset=charset,
+            cursorclass=pymysql.cursors.DictCursor)
+        try:
+            with conn.cursor() as curs:
+                with Timeout(seconds=timeout):
+                    curs.execute(query)
+                rows = curs.fetchall()
+        finally:
+            conn.close()
+
+        if not len(rows):
+            return None
+        elif to_dataframe:
+            import pandas as pd
+            return pd.DataFrame(rows)
+        else:
+            return rows
+    @staticmethod
     def save_json(data,path):
         with open(path,'w',encoding='utf8') as f:
             f.write(json.dumps(data))

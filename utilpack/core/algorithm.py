@@ -26,9 +26,9 @@ class PyAlgorithm(object):
     @staticmethod
     def unionRects(rect_list):
         """
-        find intersection of rects
+        사각형의 합집합을 찾습니다.
 
-        :param rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
+        :param list rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
         :return: box object (shapely.geometry)
         """
         # make some rectangles (for demonstration purposes and intersect with each other)
@@ -49,9 +49,9 @@ class PyAlgorithm(object):
     @staticmethod
     def intersectionRects(rect_list):
         """
-        find intersection of rects
+        사각형의 교집합을 찾습니다.
 
-        :param rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
+        :param list rect_list: [ (minx, miny, maxx, maxy), (minx, miny, maxx, maxy), ... ]
         :return: box object (shapely.geometry)
         """
         # make some rectangles (for demonstration purposes and intersect with each other)
@@ -72,6 +72,15 @@ class PyAlgorithm(object):
 
     @staticmethod
     def limit_minmax(x, min_=0, max_=None):
+        """
+        값의 최대 최소를 설정하여 큰경우 최대값으로 바꾸고, 작은경우 최소값으로 바꿉니다.
+        example ) limit_minmax(300,min_=10,max_=100) -> 100
+
+        :param int x: 판단할 값
+        :param int min_: 최소 값
+        :param int max_: 최대 값
+        :return: 범위에 맞게 제한되어 변형된 값
+        """
         return max(min_, x) if not max_ else min(max(min_, x), max_)
 
     @staticmethod
@@ -79,7 +88,7 @@ class PyAlgorithm(object):
         """
         그래프적으로 연결된 노드들을 그룹화합니다.
 
-        :param pairs: 한쌍의 노트이름의 리스트 eg.[ [1,2], [2,7], [0,3], [4,5], [5,7] ]
+        :param list pairs: 한쌍의 노트이름의 리스트 eg.[ [1,2], [2,7], [0,3], [4,5], [5,7] ]
         :return: 연결된 그룹 리스트. eg.[[1, 2, 5, 7], [0, 3], [4, 5]]
         """
 
@@ -105,8 +114,8 @@ class PyAlgorithm(object):
         """
         합이 1이되도록 list를 normalize합니다.
 
-        :param values: list
-        :param tolist: True인경우 list 포맷으로 아닐경우 np.array포맷으로 반환됩니다
+        :param list values: 값의 리스트
+        :param bool tolist: True인경우 list 포맷으로 아닐경우 np.array포맷으로 반환됩니다
         :return: list
         """
         if type(values) != list or type(values) != np.array:
@@ -130,10 +139,10 @@ class PyAlgorithm(object):
         """
         0부터 시작하하며 리스트의 순위를 얻습니다.
 
-        :param values: list,any
-        :param reverse: 참일시 값이 클수록 순위가 높습니다.
-        :param indices: rank 에 따른 index를 반환합니다.
-        :return: list
+        :param list values: list,any
+        :param bool reverse: 참일시 값이 클수록 순위가 높습니다.
+        :param bool indices: rank 에 따른 index를 반환합니다.
+        :return: 순위 리스트
         """
 
         if len(values)==0:
@@ -160,9 +169,9 @@ class PyAlgorithm(object):
         """
         values 값을 key로하여 data를 정렬합니다.
 
-        :param datas: data list to sorted
-        :param values: values which using sort key
-        :param sortFunc: key function of sort
+        :param list datas: data list to sorted
+        :param list values: values which using sort key
+        :param function sortFunc: key function of sort
         :return:
         """
         if not sortFunc:
@@ -178,9 +187,9 @@ class PyAlgorithm(object):
         """
         최소한의 중복을 허용하는 선에서 arr 배열중에서 k개의 샘플을 뽑습니다.
 
-        :param arr: 배열
-        :param k: 선택할 개수
-        :param seed: 랜덤 시드
+        :param list arr: 샘플을 선택할 리스트
+        :param int k: 선택할 개수
+        :param any seed: 랜덤 시드
         :return: list
         """
 
