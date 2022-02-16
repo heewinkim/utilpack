@@ -20,6 +20,7 @@ vis_util module
 
 
 import matplotlib.pyplot as plt
+from .image_util import PyImageUtil
 import numpy as np
 import cv2
 
@@ -117,9 +118,26 @@ class PyVisUtil(object):
         plt.show()
 
     @staticmethod
-    def plot3D(arr_list, label_list=None, figsize=(15, 15), colors=["#ff0000", "#0000ff", "#00ff00"],
+    def plot3D(cluster_list, label_list=None, figsize=(15, 15), colors=["#ff0000","#00ff00", "#0000ff",'#ff00ff','#ffff00','#00ffff'],
                seperate_plot=False):
-        from mpl_toolkits.mplot3d import Axes3D
+        """
+        클러스터링 리스트를 3d 공간에 뿌립니다. 입력의 cluster_list 는 아래와 같은 조건이어야 합니다.
+        (N,M,3) vector / N = 클러스터 개수, M = 클러스터의 표본개수 , 3 = 벡터값(x,y,z)
+        다차원 클러스터 요소인 경우
+        아래와 같이 PCA를 통해 3d공간에 맵핑할 수 있습니다.
+
+            from sklearn.decomposition import PCA
+            pca = PCA(n_components=3)
+            pca.fit(vector_list)
+            vectors = pca.transform(vector_list)
+
+        :param cluster_list: (N,M,3) vector / N = 클러스터 개수, M = 클러스터의 표본개수 , 3 = 벡터값(x,y,z)
+        :param label_list: label list
+        :param figsize: plot size
+        :param colors: 색상 지정 (eg. #ff00ff
+        :param seperate_plot: 클러스터마다 따로 출력 , default = False
+        :return:
+        """
         if not seperate_plot:
             fig = plt.figure(figsize=figsize)
             ax = fig.add_subplot(111, projection='3d')
@@ -128,32 +146,33 @@ class PyVisUtil(object):
             ax.set_ylabel('y', fontsize=15)
             ax.set_zlabel('z', fontsize=15)
 
-            for i, data in enumerate(arr_list):
-                ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colors[i % len(colors)], s=30)
+            for i, cluster in enumerate(cluster_list):
+                ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c=colors[i % len(colors)], s=30)
             if label_list:
                 ax.legend(label_list)
             else:
-                ax.legend(['data{}'.format(i) for i in range(len(arr_list))])
+                ax.legend(['cluster{}'.format(i) for i in range(len(cluster_list))])
             ax.grid()
         else:
-            figsize = (list(figsize)[1] * len(arr_list), list(figsize)[1])
+            figsize = (list(figsize)[1] * len(cluster_list), list(figsize)[1])
             fig = plt.figure(figsize=figsize)
 
-            for i, data in enumerate(arr_list):
-                ax = fig.add_subplot(1, len(arr_list), i + 1, projection='3d')
+            for i, cluster in enumerate(cluster_list):
+                ax = fig.add_subplot(1, len(cluster_list), i + 1, projection='3d')
 
                 ax.set_xlabel('x', fontsize=15)
                 ax.set_ylabel('y', fontsize=15)
                 ax.set_zlabel('z', fontsize=15)
 
-                ax.scatter(data[:, 0], data[:, 1], data[:, 2], c=colors[i % len(colors)], s=30)
+                ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c=colors[i % len(colors)], s=30)
 
                 if label_list:
                     ax.legend([label_list[i]])
                 else:
-                    ax.legend(['data{}'.format(i)])
+                    ax.legend(['cluster{}'.format(i)])
                 ax.grid()
         plt.show()
+        return PyImageUtil.figure_to_array(fig)
 
 
 if __name__ == '__main__':
