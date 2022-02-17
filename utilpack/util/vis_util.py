@@ -119,7 +119,7 @@ class PyVisUtil(object):
 
     @staticmethod
     def plot3D(cluster_list, label_list=None, figsize=(15, 15), colors=["#ff0000","#00ff00", "#0000ff",'#ff00ff','#ffff00','#00ffff'],
-               seperate_plot=False):
+               seperate_plot=False,plot=True):
         """
         클러스터링 리스트를 3d 공간에 뿌립니다. 입력의 cluster_list 는 아래와 같은 조건이어야 합니다.
         (N,M,3) vector / N = 클러스터 개수, M = 클러스터의 표본개수 , 3 = 벡터값(x,y,z)
@@ -171,7 +171,8 @@ class PyVisUtil(object):
                 else:
                     ax.legend(['cluster{}'.format(i)])
                 ax.grid()
-        plt.show()
+        if plot:
+            plt.show()
         return PyImageUtil.figure_to_array(fig)
 
 
