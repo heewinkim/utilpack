@@ -119,7 +119,7 @@ class PyVisUtil(object):
 
     @staticmethod
     def plot3D(cluster_list, label_list=None, figsize=(15, 15), colors=["#ff0000","#00ff00", "#0000ff",'#ff00ff','#ffff00','#00ffff'],
-               seperate_plot=False,plot=True):
+               seperate_plot=False,plot=True,elem_size=30,legend=True,grid=True):
         """
         클러스터링 리스트를 3d 공간에 뿌립니다. 입력의 cluster_list 는 아래와 같은 조건이어야 합니다.
         (N,M,3) vector / N = 클러스터 개수, M = 클러스터의 표본개수 , 3 = 벡터값(x,y,z)
@@ -147,12 +147,14 @@ class PyVisUtil(object):
             ax.set_zlabel('z', fontsize=15)
 
             for i, cluster in enumerate(cluster_list):
-                ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c=colors[i % len(colors)], s=30)
-            if label_list:
-                ax.legend(label_list)
-            else:
-                ax.legend(['cluster{}'.format(i) for i in range(len(cluster_list))])
-            ax.grid()
+                ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c=colors[i % len(colors)], s=elem_size)
+            if legend:
+                if label_list:
+                    ax.legend(label_list)
+                else:
+                    ax.legend(['cluster{}'.format(i) for i in range(len(cluster_list))])
+            if grid:
+                ax.grid()
         else:
             figsize = (list(figsize)[1] * len(cluster_list), list(figsize)[1])
             fig = plt.figure(figsize=figsize)
@@ -165,12 +167,13 @@ class PyVisUtil(object):
                 ax.set_zlabel('z', fontsize=15)
 
                 ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c=colors[i % len(colors)], s=30)
-
-                if label_list:
-                    ax.legend([label_list[i]])
-                else:
-                    ax.legend(['cluster{}'.format(i)])
-                ax.grid()
+                if legend:
+                    if label_list:
+                        ax.legend([label_list[i]])
+                    else:
+                        ax.legend(['cluster{}'.format(i)])
+                if grid:
+                    ax.grid()
         if plot:
             plt.show()
         return PyImageUtil.figure_to_array(fig)
