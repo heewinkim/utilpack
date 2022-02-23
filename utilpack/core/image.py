@@ -205,7 +205,7 @@ class PyImage(object):
             raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'wrong image shape - check_image_shape in PyImage')
 
     @staticmethod
-    def check_img_sz_fmt(bytes_data, min_size=(20, 20), max_size=(10000, 10000),allowed_extensions={'png', 'jpg', 'jpeg', 'bmp'}) -> None:
+    def check_img_sz_fmt(bytes_data, min_size=(20, 20), max_size=(10000, 10000),allowed_extensions={'png', 'jpg', 'jpeg', 'bmp','mpo'}) -> None:
         """
         이미지 헤더를 읽어 사이즈와 포맷을 체크 합니다.
         사이즈가 너무작거나 큰경우, 지원하지 않는 이미지 포맷인경우 에러를 발생시킵니다.
