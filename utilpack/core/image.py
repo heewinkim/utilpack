@@ -230,7 +230,7 @@ class PyImage(object):
             raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'not supported image format in check_img_sz_fmt')
 
     @staticmethod
-    def preprocessing_image(data, img_type, img_ot, cvt_type='cv2'):
+    def preprocessing_image(data, img_type, img_ot, cvt_type='cv2',**kwargs):
         """
         이미지 전처리를 수행합니다
 
@@ -247,6 +247,8 @@ class PyImage(object):
         :param img_type: bytes, url, filepath 중 하나s
         :param img_ot: image orientation 값
         :param cvt_type: 'cv2', or 'b64' default : cv2
+        :keyword min_size : 최소 이미지 사이즈 가로 세로값, 해당 값 미만일시 에러 발생 (eg. (20, 20))
+        :keyword max_size : 최대 이미지 사이즈 가로 세로값, 해당 값 초과할시 에러 발생 (eg. (10000, 10000))
         :return: cvt_type의 이미지
 
         :raise IMAGE_READ_ERROR:
@@ -255,7 +257,7 @@ class PyImage(object):
         """
 
         bytes_data = PyImage.read_bytedata(data, img_type)
-        PyImage.check_img_sz_fmt(bytes_data)
+        PyImage.check_img_sz_fmt(bytes_data,**kwargs)
 
         if cvt_type == 'cv2':
 
