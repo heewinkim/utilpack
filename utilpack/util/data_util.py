@@ -102,8 +102,7 @@ class PyDataUtil(object):
             cursorclass=pymysql.cursors.DictCursor)
         try:
             with conn.cursor() as curs:
-                with Timeout(seconds=timeout):
-                    curs.execute(query)
+                curs.execute(query)
                 rows = curs.fetchall()
         finally:
             conn.close()
