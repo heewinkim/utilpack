@@ -112,13 +112,6 @@ PyData.save_pickle({'a':1,'b':2},'sample.pkl')
 # pickle 데이터파일을 읽습니다.
 data = PyData.load_pickle('sample.pkl')
 print(data)  # {'a': 1, 'b': 2}
-
-# pdf 파일에 메타데이터를 추가합니다.
-PyData.pdf.add_metadata('file.pdf','save.pdf',{'a':1,'b':2,'c':3},'keyname')
-
-# pdf 파일에 있는 메타데이터를 읽어옵니다.
-metadata = PyData.pdf.read_metadata('file.pdf','keyname')
-print(metadata)  # {'a': 1, 'b': 2, 'c': 3}
 ```
 
 </p>
@@ -419,6 +412,14 @@ PyDataUtil.confusion_mat()
 
 # 데이터를 받아 파이 그래프를 그립니다.
 PyDataUtil.pie()
+
+# pdf 파일에 메타데이터를 추가합니다.
+PyDataUtil.pdf.add_metadata('file.pdf','save.pdf',{'a':1,'b':2,'c':3},'keyname')
+
+# pdf 파일에 있는 메타데이터를 읽어옵니다.
+metadata = PyDataUtil.pdf.read_metadata('file.pdf','keyname')
+print(metadata)  # {'a': 1, 'b': 2, 'c': 3}
+
 ```
 
 </p>
@@ -580,58 +581,6 @@ PyVisUtil.pie()
 PyVisUtil.plot3D()
 ```
 <img src="https://heewinkim.netlify.app/pie.png">
-
-</p>
-</details> 
-
-<details>
-<summary>PyUI</summary>
-<p>
-
-- PyUI 클래스 제공, 주피터 UI 작성 유틸 제공
-```python
-import ipywidgets
-from utilpack.util import PyUI
-
-# 주피터 내용을 정리하는 UI 를 출력합니다.
-PyUI.jupyterSummary('title',['content1','content2'],author='heewinkim',numbering=False)
-
-# 리스트 형태의 데이터를 선택하고, 선택시 실행될 메소드를 할당하는 UI를 출력합니다.
-# 자세한 사용법은 docstring을 참조하세요
-PyUI.select()
-
-# 이미지 데이터를 선택하고, 선택시 실행될 메소드를 할당하는 UI를 출력합니다.
-# 자세한 사용법은 docstring을 참조하세요
-PyUI.select_image()
-
-# 되돌아가기, 이전으로 가기 버튼을 생성하며 각 해당 메소드를 설정가능합니다.
-# 자세한 사용법은 docstring을 참조하세요
-PyUI.back()
-
-# 아래의 예시처럼 사용할시 아래와같은 모양의 UI가 출력됩니다.
-# 자세한 사용법은 docstring을 참조하세요,
-# -------------------
-# | Button | Button |
-# -------------------
-# | IntSlider       |
-# -------------------
-PyUI.appLayout(
-    widgetStructure=
-    [
-        [ipywidgets.Button(),ipywidgets.Button()],
-        [ipywidgets.IntSlider()]
-    ]
-)
-
-# UI에 사용되는 버튼, 레이아웃 등의 요소의 스타일을 바꿉니다.
-PyUI.styling(cssFile='path/to/style.css')
-
-# 팝업 메세지박스를 발생시킵니다.
-PyUI.messageBox('title','message')
-
-# IPython.display.clear_output() 과 같으며, 출력된것을 지웁니다.
-PyUI.clear()
-``` 
 
 </p>
 </details> 
