@@ -5,7 +5,6 @@ from .image_util import PyImageUtil
 from .debug_util import PyDebugUtil
 from .face_util import PyFaceUtil
 from .vis_util import PyVisUtil
-from .jupyter_ui import PyUI
 
 # list of not offering class but module
 # from . import face_util
