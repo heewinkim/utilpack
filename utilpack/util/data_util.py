@@ -32,7 +32,6 @@ import numpy as np
 import urllib.request
 import matplotlib.pyplot as plt
 import pymysql
-from tqdm.auto import tqdm
 
 
 class PyDataUtil(object):
@@ -129,12 +128,9 @@ class PyDataUtil(object):
         print('download {} ..'.format(url.split('/')[-1]))
         with urllib.request.urlopen(url) as src, open(save_path, 'wb') as dst:
             data = src.read(1024)
-            pbar = tqdm(total=int(np.ceil(src.length / 1024)))
             while len(data) > 0:
-                pbar.update(1)
                 dst.write(data)
                 data = src.read(1024)
-            pbar.close()
 
     @staticmethod
     def func_test(f, number=1000, time_unit='ms', repeat=3, verbose=True, *args, **kwargs):
