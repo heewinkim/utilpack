@@ -44,7 +44,7 @@ setup(
     python_requires='==3.8.13',
     zip_safe=False,
     classifiers=[
-        "Programming Language :: Python :: 3.8.13",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
