@@ -1,2 +1,4 @@
 jupyterlab
 psutil
+matplotlib
+pdfrw

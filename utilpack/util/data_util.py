@@ -32,9 +32,45 @@ import numpy as np
 import urllib.request
 import matplotlib.pyplot as plt
 import pymysql
+from pdfrw import PdfReader, PdfWriter, PdfDict, PdfName
+
+
+class Pdf(object):
+
+    @staticmethod
+    def add_metadata(pdf_path, save_path, dict_data, keyname='metadata'):
+        """
+        add metadata(dict) in pdf
+
+        :param pdf_path: pdf file path eg. example/path/file.pdf
+        :param save_path: path to save eg. path/to/save/file.pdf
+        :param dict_data: python dictionary data , allow any depth or any data type include
+        :param keyname: feild name in pdf metadata, default=metadata
+        :return: None
+        """
+        metadata = PdfDict()
+        metadata[PdfName(keyname)] = json.dumps(dict_data)
+        trailer = PdfReader(pdf_path)
+        trailer.Info.update(metadata)
+        PdfWriter().write(save_path, trailer)
+
+    @staticmethod
+    def read_metadata(pdf_path, keyname='metadata'):
+        """
+        read metadata(dict) which in pdf
+
+        :param pdf_path: pdf file path eg. example/path/file.pdf
+        :param keyname: feild name in pdf metadata, default=metadata
+        :return: dict, metadata
+        """
+        trailer = PdfReader(pdf_path)
+        metadata = json.loads(trailer.Info['/{}'.format(keyname)][1:-1])
+        return metadata
 
 
 class PyDataUtil(object):
+
+    pdf = Pdf
 
     @staticmethod
     def comprehension(list, attr):
@@ -398,3 +434,10 @@ if __name__ == '__main__':
 
     # 기본적인 셋팅이 되어있는 matplotlib.pie 입니다. 자세한 사용법은 docstring을 참조하세요
     PyDataUtil.pie()
+
+    # pdf 파일에 메타데이터를 추가합니다.
+    PyDataUtil.pdf.add_metadata('file.pdf','save.pdf',{'a':1,'b':2,'c':3},'keyname')
+
+    # pdf 파일에 있는 메타데이터를 읽어옵니다.
+    metadata = PyDataUtil.pdf.read_metadata('file.pdf','keyname')
+    print(metadata)  # {'a': 1, 'b': 2, 'c': 3}
