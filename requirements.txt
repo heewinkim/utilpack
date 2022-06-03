@@ -5,7 +5,7 @@ matplotlib==3.3.4
 scikit-learn==1.1.1
 pandas==1.1.5
 Pillow==9.1.1
-opencv-python==4.5.2.54
+opencv-python==4.5.5.64
 PyMySQL==1.0.2
 pycryptodome==3.10.1
 shapely==1.7.1
