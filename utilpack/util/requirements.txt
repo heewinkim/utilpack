@@ -5,7 +5,7 @@ sklearn==0.0
 pandas==0.22
 tqdm==4.45.0
 Pillow==5.2.0
-opencv-python==3.4.1.15
+opencv-python==4.2.0.32
 ipywidgets==7.5.1
 dlib
 psutil
