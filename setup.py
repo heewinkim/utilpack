@@ -8,7 +8,7 @@ require_packages=[
     'gunicorn',
     'requests',
     'matplotlib',
-    'sklearn',
+    'scikit-learn',
     'pandas',
     'Pillow-SIMD',
     'opencv-python',
