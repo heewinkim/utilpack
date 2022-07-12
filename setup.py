@@ -10,7 +10,7 @@ require_packages=[
     'matplotlib',
     'sklearn',
     'pandas',
-    'Pillow',
+    'Pillow-SIMD',
     'opencv-python',
     'pymysql',
     'pycryptodome',
