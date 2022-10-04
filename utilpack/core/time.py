@@ -254,7 +254,7 @@ class PyTime(object):
         return result
 
     @staticmethod
-    def grouping_bytimediff(obj_list, min, max, time_type='exifDate', after_merge=True, seed_value=None, sort=False):
+    def grouping_bytimediff(obj_list, min, max, time_type='exifDate', after_merge=True, seed_value=None, sort=False,**kwargs):
         """
         객체 리스트를 받아 이미지개수범위를 min,max에 맞게 분할합니다.
         분할기준은 시간미분값을 기준으로 하며, obj_list의 원소모두에 time_type 필드가 필수로 있어야합니다.
@@ -266,8 +266,9 @@ class PyTime(object):
         :param min: 분할된 그룹의 최소 이미지 개수
         :param max: 분할된 그룹의 최대 이미지 개수
         :param time_type: 시간 미분값으로 사용될 정보, exif,sys 둘중 하나 혹은 둘다, 둘다인 경우 exif우선으로 미분값을 계산
-        :param after_merge: 시간미분정보으로 우선적인 그룹핑 후에 앞뒤 그룹(시간이 가까운) 끼리 합쳤을때 min,max범위에 들어간다면 병합 (시간정보로 나누지만 min,max의 기준이 더 우선권인 경우)
+        :param after_merge: 시간미분정보으로 우선적인 그룹핑 후에 앞뒤 그룹(시간이 가까운) 끼리 합쳤을때 max범위에 들어간다면 병합 (시간정보로 나누지만 max의 기준이 더 우선권인 경우)
         :param seed_value: 시간값에 의한 그룹핑이 가능하지 않을경우 랜덤요소가 적용되며 그에대한 시드값
+        :param kwargs: after_merge_max,int, after_merge가 True 일시 동작하며, after_merge 의 여부를 max가 아닌 해당 범위에 해당하면 merge 한다.
         :return: list, 이미지배열(그룹)의 배열
         """
 
@@ -287,7 +288,7 @@ class PyTime(object):
         else:
             groups = PyTime._grouping(obj_list, min, max, time_type)
             if after_merge:
-                groups = PyTime._grouping_postprocessing(groups, max)
+                groups = PyTime._grouping_postprocessing(groups, kwargs['after_merge_max'] if kwargs.get('after_merge_max') else max)
             return groups
 
     @staticmethod
