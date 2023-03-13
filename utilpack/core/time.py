@@ -348,7 +348,7 @@ class PyTime(object):
         assert datetime.now().year < 2071
 
         # scennshot 제외, None값 제외 , 기타 부정형 값 제외
-        if any([ex_str in filename.lower() for ex_str in exclude_strings]) or filename is None or not filename:
+        if filename is None or not filename or any([ex_str in filename.lower() for ex_str in exclude_strings]):
             return ''
 
         p = re.compile('[-: ]')
