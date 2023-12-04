@@ -23,7 +23,7 @@ require_packages=[
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='2.2.5',
+    version='2.2.7',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',
@@ -39,7 +39,7 @@ setup(
     packages=find_packages(),
     install_requires=open('requirements.txt').readlines(),
     package_data={'':['*']},
-    python_requires='==3.8.13',
+    python_requires='>=3.8.13',
     zip_safe=False,
     classifiers=[
         "Programming Language :: Python :: 3",
