@@ -178,7 +178,7 @@ class PyTime(object):
 
         groups = []
 
-        assert min * 2 <= max
+        assert min * 2 - 1 <= max
 
         # 최소 2분할의 전제조건 체크
         if len(obj_list) < min * 2:
