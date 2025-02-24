@@ -46,14 +46,11 @@ class PyImage(object):
 
         if (whRange[1] > w > whRange[0]) and (whRange[1] > h > whRange[0]):
 
-            if 0 < ot <= 4:
+            if 0 <= ot <= 4:
                 size_r = w / h
 
             elif 9 > ot > 4:
                 size_r = h / w
-
-            elif ot == 0:
-                size_r = 1
 
         return size_r
 
