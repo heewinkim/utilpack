@@ -110,7 +110,7 @@ class PyImage(object):
 
     @staticmethod
     def cv2bytes(img_cv):
-        return cv2.imencode('.png', img_cv, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])[1].tostring()
+        return cv2.imencode('.png', img_cv, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])[1].tobytes()
 
     @staticmethod
     def rotate_image(img, orientation: int = 0,copy=False):
@@ -198,7 +198,7 @@ class PyImage(object):
 
         :param img_cv: cv 이미지
         """
-        if img_cv.shape[2] is not 3:
+        if img_cv.shape[2] != 3:
             raise PyError(ERROR_TYPES.IMAGE_FORMAT_ERROR, 'wrong image shape - check_image_shape in PyImage')
 
     @staticmethod
@@ -281,7 +281,7 @@ if __name__ == '__main__':
     print(ratio)  # 1.3333333333333333
 
     # 이미지를 바이트 형태로 읽습니다, filepath, url, bytes 타입들의 이미지데이터를 지원합니다.
-    bytes_data = PyImage.read_bytedata('https://homepages.cae.wisc.edu/~ece533/images/airplane.png','url')
+    bytes_data = PyImage.read_bytedata('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png','url')
     print(bytes_data[:10])  # b'\x89PNG\r\n\x1a\n\x00\x00'
 
     # 이미지 bytes_data를 opencv-python 패키지의 이미지형식인 ndarray로 변환합니다.
@@ -307,4 +307,4 @@ if __name__ == '__main__':
 
     # filepath, url, bytes 등의 이미지 소스로 부터 cv2,base64-jpg 의 이미지포맷의 변환 및 이미지 검수,회전 등의 일련의 과정을 진행합니다.
     # 읽기 실패, 데이터오류 등 발생할 수 있는 에러들에 대해 IMAGE_FORMAT_ERROR,IMAGE_READ_ERROR 등을 발생시킵니다.(PyError 참조)
-    img_b64 = PyImage.preprocessing_image('https://homepages.cae.wisc.edu/~ece533/images/airplane.png','url',1,'cv2')
+    img_b64 = PyImage.preprocessing_image('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png','url',1,'cv2')

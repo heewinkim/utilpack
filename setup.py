@@ -7,23 +7,18 @@ require_packages=[
     'Flask',
     'gunicorn',
     'requests',
-    'matplotlib',
-    'sklearn',
-    'pandas',
     'Pillow',
     'opencv-python',
-    'pymysql',
-    'pycryptodome',
     'shapely',
-    'pdfrw',
     'slack-sdk',
-    'pip'
+    'Werkzeug',
+    'boto3'
 ]
 
 packages = list(open('requirements.txt').readlines())
 setup(
     name='utilpack',
-    version='2.2.9',
+    version='2.3.0',
     author='HEESEUNG KIM',
     author_email='heewin.kim@gmail.com',
     description='Python Utils',
@@ -39,10 +34,10 @@ setup(
     packages=find_packages(),
     install_requires=open('requirements.txt').readlines(),
     package_data={'':['*']},
-    python_requires='>=3.8.13',
+    python_requires='>=3.11.12',
     zip_safe=False,
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],

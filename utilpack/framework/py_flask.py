@@ -22,8 +22,6 @@ PyFlask module
 
     * helth check url : /<api_name>
 
-    >>> EXAMPLE
-
     api_name = 'api'
     api_app = PyFlask(api_name)
 
@@ -33,7 +31,6 @@ PyFlask module
         output = 'param = {}, form-data = {}'.format(param1,api_app.form)
         return output
 
-    >>> 실제 구현 예시
     api_name = 'api'
     api_app = PyFlask(api_name)
     # api_instance = Api()

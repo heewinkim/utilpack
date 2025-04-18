@@ -17,7 +17,6 @@ logger module
     * 외부에서 사용시 인스턴스화 된 logger 를 import 하여 사용합니다.
     * set_input2log 를 통해 요청마다 클라이언트 정보를 입력해주어야 합니다.
 
-    >>> EXAMPLE
     import traceback
 
     logger = PyLogger()

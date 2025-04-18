@@ -15,7 +15,6 @@ config module
 
     * config 읽기 모듈입니다.
 
-        >>> EXAMPLE
         py_config = PyConfig()
         print(py_config.log_path)
 

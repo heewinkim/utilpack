@@ -17,7 +17,6 @@ PyError module
     * 로깅시 PyError()로 에러인스턴스를 생성하여 전달합니다 eg. logger.error(PyError(err_type,err_message))
     * output.py 모듈의 set_error 사용시 인수로 발생한 에러를 그대로 전달합니다
 
-        >>> EXAMPLE
 
         def do_something():
             raise PyError(ERROR_TYPES.RUNTIME_ERROR,'example error')

@@ -18,7 +18,6 @@ output module
     * set_error(e) 메소드 제공
 
 
-    >>> EXAMPLE
     output = PyOutput()
 
     output.set_output(a)

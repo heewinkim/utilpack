@@ -1,4 +1,0 @@
-jupyterlab
-psutil
-matplotlib
-pdfrw
