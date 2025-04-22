@@ -120,6 +120,15 @@ class PyImageUtil(object):
         return file_info
 
     @staticmethod
+    def figure_to_array(fig):
+        """
+        plt.figure를 RGB로 변환
+        shape: height, width, depth
+        """
+        fig.canvas.draw()
+        return np.array(fig.canvas.renderer._renderer)[...,::-1][:,:,1:]
+
+    @staticmethod
     def plot(img,figsize=(5,5),color_mode='bgr'):
         """
         단일 이미지를 출력합니다.
