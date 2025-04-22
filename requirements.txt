@@ -7,3 +7,4 @@ shapely==2.1.0
 slack-sdk==3.35.0
 Werkzeug==2.0.1
 boto3==1.37.34
+matplotlib==3.10.1

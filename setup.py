@@ -12,7 +12,8 @@ require_packages=[
     'shapely',
     'slack-sdk',
     'Werkzeug',
-    'boto3'
+    'boto3',
+    'matplotlib',
 ]
 
 packages = list(open('requirements.txt').readlines())
